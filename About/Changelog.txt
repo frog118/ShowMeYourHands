@@ -1,4 +1,7 @@
 # Changelog for ShowMeYourHands
 
+1.0.1.0 - Better hand-texture, thanks qux!
+
+
 1.0.0.0 - First publish
 

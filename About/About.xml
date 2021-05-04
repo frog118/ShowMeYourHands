@@ -26,11 +26,13 @@
 
 Pawns show their hands on their weapon when drafted. 
 Should work with most weapons, vanilla and modded.
+Works with roolos [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield[/url]
 
 Based on [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutter Weapon Hands[/url] but dynamically sets the hands based on the graphics of the weapon. It will however still use the old hand-definitions if they exist.
 
 [h2]Credits[/h2]
-Thank you Telefonmast for the support with the texture-code.
+Telefonmast for the support with the texture-code.
+qux for the updated hand-texture.
 Preview-image includes armor and weapons from the excellent XCOM-mods by velcroboy333
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2317335843]XCOM Armor[/url]
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2062766405]XCOM Weapons[/url]

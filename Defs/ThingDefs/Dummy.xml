@@ -26,6 +26,7 @@
           <li>Gun_Revolver</li>
           <li>Gun_Autopistol</li>
           <li>Gun_HeavySMG</li>
+          <li>Gun_MachinePistol</li>
         </ThingTargets>
       </li>
       <li>
@@ -97,12 +98,6 @@
         <SecHand>(0.2,0,0.1)</SecHand>
         <ThingTargets>
           <li>Gun_Minigun</li>
-        </ThingTargets>
-      </li>
-      <li>
-        <MainHand>(0,0.3,-0.2)</MainHand>
-        <ThingTargets>
-          <li>Gun_MachinePistol</li>
         </ThingTargets>
       </li>
       <li>

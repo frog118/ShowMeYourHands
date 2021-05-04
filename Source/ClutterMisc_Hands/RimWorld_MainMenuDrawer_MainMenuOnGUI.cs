@@ -26,6 +26,11 @@ namespace WHands
                       !ClutterMain.doneWeapons.Contains(weapon)
                 select weapon)
             {
+                if (weapon.weaponTags?.Find(tag => tag.ToLower().Contains("shield")) != null)
+                {
+                    continue;
+                }
+
                 var compie = new WhandCompProps {compClass = typeof(WhandComp)};
                 if (weapon.IsMeleeWeapon)
                 {

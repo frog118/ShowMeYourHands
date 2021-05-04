@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.2.0 - Should now work with Dual Wield, also ignores shields
+
+
 1.0.1.0 - Better hand-texture, thanks qux!
 
 

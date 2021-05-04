@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -48,14 +48,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\WhandCompProps.cs" />
-    <Compile Include="Classes\HandDrawer.cs" />
-    <Compile Include="Classes\WhandComp.cs" />
-    <Compile Include="Classes\DefLoader_Extension.cs" />
-    <Compile Include="Classes\ClutterHandsTDef.cs" />
+    <Compile Include="WhandCompProps.cs" />
+    <Compile Include="HandDrawer.cs" />
+    <Compile Include="WhandComp.cs" />
+    <Compile Include="DefLoader_Extension.cs" />
+    <Compile Include="ClutterHandsTDef.cs" />
     <Compile Include="ClutterMain.cs" />
     <Compile Include="RimWorld_MainMenuDrawer_MainMenuOnGUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

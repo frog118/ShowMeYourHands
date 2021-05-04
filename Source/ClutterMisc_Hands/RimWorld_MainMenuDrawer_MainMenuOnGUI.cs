@@ -83,6 +83,7 @@ namespace WHands
             RenderTexture.active = previous;
             RenderTexture.ReleaseTemporary(renderTexture);
 
+
             var pixels = icon.GetPixels32();
             var width = icon.width;
             var startPixel = width;
@@ -92,7 +93,7 @@ namespace WHands
             {
                 for (var j = 0; j < startPixel; j++)
                 {
-                    if (pixels[j + (i * width)].a == 0)
+                    if (pixels[j + (i * width)].a < 5)
                     {
                         continue;
                     }
@@ -103,7 +104,7 @@ namespace WHands
 
                 for (var j = width - 1; j >= endPixel; j--)
                 {
-                    if (pixels[j + (i * width)].a == 0)
+                    if (pixels[j + (i * width)].a < 5)
                     {
                         continue;
                     }
@@ -132,12 +133,12 @@ namespace WHands
 
             if (percentWidth > 0.7f)
             {
-                mainHand = new Vector3(-0.3f + percentStart, 0.3f - percentStart, -0.05f);
+                mainHand = new Vector3(-0.3f + percentStart, 0.3f, -0.05f);
                 secHand = new Vector3(0.2f, 0, -0.05f);
             }
             else
             {
-                mainHand = new Vector3(-0.2f + percentStart, 0.3f - percentStart, -0.1f);
+                mainHand = new Vector3(-0.3f + percentStart, 0.3f, 0f);
                 secHand = Vector3.one;
             }
 

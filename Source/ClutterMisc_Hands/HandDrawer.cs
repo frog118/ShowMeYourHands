@@ -103,7 +103,8 @@ namespace WHands
             {
                 if (pawn.Rotation == Rot4.South)
                 {
-                    var drawLoc = rootLoc + new Vector3(0f, 0f, -0.22f);
+                    var drawLoc = rootLoc +
+                                  new Vector3(0f, 0f, -0.22f);
                     var offhandDrawLoc = rootLoc + new Vector3(0.44f, 0f, -0.22f);
                     if (offhandWeapon != null)
                     {
@@ -141,42 +142,41 @@ namespace WHands
         private void DrawHands(Thing eq, Vector3 drawLoc, float aimAngle, Thing offhand = null,
             Vector3 offhandDrawLoc = new Vector3())
         {
-            var flag = false;
+            var flipped = false;
             var pawn = parent as Pawn;
             var num = aimAngle - 90f;
             var offNum = num;
-            switch (aimAngle)
+            if (aimAngle is > 200f and < 340f)
             {
-                case > 20f and < 160f:
-                    num += eq.def.equippedAngleOffset;
-                    if (offhand != null)
-                    {
-                        offNum += offhand.def.equippedAngleOffset;
-                    }
-
-                    break;
-                case > 200f and < 340f:
-                    num -= 180f;
-                    offNum -= 180f;
+                num -= 180f;
+                offNum -= 180f;
+                if (eq.def.IsMeleeWeapon)
+                {
                     num -= eq.def.equippedAngleOffset;
-                    if (offhand != null)
-                    {
-                        offNum -= offhand.def.equippedAngleOffset;
-                    }
+                }
 
-                    flag = true;
-                    break;
-                default:
+                if (offhand?.def.IsMeleeWeapon == true)
+                {
+                    offNum -= offhand.def.equippedAngleOffset;
+                }
+
+                flipped = true;
+            }
+            else
+            {
+                if (eq.def.IsMeleeWeapon)
+                {
                     num += eq.def.equippedAngleOffset;
-                    if (offhand != null)
-                    {
-                        offNum -= offhand.def.equippedAngleOffset;
-                    }
+                }
 
-                    break;
+                if (offhand?.def.IsMeleeWeapon == true)
+                {
+                    offNum += offhand.def.equippedAngleOffset;
+                }
             }
 
-            num %= 360f;
+
+            num = num % 360f;
             offNum %= 360f;
             if (HandTex != null)
             {
@@ -192,7 +192,7 @@ namespace WHands
                     var num2 = FHand.x;
                     var z = FHand.z;
                     var y = FHand.y;
-                    if (flag)
+                    if (flipped)
                     {
                         num2 = -num2;
                     }
@@ -220,7 +220,7 @@ namespace WHands
                 var num3 = SHand.x;
                 var z2 = SHand.z;
                 var y2 = SHand.y;
-                if (flag)
+                if (flipped)
                 {
                     num3 = -num3;
                 }

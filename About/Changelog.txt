@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.4.0 - Added settings-gui for modifying the hand-placements
+
+
 1.0.3.0 - Support for low alpha channels on textures and rotated gun-textures
 
 

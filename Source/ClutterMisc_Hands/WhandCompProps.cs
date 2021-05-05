@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Verse;
 
-namespace WHands
+namespace ShowMeYourHands
 {
     public class WhandCompProps : CompProperties
     {

@@ -1,15 +1,19 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using WHands;
 
-namespace WHands
+namespace ShowMeYourHands
 {
     [HarmonyPatch(typeof(MainMenuDrawer), "MainMenuOnGUI")]
     public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
     {
         private static bool alreadyRun;
+
+        private static List<ThingDef> doneWeapons = new List<ThingDef>();
 
         [HarmonyPostfix]
         public static void MainMenuOnGUI()
@@ -19,11 +23,25 @@ namespace WHands
                 return;
             }
 
-            var count = 0;
             alreadyRun = true;
+
+            UpdateHandDefinitions();
+        }
+
+        public static void UpdateHandDefinitions()
+        {
+            doneWeapons = new List<ThingDef>();
+            LoadFromSettings();
+            LoadFromDefs();
+            FigureOutTheRest();
+            ShowMeYourHandsMain.LogMessage($"Defined hand definitions of {doneWeapons.Count} weapons", true);
+        }
+
+        private static void FigureOutTheRest()
+        {
             foreach (var weapon in from weapon in DefDatabase<ThingDef>.AllDefsListForReading
                 where weapon.IsWeapon && !weapon.destroyOnDrop && !weapon.menuHidden &&
-                      !ClutterMain.doneWeapons.Contains(weapon)
+                      !doneWeapons.Contains(weapon)
                 select weapon)
             {
                 if (weapon.weaponTags?.Find(tag => tag.ToLower().Contains("shield")) != null)
@@ -31,33 +49,147 @@ namespace WHands
                     continue;
                 }
 
-                var compie = new WhandCompProps {compClass = typeof(WhandComp)};
-                if (weapon.IsMeleeWeapon)
+                var compProps = weapon.GetCompProperties<WhandCompProps>();
+                if (compProps == null)
                 {
-                    compie.MainHand = new Vector3(-0.25f, 0.3f, 0);
-                    weapon.comps.Add(compie);
-                    count++;
-                    continue;
+                    compProps = new WhandCompProps
+                    {
+                        compClass = typeof(WhandComp)
+                    };
+                    if (weapon.IsMeleeWeapon)
+                    {
+                        compProps.MainHand = new Vector3(-0.25f, 0.3f, 0);
+                    }
+                    else
+                    {
+                        compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                            ? secHand
+                            : Vector3.zero;
+                        compProps.MainHand = mainHand;
+                    }
+
+                    weapon.comps.Add(compProps);
+                }
+                else
+                {
+                    if (weapon.IsMeleeWeapon)
+                    {
+                        compProps.MainHand = new Vector3(-0.25f, 0.3f, 0);
+                    }
+                    else
+                    {
+                        compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                            ? secHand
+                            : Vector3.zero;
+                        compProps.MainHand = mainHand;
+                    }
                 }
 
-                if (!weapon.IsRangedWeapon)
-                {
-                    continue;
-                }
+                doneWeapons.Add(weapon);
+            }
+        }
 
-                if (IsWeaponLong(weapon, out var mainHand, out var secHand))
-                {
-                    compie.SecHand = secHand;
-                }
-
-                compie.MainHand = mainHand;
-
-                weapon.comps.Add(compie);
-                count++;
+        private static void LoadFromSettings()
+        {
+            if (ShowMeYourHandsMod.instance.Settings.ManualMainHandPositions == null)
+            {
+                return;
             }
 
-            Log.Message(
-                $"[ShowMeYourHands]: Added hand definitions to {ClutterMain.doneWeapons.Count + count} weapons");
+            foreach (var keyValuePair in ShowMeYourHandsMod.instance?.Settings?.ManualMainHandPositions)
+            {
+                var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(keyValuePair.Key);
+                if (weapon == null)
+                {
+                    continue;
+                }
+
+                var compProps = weapon.GetCompProperties<WhandCompProps>();
+                if (compProps == null)
+                {
+                    compProps = new WhandCompProps
+
+                    {
+                        compClass = typeof(WhandComp),
+                        MainHand = keyValuePair.Value.ToVector3(),
+                        SecHand =
+                            ShowMeYourHandsMod.instance?.Settings?.ManualOffHandPositions
+                                .ContainsKey(keyValuePair.Key) == true
+                                ? ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key]
+                                    .ToVector3()
+                                : Vector3.zero
+                    };
+                    weapon.comps.Add(compProps);
+                }
+                else
+                {
+                    compProps.MainHand = keyValuePair.Value.ToVector3();
+                    compProps.SecHand =
+                        ShowMeYourHandsMod.instance?.Settings?.ManualOffHandPositions.ContainsKey(keyValuePair.Key) ==
+                        true
+                            ? ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key].ToVector3()
+                            : Vector3.zero;
+                }
+
+                doneWeapons.Add(weapon);
+            }
+        }
+
+        private static void LoadFromDefs()
+        {
+            var def = DefDatabase<ThingDef>.GetNamedSilentFail("ClutterHandsSettings");
+
+            if (def is not ClutterHandsTDef clutterHandsTDef)
+            {
+                return;
+            }
+
+            if (clutterHandsTDef.WeaponCompLoader.Count <= 0)
+            {
+                return;
+            }
+
+            foreach (var weaponSets in clutterHandsTDef.WeaponCompLoader)
+            {
+                if (weaponSets.ThingTargets.Count <= 0)
+                {
+                    continue;
+                }
+
+                foreach (var weaponDefName in weaponSets.ThingTargets)
+                {
+                    var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
+                    if (weapon == null)
+                    {
+                        continue;
+                    }
+
+                    if (doneWeapons.Contains(weapon))
+                    {
+                        continue;
+                    }
+
+                    var compProps = weapon.GetCompProperties<WhandCompProps>();
+                    if (compProps == null)
+                    {
+                        compProps = new WhandCompProps
+
+                        {
+                            compClass = typeof(WhandComp),
+                            MainHand = weaponSets.MainHand,
+                            SecHand = weaponSets.SecHand
+                        };
+                        weapon.comps.Add(compProps);
+                    }
+                    else
+                    {
+                        compProps.MainHand = weaponSets.MainHand;
+                        compProps.SecHand = weaponSets.SecHand;
+                    }
+
+                    doneWeapons.Add(weapon);
+                }
+            }
         }
 
         private static bool IsWeaponLong(ThingDef weapon, out Vector3 mainHand, out Vector3 secHand)
@@ -128,8 +260,8 @@ namespace WHands
                 percentEnd = (width - endPixel) / (float) width;
             }
 
-            //Log.Message(
-            //    $"{weapon.defName}: start {startPixel.ToString()}, percentstart {percentStart}, end {endPixel.ToString()}, percentend {percentEnd}, width {width}, percent {percentWidth}");
+            ShowMeYourHandsMain.LogMessage(
+                $"{weapon.defName}: start {startPixel.ToString()}, percentstart {percentStart}, end {endPixel.ToString()}, percentend {percentEnd}, width {width}, percent {percentWidth}");
 
             if (percentWidth > 0.7f)
             {
@@ -139,7 +271,7 @@ namespace WHands
             else
             {
                 mainHand = new Vector3(-0.3f + percentStart, 0.3f, 0f);
-                secHand = Vector3.one;
+                secHand = Vector3.zero;
             }
 
             return percentWidth > 0.7f;

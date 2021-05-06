@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.7.0 - Fixed a nullcheck for items without tags
+
+
 1.0.6.0 - Config should work better with shields
 
 

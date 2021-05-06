@@ -45,29 +45,32 @@ namespace ShowMeYourHands
                 select weapon)
             {
                 var isShield = false;
-                foreach (var tag in weapon.weaponTags)
+                if (weapon.weaponTags != null)
                 {
-                    if (tag == "Shield_Sidearm")
+                    foreach (var tag in weapon.weaponTags)
                     {
-                        continue;
-                    }
+                        if (tag == "Shield_Sidearm")
+                        {
+                            continue;
+                        }
 
-                    if (tag == "Shield_NoSidearm")
-                    {
-                        continue;
-                    }
+                        if (tag == "Shield_NoSidearm")
+                        {
+                            continue;
+                        }
 
-                    if (tag.Contains("ShieldSafe"))
-                    {
-                        continue;
-                    }
+                        if (tag.Contains("ShieldSafe"))
+                        {
+                            continue;
+                        }
 
-                    if (!tag.ToLower().Contains("shield"))
-                    {
-                        continue;
-                    }
+                        if (!tag.ToLower().Contains("shield"))
+                        {
+                            continue;
+                        }
 
-                    isShield = true;
+                        isShield = true;
+                    }
                 }
 
                 if (isShield)

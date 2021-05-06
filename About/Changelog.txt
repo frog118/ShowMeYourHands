@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.6.0 - Config should work better with shields
+
+
 1.0.5.0 - Added translation-keys for all strings. Modified hands-data can be exported from the settings-screen.
 
 

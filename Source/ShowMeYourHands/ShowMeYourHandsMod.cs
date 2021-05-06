@@ -379,7 +379,7 @@ namespace ShowMeYourHands
 
                     if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand))
                     {
-                        listing_Standard.Label("SMYH.error.hands".Translate(selectedDef));
+                        listing_Standard.Label("SMYH.error.texture".Translate(selectedDef));
                         listing_Standard.End();
                         break;
                     }

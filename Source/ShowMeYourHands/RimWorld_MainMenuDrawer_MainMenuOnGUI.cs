@@ -44,8 +44,35 @@ namespace ShowMeYourHands
                       !doneWeapons.Contains(weapon)
                 select weapon)
             {
-                if (weapon.weaponTags?.Find(tag => tag.ToLower().Contains("shield")) != null)
+                var isShield = false;
+                foreach (var tag in weapon.weaponTags)
                 {
+                    if (tag == "Shield_Sidearm")
+                    {
+                        continue;
+                    }
+
+                    if (tag == "Shield_NoSidearm")
+                    {
+                        continue;
+                    }
+
+                    if (tag.Contains("ShieldSafe"))
+                    {
+                        continue;
+                    }
+
+                    if (!tag.ToLower().Contains("shield"))
+                    {
+                        continue;
+                    }
+
+                    isShield = true;
+                }
+
+                if (isShield)
+                {
+                    ShowMeYourHandsMain.LogMessage($"Ignoring {weapon.defName} since its probably a shield");
                     continue;
                 }
 

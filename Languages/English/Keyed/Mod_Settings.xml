@@ -14,6 +14,7 @@
   <SMYH.version.label>Installed mod-version: {0}</SMYH.version.label>
   <SMYH.error.weapon>Error, could not find weapon {0} in the database</SMYH.error.weapon>
   <SMYH.error.hands>Error, could not find handinfo of {0} in the database</SMYH.error.hands>
+  <SMYH.error.texture>Error, could not find texture info of {0} in the database</SMYH.error.texture>
   <SMYH.twohands.label>Uses two hands</SMYH.twohands.label>
   <SMYH.mainhandhorizontal.label>Main hand horizontal</SMYH.mainhandhorizontal.label>
   <SMYH.mainhandvertical.label>Main hand vertical</SMYH.mainhandvertical.label>

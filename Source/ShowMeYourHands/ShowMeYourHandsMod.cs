@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -283,25 +284,33 @@ namespace ShowMeYourHands
                     {
                         GUI.color = Color.yellow;
                         listing_Standard.Label(
-                            "INFO \nUI-scale is not set to 1.0x. The settings GUI will look strange for some weapons.",
+                            "SMYH.uiscale.label".Translate(),
                             -1F,
-                            "Some weapons need to be rotated as their texture dose not have the default angle. The rotation-function has issues when the UI-scale is set to anything else than 1.0x. It does not need to be changed for the settings to have effect.");
+                            "SMYH.uiscale.tooltip".Translate());
                         listing_Standard.Gap();
                         GUI.color = Color.white;
                     }
 
-                    var labelPoint = listing_Standard.Label("Manual config reset", -1F,
-                        "Reset all defined hand-settings");
-                    listing_Standard.Gap();
-                    listing_Standard.CheckboxLabeled("Enable verbose logging", ref Settings.VerboseLogging,
-                        "Shows verbose logging, for finding errors");
-                    DrawButton(instance.Settings.ResetManualValues, "Reset all",
+                    if (instance.Settings.ManualMainHandPositions?.Count > 0)
+                    {
+                        var copyPoint = listing_Standard.Label("SMYH.copy.label".Translate(), -1F,
+                            "SMYH.copy.tooltip".Translate());
+                        DrawButton(CopyChangedWeapons, "SMYH.copy.button".Translate(),
+                            new Vector2(copyPoint.position.x + buttonSpacer, copyPoint.position.y));
+                    }
+
+                    var labelPoint = listing_Standard.Label("SMYH.resetall.label".Translate(), -1F,
+                        "SMYH.resetall.tooltip".Translate());
+                    DrawButton(instance.Settings.ResetManualValues, "SMYH.resetall.button".Translate(),
                         new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                    listing_Standard.Gap();
+                    listing_Standard.CheckboxLabeled("SMYH.logging.label".Translate(), ref Settings.VerboseLogging,
+                        "SMYH.logging.tooltip".Translate());
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
                         GUI.contentColor = Color.gray;
-                        listing_Standard.Label("Installed mod-version: " + currentVersion);
+                        listing_Standard.Label("SMYH.version.label".Translate(currentVersion));
                         GUI.contentColor = Color.white;
                     }
 
@@ -315,7 +324,7 @@ namespace ShowMeYourHands
                     listing_Standard.Begin(frameRect);
                     if (currentDef == null)
                     {
-                        listing_Standard.Label($"Error, could not find {selectedDef} in the database");
+                        listing_Standard.Label("SMYH.error.weapon".Translate(selectedDef));
                         listing_Standard.End();
                         break;
                     }
@@ -323,7 +332,7 @@ namespace ShowMeYourHands
                     var compProperties = currentDef.GetCompProperties<WhandCompProps>();
                     if (compProperties == null)
                     {
-                        listing_Standard.Label($"Error, could not find hand-info of {selectedDef} in the database");
+                        listing_Standard.Label("SMYH.error.hands".Translate(selectedDef));
                         listing_Standard.End();
                         break;
                     }
@@ -370,40 +379,40 @@ namespace ShowMeYourHands
 
                     if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand))
                     {
-                        listing_Standard.Label($"Error, could not find hand-info of {selectedDef} in the database");
+                        listing_Standard.Label("SMYH.error.hands".Translate(selectedDef));
                         listing_Standard.End();
                         break;
                     }
 
                     listing_Standard.Gap(20);
-                    listing_Standard.CheckboxLabeled("Uses two hands", ref currentHasOffHand);
+                    listing_Standard.CheckboxLabeled("SMYH.twohands.label".Translate(), ref currentHasOffHand);
                     listing_Standard.GapLine();
                     listing_Standard.ColumnWidth = 230;
-                    listing_Standard.Label("Main hand horizontal");
+                    listing_Standard.Label("SMYH.mainhandhorizontal.label".Translate());
                     currentMainHand.x = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                         currentMainHand.x, -0.5f, 0.5f, false,
                         currentMainHand.x.ToString(), null, null, 0.001f);
-                    var lastMainLabel = listing_Standard.Label("Main hand vertical");
+                    var lastMainLabel = listing_Standard.Label("SMYH.mainhandvertical.label".Translate());
                     currentMainHand.z = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                         currentMainHand.z, -0.5f, 0.5f, false,
                         currentMainHand.z.ToString(), null, null, 0.001f);
                     listing_Standard.Gap();
-                    listing_Standard.CheckboxLabeled("Render behind weapon", ref currentMainBehind);
+                    listing_Standard.CheckboxLabeled("SMYH.renderbehind.label".Translate(), ref currentMainBehind);
 
                     if (currentHasOffHand)
                     {
                         listing_Standard.NewColumn();
                         listing_Standard.Gap(212);
-                        listing_Standard.Label("Off hand horizontal");
+                        listing_Standard.Label("SMYH.offhandhorizontal.label".Translate());
                         currentOffHand.x = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                             currentOffHand.x, -0.5f, 0.5f, false,
                             currentOffHand.x.ToString(), null, null, 0.001f);
-                        listing_Standard.Label("Off hand vertical");
+                        listing_Standard.Label("SMYH.offhandvertical.label".Translate());
                         currentOffHand.z = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                             currentOffHand.z, -0.5f, 0.5f, false,
                             currentOffHand.z.ToString(), null, null, 0.001f);
                         listing_Standard.Gap();
-                        listing_Standard.CheckboxLabeled("Render behind weapon", ref currentOffBehind);
+                        listing_Standard.CheckboxLabeled("SMYH.renderbehind.label".Translate(), ref currentOffBehind);
                     }
 
                     if (currentMainHand != compProperties.MainHand ||
@@ -419,7 +428,7 @@ namespace ShowMeYourHands
                             currentHasOffHand = currentOffHand != Vector3.zero;
                             currentMainBehind = compProperties.MainHand.y < 0;
                             currentOffBehind = compProperties.SecHand.y < 0;
-                        }, "Reset", lastMainLabel.position + new Vector2(350, 230));
+                        }, "SMYH.reset.button".Translate(), lastMainLabel.position + new Vector2(350, 230));
                         DrawButton(() =>
                         {
                             currentMainHand.y = currentMainBehind ? -0.1f : 0.1f;
@@ -435,7 +444,7 @@ namespace ShowMeYourHands
                                 new SaveableVector3(compProperties.MainHand);
                             instance.Settings.ManualOffHandPositions[currentDef.defName] =
                                 new SaveableVector3(compProperties.SecHand);
-                        }, "Save", lastMainLabel.position + new Vector2(25, 230));
+                        }, "SMYH.save.button".Translate(), lastMainLabel.position + new Vector2(25, 230));
                     }
 
 
@@ -443,6 +452,46 @@ namespace ShowMeYourHands
                     break;
                 }
             }
+        }
+
+
+        private void CopyChangedWeapons()
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            stringBuilder.AppendLine("<Defs>");
+            stringBuilder.AppendLine("  <WHands.ClutterHandsTDef>");
+            stringBuilder.AppendLine(
+                $"     <defName>ClutterHandsSettings_{SystemInfo.deviceName.GetHashCode()}</defName>");
+            stringBuilder.AppendLine("      <label>Weapon hand settings</label>");
+            stringBuilder.AppendLine("      <thingClass>Thing</thingClass>");
+            stringBuilder.AppendLine("      <WeaponCompLoader>");
+
+            foreach (var settingsManualMainHandPosition in instance.Settings.ManualMainHandPositions)
+            {
+                stringBuilder.AppendLine("          <li>");
+                stringBuilder.AppendLine($"              <MainHand>{settingsManualMainHandPosition.Value}</MainHand>");
+                if (instance.Settings.ManualOffHandPositions.ContainsKey(settingsManualMainHandPosition.Key))
+                {
+                    var secHand = instance.Settings.ManualOffHandPositions[settingsManualMainHandPosition.Key];
+                    if (secHand.ToVector3() != Vector3.zero)
+                    {
+                        stringBuilder.AppendLine($"              <SecHand>{secHand}</SecHand>");
+                    }
+                }
+
+                stringBuilder.AppendLine("              <ThingTargets>");
+                stringBuilder.AppendLine($"                 <li>{settingsManualMainHandPosition.Key}</li>");
+                stringBuilder.AppendLine("              </ThingTargets>");
+                stringBuilder.AppendLine("          </li>");
+            }
+
+            stringBuilder.AppendLine("      </WeaponCompLoader>");
+            stringBuilder.AppendLine("  </WHands.ClutterHandsTDef>");
+            stringBuilder.AppendLine("</Defs>");
+
+            GUIUtility.systemCopyBuffer = stringBuilder.ToString();
+            Messages.Message("Modified data copied to clipboard.", MessageTypeDefOf.SituationResolved, false);
         }
 
         private void DrawTabsList(Rect rect)
@@ -462,7 +511,8 @@ namespace ShowMeYourHands
             tabContentRect.height = (AllWeapons.Count * 22f) + 15;
             listing_Standard.BeginScrollView(tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
             Text.Font = GameFont.Tiny;
-            if (listing_Standard.ListItemSelectable("Settings", Color.yellow, selectedDef == "Settings"))
+            if (listing_Standard.ListItemSelectable("SMYH.settings".Translate(), Color.yellow,
+                selectedDef == "Settings"))
             {
                 selectedDef = selectedDef == "Settings" ? null : "Settings";
             }

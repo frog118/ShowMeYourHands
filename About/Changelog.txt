@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.5.0 - Added translation-keys for all strings. Modified hands-data can be exported from the settings-screen.
+
+
 1.0.4.0 - Added settings-gui for modifying the hand-placements
 
 

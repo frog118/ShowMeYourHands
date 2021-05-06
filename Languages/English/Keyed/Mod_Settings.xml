@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <SMYH.settings>Settings</SMYH.settings>
+  <SMYH.uiscale.label>INFO \nUI-scale is not set to 1.0x. The settings GUI will look strange for some weapons.</SMYH.uiscale.label>
+  <SMYH.uiscale.tooltip>Some weapons need to be rotated as their texture dose not have the default angle. The rotation-function has issues when the UI-scale is set to anything else than 1.0x. It does not need to be changed for the settings to have effect.</SMYH.uiscale.tooltip>
+  <SMYH.copy.label>Copy manual values</SMYH.copy.label>
+  <SMYH.copy.tooltip>Copies the changed values to a XML-format that can be used to create better default definitions</SMYH.copy.tooltip>
+  <SMYH.copy.button>Copy to clipboard</SMYH.copy.button>
+  <SMYH.resetall.label>Manual config reset</SMYH.resetall.label>
+  <SMYH.resetall.tooltip>Reset all defined hand-settings</SMYH.resetall.tooltip>
+  <SMYH.resetall.button>Reset all</SMYH.resetall.button>
+  <SMYH.logging.label>Enable verbose logging</SMYH.logging.label>
+  <SMYH.logging.tooltip>Shows verbose logging, for finding errors</SMYH.logging.tooltip>
+  <SMYH.version.label>Installed mod-version: {0}</SMYH.version.label>
+  <SMYH.error.weapon>Error, could not find weapon {0} in the database</SMYH.error.weapon>
+  <SMYH.error.hands>Error, could not find handinfo of {0} in the database</SMYH.error.hands>
+  <SMYH.twohands.label>Uses two hands</SMYH.twohands.label>
+  <SMYH.mainhandhorizontal.label>Main hand horizontal</SMYH.mainhandhorizontal.label>
+  <SMYH.mainhandvertical.label>Main hand vertical</SMYH.mainhandvertical.label>
+  <SMYH.renderbehind.label>Render behind weapon</SMYH.renderbehind.label>
+  <SMYH.offhandhorizontal.label>Off hand horizontal</SMYH.offhandhorizontal.label>
+  <SMYH.offhandvertical.label>Off hand vertical</SMYH.offhandvertical.label>
+  <SMYH.reset.button>Reset</SMYH.reset.button>
+  <SMYH.save.button>Save</SMYH.save.button>
+</LanguageData>

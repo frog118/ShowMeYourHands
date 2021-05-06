@@ -147,7 +147,4 @@
       </li>
     </WeaponCompLoader>
   </WHands.ClutterHandsTDef>
-  <WHands.DefLoader_Extension>
-    <defName>ClutterHandsCompLoader_Extension</defName>
-  </WHands.DefLoader_Extension>
 </Defs>

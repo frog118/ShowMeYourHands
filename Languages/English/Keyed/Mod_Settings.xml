@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <SMYH.settings>Settings</SMYH.settings>
+  <SMYH.summary>Summary</SMYH.summary>
+  <SMYH.unknown>Unknown</SMYH.unknown>
   <SMYH.uiscale.label>INFO \nUI-scale is not set to 1.0x. The settings GUI will look strange for some weapons.</SMYH.uiscale.label>
   <SMYH.uiscale.tooltip>Some weapons need to be rotated as their texture dose not have the default angle. The rotation-function has issues when the UI-scale is set to anything else than 1.0x. It does not need to be changed for the settings to have effect.</SMYH.uiscale.tooltip>
   <SMYH.copy.label>Copy manual values</SMYH.copy.label>

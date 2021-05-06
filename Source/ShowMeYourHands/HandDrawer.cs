@@ -13,6 +13,7 @@ namespace ShowMeYourHands
 
         private Color handColor;
         private Graphic HandTex;
+        private Graphic OffHandTex;
 
         private Vector3 SHand;
 
@@ -198,6 +199,12 @@ namespace ShowMeYourHands
             if (HandTex != null)
             {
                 var matSingle = HandTex.MatSingle;
+                var offSingle = matSingle;
+                if (OffHandTex != null)
+                {
+                    offSingle = OffHandTex.MatSingle;
+                }
+
                 if (pawn == null)
                 {
                     return;
@@ -225,8 +232,9 @@ namespace ShowMeYourHands
                     }
                     else
                     {
-                        Graphics.DrawMesh(MeshPool.plane10, mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
-                            Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
+                        Graphics.DrawMesh(y < 0 ? MeshPool.plane08 : MeshPool.plane10,
+                            mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
+                            Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
                     }
                 }
 
@@ -261,18 +269,24 @@ namespace ShowMeYourHands
                 }
                 else
                 {
-                    Graphics.DrawMesh(MeshPool.plane10, mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
-                        Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
+                    Graphics.DrawMesh(y2 < 0 ? MeshPool.plane08 : MeshPool.plane10,
+                        mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
+                        Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
                 }
             }
             else if (HandTex == null)
             {
-                if (pawn != null)
+                if (pawn == null)
                 {
-                    HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
-                        new Vector2(1f, 1f),
-                        pawn.story.SkinColor, pawn.story.SkinColor);
+                    return;
                 }
+
+                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
             }
         }
 
@@ -321,12 +335,17 @@ namespace ShowMeYourHands
             }
             else
             {
-                if (parent is Pawn pawn)
+                if (parent is not Pawn pawn)
                 {
-                    HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
-                        new Vector2(1f, 1f),
-                        pawn.story.SkinColor, pawn.story.SkinColor);
+                    return;
                 }
+
+                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
             }
         }
 

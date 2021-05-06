@@ -44,36 +44,7 @@ namespace ShowMeYourHands
                       !doneWeapons.Contains(weapon)
                 select weapon)
             {
-                var isShield = false;
-                if (weapon.weaponTags != null)
-                {
-                    foreach (var tag in weapon.weaponTags)
-                    {
-                        if (tag == "Shield_Sidearm")
-                        {
-                            continue;
-                        }
-
-                        if (tag == "Shield_NoSidearm")
-                        {
-                            continue;
-                        }
-
-                        if (tag.Contains("ShieldSafe"))
-                        {
-                            continue;
-                        }
-
-                        if (!tag.ToLower().Contains("shield"))
-                        {
-                            continue;
-                        }
-
-                        isShield = true;
-                    }
-                }
-
-                if (isShield)
+                if (ShowMeYourHandsMod.IsShield(weapon))
                 {
                     ShowMeYourHandsMain.LogMessage($"Ignoring {weapon.defName} since its probably a shield");
                     continue;
@@ -168,7 +139,7 @@ namespace ShowMeYourHands
         private static void LoadFromDefs()
         {
             var def = DefDatabase<ThingDef>.GetNamedSilentFail("ClutterHandsSettings");
-
+            ShowMeYourHandsMod.DefinedByDef = new List<string>();
             if (def is not ClutterHandsTDef clutterHandsTDef)
             {
                 return;
@@ -218,6 +189,7 @@ namespace ShowMeYourHands
                     }
 
                     doneWeapons.Add(weapon);
+                    ShowMeYourHandsMod.DefinedByDef.Add(weapon.defName);
                 }
             }
         }

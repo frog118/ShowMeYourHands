@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.8.0 - Nicer hands, hands behind weapon is a bit smaller, more advanced settings, better shield-defs
+
+
 1.0.7.0 - Fixed a nullcheck for items without tags
 
 

@@ -24,6 +24,8 @@ namespace ShowMeYourHands
 
         private static readonly Vector2 weaponSize = new Vector2(105f, 105f);
 
+        private static readonly Vector2 iconSize = new Vector2(24f, 24f);
+
         private static readonly Vector2 handSize = new Vector2(24f, 24f);
 
         private static readonly int buttonSpacer = 250;
@@ -33,8 +35,6 @@ namespace ShowMeYourHands
         private static float leftSideWidth;
 
         private static Listing_Standard listing_Standard;
-
-        private static string selectedDef = "Settings";
 
         private static Vector3 currentMainHand;
 
@@ -48,11 +48,23 @@ namespace ShowMeYourHands
 
         private static Vector2 tabsScrollPosition;
 
+        private static Vector2 summaryScrollPosition;
+
         private static List<ThingDef> allWeapons;
 
         private static string currentVersion;
 
         private static Graphic handTex;
+
+        private static Dictionary<string, int> totalWeaponsByMod;
+
+        private static Dictionary<string, int> fixedWeaponsByMod;
+
+        public static List<string> DefinedByDef;
+
+        private static string selectedDef = "Settings";
+
+        private static string selectedSubDef;
 
         /// <summary>
         ///     The private settings
@@ -77,6 +89,20 @@ namespace ShowMeYourHands
             currentVersion =
                 VersionFromManifest.GetVersionFromModMetaData(
                     ModLister.GetActiveModWithIdentifier("Mlie.ShowMeYourHands"));
+        }
+
+        private static string SelectedDef
+        {
+            get => selectedDef;
+            set
+            {
+                if (value == "Summary")
+                {
+                    UpdateWeaponStatistics();
+                }
+
+                selectedDef = value;
+            }
         }
 
         /// <summary>
@@ -104,7 +130,7 @@ namespace ShowMeYourHands
                 if (allWeapons == null || allWeapons.Count == 0)
                 {
                     allWeapons = (from weapon in DefDatabase<ThingDef>.AllDefsListForReading
-                        where weapon.IsWeapon && !weapon.destroyOnDrop && !weapon.menuHidden
+                        where weapon.IsWeapon && !weapon.destroyOnDrop && !weapon.menuHidden && !IsShield(weapon)
                         orderby weapon.label
                         select weapon).ToList();
                 }
@@ -163,6 +189,47 @@ namespace ShowMeYourHands
             RimWorld_MainMenuDrawer_MainMenuOnGUI.UpdateHandDefinitions();
         }
 
+        public static bool IsShield(ThingDef weapon)
+        {
+            var isShield = false;
+            if (weapon.weaponTags == null)
+            {
+                return false;
+            }
+
+            foreach (var tag in weapon.weaponTags)
+            {
+                if (tag == "Shield_Sidearm")
+                {
+                    continue;
+                }
+
+                if (tag == "Shield_NoSidearm")
+                {
+                    continue;
+                }
+
+                if (tag.Contains("_ValidSidearm"))
+                {
+                    continue;
+                }
+
+                if (tag.Contains("ShieldSafe"))
+                {
+                    continue;
+                }
+
+                if (!tag.ToLower().Contains("shield"))
+                {
+                    continue;
+                }
+
+                isShield = true;
+            }
+
+            return isShield;
+        }
+
         private static void DrawButton(Action action, string text, Vector2 pos)
         {
             var rect = new Rect(pos.x, pos.y, buttonSize.x, buttonSize.y);
@@ -173,6 +240,44 @@ namespace ShowMeYourHands
 
             SoundDefOf.Designate_DragStandard_Changed.PlayOneShotOnCamera();
             action();
+        }
+
+        private static void UpdateWeaponStatistics()
+        {
+            totalWeaponsByMod = new Dictionary<string, int>();
+            fixedWeaponsByMod = new Dictionary<string, int>();
+            foreach (var currentWeapon in allWeapons)
+            {
+                var weaponModName = currentWeapon.modContentPack?.Name;
+                if (string.IsNullOrEmpty(weaponModName))
+                {
+                    weaponModName = "SMYH.unknown".Translate();
+                }
+
+                if (totalWeaponsByMod.ContainsKey(weaponModName))
+                {
+                    totalWeaponsByMod[weaponModName]++;
+                }
+                else
+                {
+                    totalWeaponsByMod[weaponModName] = 1;
+                }
+
+                if (!DefinedByDef.Contains(currentWeapon.defName) &&
+                    !instance.Settings.ManualMainHandPositions.ContainsKey(currentWeapon.defName))
+                {
+                    continue;
+                }
+
+                if (fixedWeaponsByMod.ContainsKey(weaponModName))
+                {
+                    fixedWeaponsByMod[weaponModName]++;
+                }
+                else
+                {
+                    fixedWeaponsByMod[weaponModName] = 1;
+                }
+            }
         }
 
         private bool DrawIcon(ThingDef thing, Rect rect, Vector3 mainHandPosition, Vector3 offHandPosition)
@@ -256,6 +361,33 @@ namespace ShowMeYourHands
             GUI.matrix = matrix;
         }
 
+        private void DrawWeapon(ThingDef thing, Rect rect)
+        {
+            if (thing?.graphicData?.Graphic?.MatSingle?.mainTexture == null)
+            {
+                return;
+            }
+
+            var texture2D = thing.graphicData.Graphic.MatSingle.mainTexture;
+            if (texture2D.width != texture2D.height)
+            {
+                var ratio = (float) texture2D.width / texture2D.height;
+
+                if (ratio < 1)
+                {
+                    rect.x += (rect.width - (rect.width * ratio)) / 2;
+                    rect.width *= ratio;
+                }
+                else
+                {
+                    rect.y += (rect.height - (rect.height / ratio)) / 2;
+                    rect.height /= ratio;
+                }
+            }
+
+            GUI.DrawTexture(rect, texture2D);
+        }
+
         private void DrawOptions(Rect rect)
         {
             var optionsOuterContainer = rect.ContractedBy(10);
@@ -272,13 +404,16 @@ namespace ShowMeYourHands
             contentRect.x = 0;
             contentRect.y = 0;
 
-            switch (selectedDef)
+            switch (SelectedDef)
             {
                 case null:
                     return;
                 case "Settings":
                 {
                     listing_Standard.Begin(frameRect);
+                    Text.Font = GameFont.Medium;
+                    listing_Standard.Label("SMYH.settings".Translate());
+                    Text.Font = GameFont.Small;
                     listing_Standard.Gap();
                     if (Prefs.UIScale != 1f)
                     {
@@ -317,14 +452,53 @@ namespace ShowMeYourHands
                     listing_Standard.End();
                     break;
                 }
+                case "Summary":
+                {
+                    var tabFrameRect = frameRect;
+                    var tabContentRect = tabFrameRect;
+                    tabContentRect.x = 0;
+                    tabContentRect.y = 0;
+                    tabContentRect.height = (totalWeaponsByMod.Count * 25f) + 15;
+                    listing_Standard.BeginScrollView(tabFrameRect, ref summaryScrollPosition, ref tabContentRect);
+                    Text.Font = GameFont.Medium;
+                    listing_Standard.Label("SMYH.summary".Translate());
+                    Text.Font = GameFont.Small;
+                    listing_Standard.Gap();
+                    foreach (var keyValuePair in totalWeaponsByMod)
+                    {
+                        var fixedWeapons = 0;
+                        if (fixedWeaponsByMod.ContainsKey(keyValuePair.Key))
+                        {
+                            fixedWeapons = fixedWeaponsByMod[keyValuePair.Key];
+                        }
+
+                        var percent = fixedWeapons / (decimal) keyValuePair.Value * 100;
+
+                        GUI.color = GetColorFromPercent(percent);
+
+                        if (listing_Standard.ListItemSelectable(
+                            $"{keyValuePair.Key} {Math.Round(percent)}% ({fixedWeapons}/{keyValuePair.Value})",
+                            Color.yellow,
+                            out _,
+                            selectedSubDef == keyValuePair.Key))
+                        {
+                            selectedSubDef = selectedSubDef == keyValuePair.Key ? null : keyValuePair.Key;
+                        }
+
+                        GUI.color = Color.white;
+                    }
+
+                    listing_Standard.EndScrollView(ref tabContentRect);
+                    break;
+                }
 
                 default:
                 {
-                    var currentDef = DefDatabase<ThingDef>.GetNamedSilentFail(selectedDef);
+                    var currentDef = DefDatabase<ThingDef>.GetNamedSilentFail(SelectedDef);
                     listing_Standard.Begin(frameRect);
                     if (currentDef == null)
                     {
-                        listing_Standard.Label("SMYH.error.weapon".Translate(selectedDef));
+                        listing_Standard.Label("SMYH.error.weapon".Translate(SelectedDef));
                         listing_Standard.End();
                         break;
                     }
@@ -332,13 +506,12 @@ namespace ShowMeYourHands
                     var compProperties = currentDef.GetCompProperties<WhandCompProps>();
                     if (compProperties == null)
                     {
-                        listing_Standard.Label("SMYH.error.hands".Translate(selectedDef));
+                        listing_Standard.Label("SMYH.error.hands".Translate(SelectedDef));
                         listing_Standard.End();
                         break;
                     }
 
                     Text.Font = GameFont.Medium;
-
                     var labelPoint = listing_Standard.Label(currentDef.label.CapitalizeFirst(), -1F,
                         currentDef.defName);
                     Text.Font = GameFont.Small;
@@ -379,7 +552,7 @@ namespace ShowMeYourHands
 
                     if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand))
                     {
-                        listing_Standard.Label("SMYH.error.texture".Translate(selectedDef));
+                        listing_Standard.Label("SMYH.error.texture".Translate(SelectedDef));
                         listing_Standard.End();
                         break;
                     }
@@ -454,7 +627,6 @@ namespace ShowMeYourHands
             }
         }
 
-
         private void CopyChangedWeapons()
         {
             var stringBuilder = new StringBuilder();
@@ -508,32 +680,65 @@ namespace ShowMeYourHands
             tabContentRect.x = 0;
             tabContentRect.y = 0;
             tabContentRect.width -= 20;
-            tabContentRect.height = (AllWeapons.Count * 22f) + 15;
+            tabContentRect.height = (AllWeapons.Count * 25f) + 48;
             listing_Standard.BeginScrollView(tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
-            Text.Font = GameFont.Tiny;
+            //Text.Font = GameFont.Tiny;
             if (listing_Standard.ListItemSelectable("SMYH.settings".Translate(), Color.yellow,
-                selectedDef == "Settings"))
+                out _, SelectedDef == "Settings"))
             {
-                selectedDef = selectedDef == "Settings" ? null : "Settings";
+                SelectedDef = SelectedDef == "Settings" ? null : "Settings";
             }
 
-            listing_Standard.ListItemSelectable(null, Color.yellow);
+            if (listing_Standard.ListItemSelectable("SMYH.summary".Translate(), Color.yellow,
+                out _, SelectedDef == "Summary"))
+            {
+                SelectedDef = SelectedDef == "Summary" ? null : "Summary";
+            }
+
+            listing_Standard.ListItemSelectable(null, Color.yellow, out _);
             foreach (var thingDef in AllWeapons)
             {
-                if (!listing_Standard.ListItemSelectable(
-                    thingDef.label.CapitalizeFirst(), Color.yellow,
-                    selectedDef == thingDef.defName))
+                if (!DefinedByDef.Contains(thingDef.defName) &&
+                    !instance.Settings.ManualMainHandPositions.ContainsKey(thingDef.defName))
                 {
-                    continue;
+                    GUI.color = Color.red;
+                }
+                else
+                {
+                    GUI.color = Color.green;
                 }
 
-                selectedDef = selectedDef == thingDef.defName ? null : thingDef.defName;
-                currentMainHand = Vector3.zero;
-                currentOffHand = Vector3.zero;
+                if (listing_Standard.ListItemSelectable(thingDef.label.CapitalizeFirst(), Color.yellow,
+                    out var position,
+                    SelectedDef == thingDef.defName, thingDef.modContentPack?.Name == selectedSubDef))
+                {
+                    SelectedDef = SelectedDef == thingDef.defName ? null : thingDef.defName;
+                    currentMainHand = Vector3.zero;
+                    currentOffHand = Vector3.zero;
+                }
+
+                GUI.color = Color.white;
+                position.x = position.x + tabContentRect.width - iconSize.x;
+                DrawWeapon(thingDef, new Rect(position, iconSize));
             }
 
-            Text.Font = GameFont.Small;
+            //Text.Font = GameFont.Small;
             listing_Standard.EndScrollView(ref tabContentRect);
+        }
+
+        private Color GetColorFromPercent(decimal percent)
+        {
+            switch (percent)
+            {
+                case < 25:
+                    return Color.red;
+                case < 50:
+                    return Color.yellow;
+                case < 75:
+                    return Color.white;
+                case >= 75:
+                    return Color.green;
+            }
         }
     }
 }

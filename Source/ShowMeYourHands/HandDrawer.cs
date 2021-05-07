@@ -100,7 +100,8 @@ namespace ShowMeYourHands
                 }
             }
 
-            rootLoc.y += 0.0449999981f;
+            //rootLoc.y += 0.0449999981f;
+            rootLoc.y += 0.0367346928f;
             if (pawn.stances.curStance is Stance_Busy {neverAimWeapon: false} stance_Busy &&
                 stance_Busy.focusTarg.IsValid)
             {
@@ -194,7 +195,7 @@ namespace ShowMeYourHands
             }
 
 
-            num = num % 360f;
+            num %= 360f;
             offNum %= 360f;
             if (HandTex != null)
             {
@@ -225,14 +226,14 @@ namespace ShowMeYourHands
                     {
                         if (pawn.Rotation != Rot4.West)
                         {
-                            Graphics.DrawMesh(MeshPool.plane10,
+                            Graphics.DrawMesh(MeshPool.plane08,
                                 mainhandDrawLoc + new Vector3(num2, y + 2f, z).RotatedBy(num),
                                 Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
                         }
                     }
                     else
                     {
-                        Graphics.DrawMesh(y < 0 ? MeshPool.plane08 : MeshPool.plane10,
+                        Graphics.DrawMesh(MeshPool.plane08,
                             mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
                             Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
                     }
@@ -264,12 +265,13 @@ namespace ShowMeYourHands
                         drawLocation = offhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
                     }
 
-                    Graphics.DrawMesh(MeshPool.plane10, drawLocation, Quaternion.AngleAxis(offNum, Vector3.up),
+                    Graphics.DrawMesh(MeshPool.plane08, drawLocation,
+                        Quaternion.AngleAxis(offNum, Vector3.up),
                         matSingle, 0);
                 }
                 else
                 {
-                    Graphics.DrawMesh(y2 < 0 ? MeshPool.plane08 : MeshPool.plane10,
+                    Graphics.DrawMesh(MeshPool.plane08,
                         mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
                         Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
                 }

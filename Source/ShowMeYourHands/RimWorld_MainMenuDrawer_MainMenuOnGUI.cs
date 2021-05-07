@@ -37,6 +37,45 @@ namespace ShowMeYourHands
             ShowMeYourHandsMain.LogMessage($"Defined hand definitions of {doneWeapons.Count} weapons", true);
         }
 
+        public static void FigureOutSpecific(ThingDef weapon)
+        {
+            var compProps = weapon.GetCompProperties<WhandCompProps>();
+            if (compProps == null)
+            {
+                compProps = new WhandCompProps
+                {
+                    compClass = typeof(WhandComp)
+                };
+                if (weapon.IsMeleeWeapon)
+                {
+                    compProps.MainHand = new Vector3(-0.25f, 0.3f, 0);
+                }
+                else
+                {
+                    compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                        ? secHand
+                        : Vector3.zero;
+                    compProps.MainHand = mainHand;
+                }
+
+                weapon.comps.Add(compProps);
+            }
+            else
+            {
+                if (weapon.IsMeleeWeapon)
+                {
+                    compProps.MainHand = new Vector3(-0.25f, 0.3f, 0);
+                }
+                else
+                {
+                    compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                        ? secHand
+                        : Vector3.zero;
+                    compProps.MainHand = mainHand;
+                }
+            }
+        }
+
         private static void FigureOutTheRest()
         {
             foreach (var weapon in from weapon in DefDatabase<ThingDef>.AllDefsListForReading
@@ -46,7 +85,7 @@ namespace ShowMeYourHands
             {
                 if (ShowMeYourHandsMod.IsShield(weapon))
                 {
-                    ShowMeYourHandsMain.LogMessage($"Ignoring {weapon.defName} since its probably a shield");
+                    ShowMeYourHandsMain.LogMessage($"Ignoring {weapon.defName} is probably a shield");
                     continue;
                 }
 
@@ -136,10 +175,14 @@ namespace ShowMeYourHands
             }
         }
 
-        private static void LoadFromDefs()
+        public static void LoadFromDefs(ThingDef specificDef = null)
         {
             var defs = DefDatabase<ClutterHandsTDef>.AllDefsListForReading;
-            ShowMeYourHandsMod.DefinedByDef = new List<string>();
+            if (specificDef == null)
+            {
+                ShowMeYourHandsMod.DefinedByDef = new HashSet<string>();
+            }
+
             foreach (var handsTDef in defs)
             {
                 if (handsTDef.WeaponCompLoader.Count <= 0)
@@ -156,13 +199,18 @@ namespace ShowMeYourHands
 
                     foreach (var weaponDefName in weaponSets.ThingTargets)
                     {
+                        if (specificDef != null && weaponDefName != specificDef.defName)
+                        {
+                            continue;
+                        }
+
                         var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
                         if (weapon == null)
                         {
                             continue;
                         }
 
-                        if (doneWeapons.Contains(weapon))
+                        if (specificDef == null && doneWeapons.Contains(weapon))
                         {
                             continue;
                         }
@@ -185,8 +233,13 @@ namespace ShowMeYourHands
                             compProps.SecHand = weaponSets.SecHand;
                         }
 
-                        doneWeapons.Add(weapon);
                         ShowMeYourHandsMod.DefinedByDef.Add(weapon.defName);
+                        if (specificDef != null)
+                        {
+                            return;
+                        }
+
+                        doneWeapons.Add(weapon);
                     }
                 }
             }

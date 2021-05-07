@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.10.0 - Added confirmations to the reset-buttons, increased the config-preview size
+
+
 1.0.9.0 - Updated core-defs and support for multiple def-files
 
 

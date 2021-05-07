@@ -24,5 +24,8 @@
   <SMYH.offhandhorizontal.label>Off hand horizontal</SMYH.offhandhorizontal.label>
   <SMYH.offhandvertical.label>Off hand vertical</SMYH.offhandvertical.label>
   <SMYH.reset.button>Reset</SMYH.reset.button>
+  <SMYH.undo.button>Undo</SMYH.undo.button>
   <SMYH.save.button>Save</SMYH.save.button>
+  <SMYH.resetsingle.confirm>This will remove any saved hand-setting for the weapon and reload the default settings</SMYH.resetsingle.confirm>
+  <SMYH.resetall.confirm>This will remove ALL saved hand-setting for ALL weapons and reload the default settings</SMYH.resetall.confirm>
 </LanguageData>

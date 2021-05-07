@@ -138,58 +138,56 @@ namespace ShowMeYourHands
 
         private static void LoadFromDefs()
         {
-            var def = DefDatabase<ThingDef>.GetNamedSilentFail("ClutterHandsSettings");
+            var defs = DefDatabase<ClutterHandsTDef>.AllDefsListForReading;
             ShowMeYourHandsMod.DefinedByDef = new List<string>();
-            if (def is not ClutterHandsTDef clutterHandsTDef)
+            foreach (var handsTDef in defs)
             {
-                return;
-            }
-
-            if (clutterHandsTDef.WeaponCompLoader.Count <= 0)
-            {
-                return;
-            }
-
-            foreach (var weaponSets in clutterHandsTDef.WeaponCompLoader)
-            {
-                if (weaponSets.ThingTargets.Count <= 0)
+                if (handsTDef.WeaponCompLoader.Count <= 0)
                 {
-                    continue;
+                    return;
                 }
 
-                foreach (var weaponDefName in weaponSets.ThingTargets)
+                foreach (var weaponSets in handsTDef.WeaponCompLoader)
                 {
-                    var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
-                    if (weapon == null)
+                    if (weaponSets.ThingTargets.Count <= 0)
                     {
                         continue;
                     }
 
-                    if (doneWeapons.Contains(weapon))
+                    foreach (var weaponDefName in weaponSets.ThingTargets)
                     {
-                        continue;
-                    }
-
-                    var compProps = weapon.GetCompProperties<WhandCompProps>();
-                    if (compProps == null)
-                    {
-                        compProps = new WhandCompProps
-
+                        var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
+                        if (weapon == null)
                         {
-                            compClass = typeof(WhandComp),
-                            MainHand = weaponSets.MainHand,
-                            SecHand = weaponSets.SecHand
-                        };
-                        weapon.comps.Add(compProps);
-                    }
-                    else
-                    {
-                        compProps.MainHand = weaponSets.MainHand;
-                        compProps.SecHand = weaponSets.SecHand;
-                    }
+                            continue;
+                        }
 
-                    doneWeapons.Add(weapon);
-                    ShowMeYourHandsMod.DefinedByDef.Add(weapon.defName);
+                        if (doneWeapons.Contains(weapon))
+                        {
+                            continue;
+                        }
+
+                        var compProps = weapon.GetCompProperties<WhandCompProps>();
+                        if (compProps == null)
+                        {
+                            compProps = new WhandCompProps
+
+                            {
+                                compClass = typeof(WhandComp),
+                                MainHand = weaponSets.MainHand,
+                                SecHand = weaponSets.SecHand
+                            };
+                            weapon.comps.Add(compProps);
+                        }
+                        else
+                        {
+                            compProps.MainHand = weaponSets.MainHand;
+                            compProps.SecHand = weaponSets.SecHand;
+                        }
+
+                        doneWeapons.Add(weapon);
+                        ShowMeYourHandsMod.DefinedByDef.Add(weapon.defName);
+                    }
                 }
             }
         }

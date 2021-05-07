@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.9.0 - Updated core-defs and support for multiple def-files
+
+
 1.0.8.0 - Nicer hands, hands behind weapon is a bit smaller, more advanced settings, better shield-defs
 
 

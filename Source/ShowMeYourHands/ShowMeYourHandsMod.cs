@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -26,7 +27,7 @@ namespace ShowMeYourHands
 
         private static readonly Vector2 handSize = new Vector2(43f, 43f);
 
-        private static readonly int buttonSpacer = 250;
+        private static readonly int buttonSpacer = 200;
 
         private static readonly float columnSpacer = 0.1f;
 
@@ -50,13 +51,15 @@ namespace ShowMeYourHands
 
         private static List<ThingDef> allWeapons;
 
+        private static List<string> selectedHasManualDefs;
+
         private static string currentVersion;
 
         private static Graphic handTex;
 
-        private static Dictionary<string, int> totalWeaponsByMod;
+        private static Dictionary<string, int> totalWeaponsByMod = new Dictionary<string, int>();
 
-        private static Dictionary<string, int> fixedWeaponsByMod;
+        private static Dictionary<string, int> fixedWeaponsByMod = new Dictionary<string, int>();
 
         public static HashSet<string> DefinedByDef;
 
@@ -95,7 +98,7 @@ namespace ShowMeYourHands
             get => selectedDef;
             set
             {
-                if (value == "Summary")
+                if (value == "Settings")
                 {
                     UpdateWeaponStatistics();
                 }
@@ -198,14 +201,11 @@ namespace ShowMeYourHands
 
             foreach (var tag in weapon.weaponTags)
             {
-                if (tag == "Shield_Sidearm")
+                switch (tag)
                 {
-                    continue;
-                }
-
-                if (tag == "Shield_NoSidearm")
-                {
-                    continue;
+                    case "Shield_Sidearm":
+                    case "Shield_NoSidearm":
+                        continue;
                 }
 
                 if (tag.Contains("_ValidSidearm"))
@@ -245,7 +245,7 @@ namespace ShowMeYourHands
         {
             totalWeaponsByMod = new Dictionary<string, int>();
             fixedWeaponsByMod = new Dictionary<string, int>();
-            foreach (var currentWeapon in allWeapons)
+            foreach (var currentWeapon in AllWeapons)
             {
                 var weaponModName = currentWeapon.modContentPack?.Name;
                 if (string.IsNullOrEmpty(weaponModName))
@@ -302,7 +302,7 @@ namespace ShowMeYourHands
             var rectLine = rect.ExpandedBy(2);
             Widgets.DrawBoxSolid(rectOuter, Color.grey);
             Widgets.DrawBoxSolid(rectLine, new ColorInt(42, 43, 44).ToColor);
-            var handPositionFactor = 200;
+            const int handPositionFactor = 200;
             var weaponMiddle = weaponSize.x / 2;
 
             var mainHandCoords = new Vector2(
@@ -435,7 +435,7 @@ namespace ShowMeYourHands
                     {
                         var copyPoint = listing_Standard.Label("SMYH.copy.label".Translate(), -1F,
                             "SMYH.copy.tooltip".Translate());
-                        DrawButton(CopyChangedWeapons, "SMYH.copy.button".Translate(),
+                        DrawButton(() => { CopyChangedWeapons(); }, "SMYH.copy.button".Translate(),
                             new Vector2(copyPoint.position.x + buttonSpacer, copyPoint.position.y));
                         listing_Standard.Gap();
                         var labelPoint = listing_Standard.Label("SMYH.resetall.label".Translate(), -1F,
@@ -447,6 +447,31 @@ namespace ShowMeYourHands
                                     delegate { instance.Settings.ResetManualValues(); }));
                             }, "SMYH.resetall.button".Translate(),
                             new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                        if (!string.IsNullOrEmpty(selectedSubDef) && selectedHasManualDefs.Count > 0)
+                        {
+                            DrawButton(() => { CopyChangedWeapons(true); }, "SMYH.copyselected.button".Translate(),
+                                new Vector2(copyPoint.position.x + buttonSpacer + buttonSize.x + 10,
+                                    copyPoint.position.y));
+                            DrawButton(() =>
+                                {
+                                    Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+                                        "SMYH.resetselected.confirm".Translate(selectedSubDef),
+                                        delegate
+                                        {
+                                            foreach (var weaponDef in from ThingDef weapon in AllWeapons
+                                                where weapon.modContentPack?.Name == selectedSubDef
+                                                select weapon)
+                                            {
+                                                WhandCompProps whandCompProps = null;
+                                                ResetOneWeapon(weaponDef, ref whandCompProps);
+                                            }
+
+                                            selectedHasManualDefs = new List<string>();
+                                        }));
+                                }, "SMYH.resetselected.button".Translate(),
+                                new Vector2(labelPoint.position.x + buttonSpacer + buttonSize.x + 10,
+                                    labelPoint.position.y));
+                        }
                     }
                     else
                     {
@@ -464,21 +489,26 @@ namespace ShowMeYourHands
                         GUI.contentColor = Color.white;
                     }
 
+                    listing_Standard.GapLine();
+                    Text.Font = GameFont.Medium;
+                    listing_Standard.Label("SMYH.summary".Translate(), -1F, "SMYH.summary.tooltip".Translate());
+                    Text.Font = GameFont.Small;
+                    listing_Standard.Gap();
                     listing_Standard.End();
-                    break;
-                }
-                case "Summary":
-                {
+
                     var tabFrameRect = frameRect;
+                    tabFrameRect.y += 220;
+                    tabFrameRect.height -= 220;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;
+                    if (totalWeaponsByMod.Count == 0)
+                    {
+                        UpdateWeaponStatistics();
+                    }
+
                     tabContentRect.height = (totalWeaponsByMod.Count * 25f) + 15;
                     listing_Standard.BeginScrollView(tabFrameRect, ref summaryScrollPosition, ref tabContentRect);
-                    Text.Font = GameFont.Medium;
-                    listing_Standard.Label("SMYH.summary".Translate());
-                    Text.Font = GameFont.Small;
-                    listing_Standard.Gap();
                     foreach (var keyValuePair in totalWeaponsByMod)
                     {
                         var fixedWeapons = 0;
@@ -612,16 +642,7 @@ namespace ShowMeYourHands
                             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                                 "SMYH.resetsingle.confirm".Translate(), delegate
                                 {
-                                    instance.Settings.ManualMainHandPositions.Remove(currentDef.defName);
-                                    instance.Settings.ManualOffHandPositions.Remove(currentDef.defName);
-                                    compProperties.MainHand = Vector3.zero;
-                                    compProperties.SecHand = Vector3.zero;
-                                    RimWorld_MainMenuDrawer_MainMenuOnGUI.LoadFromDefs(currentDef);
-                                    if (compProperties.MainHand == Vector3.zero)
-                                    {
-                                        RimWorld_MainMenuDrawer_MainMenuOnGUI.FigureOutSpecific(currentDef);
-                                    }
-
+                                    ResetOneWeapon(currentDef, ref compProperties);
                                     currentMainHand = compProperties.MainHand;
                                     currentOffHand = compProperties.SecHand;
                                     currentHasOffHand = currentOffHand != Vector3.zero;
@@ -663,26 +684,44 @@ namespace ShowMeYourHands
                         }, "SMYH.save.button".Translate(), lastMainLabel.position + new Vector2(25, 170));
                     }
 
-
                     listing_Standard.End();
                     break;
                 }
             }
         }
 
-        private void CopyChangedWeapons()
+        private void CopyChangedWeapons(bool onlySelected = false)
         {
+            if (onlySelected && string.IsNullOrEmpty(selectedSubDef))
+            {
+                return;
+            }
+
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             stringBuilder.AppendLine("<Defs>");
             stringBuilder.AppendLine("  <WHands.ClutterHandsTDef>");
             stringBuilder.AppendLine(
-                $"     <defName>ClutterHandsSettings_{SystemInfo.deviceName.GetHashCode()}</defName>");
+                onlySelected
+                    ? $"     <defName>ClutterHandsSettings_{Regex.Replace(selectedSubDef, "[^a-zA-Z0-9_.]+", "", RegexOptions.Compiled)}_{SystemInfo.deviceName.GetHashCode()}</defName>"
+                    : $"     <defName>ClutterHandsSettings_All_{SystemInfo.deviceName.GetHashCode()}</defName>");
+
             stringBuilder.AppendLine("      <label>Weapon hand settings</label>");
             stringBuilder.AppendLine("      <thingClass>Thing</thingClass>");
             stringBuilder.AppendLine("      <WeaponCompLoader>");
+            var handPositionsToIterate = instance.Settings.ManualMainHandPositions;
+            if (onlySelected)
+            {
+                var weaponsDefsToSelectFrom = (from ThingDef weapon in AllWeapons
+                    where weapon.modContentPack?.Name == selectedSubDef
+                    select weapon.defName).ToList();
+                handPositionsToIterate = new Dictionary<string, SaveableVector3>(
+                    from position in instance.Settings.ManualMainHandPositions
+                    where weaponsDefsToSelectFrom.Contains(position.Key)
+                    select position);
+            }
 
-            foreach (var settingsManualMainHandPosition in instance.Settings.ManualMainHandPositions)
+            foreach (var settingsManualMainHandPosition in handPositionsToIterate)
             {
                 stringBuilder.AppendLine("          <li>");
                 stringBuilder.AppendLine($"              <MainHand>{settingsManualMainHandPosition.Value}</MainHand>");
@@ -696,7 +735,8 @@ namespace ShowMeYourHands
                 }
 
                 stringBuilder.AppendLine("              <ThingTargets>");
-                stringBuilder.AppendLine($"                 <li>{settingsManualMainHandPosition.Key}</li>");
+                stringBuilder.AppendLine(
+                    $"                 <li>{settingsManualMainHandPosition.Key}</li> <!-- {ThingDef.Named(settingsManualMainHandPosition.Key).label} -->");
                 stringBuilder.AppendLine("              </ThingTargets>");
                 stringBuilder.AppendLine("          </li>");
             }
@@ -723,7 +763,17 @@ namespace ShowMeYourHands
             tabContentRect.x = 0;
             tabContentRect.y = 0;
             tabContentRect.width -= 20;
-            tabContentRect.height = (AllWeapons.Count * 25f) + 48;
+            var weaponsToShow = AllWeapons;
+            var listAddition = 24;
+            if (!string.IsNullOrEmpty(selectedSubDef))
+            {
+                weaponsToShow = (from ThingDef weapon in AllWeapons
+                    where weapon.modContentPack?.Name == selectedSubDef
+                    select weapon).ToList();
+                listAddition = 60;
+            }
+
+            tabContentRect.height = (weaponsToShow.Count * 25f) + listAddition;
             listing_Standard.BeginScrollView(tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
             //Text.Font = GameFont.Tiny;
             if (listing_Standard.ListItemSelectable("SMYH.settings".Translate(), Color.yellow,
@@ -732,15 +782,11 @@ namespace ShowMeYourHands
                 SelectedDef = SelectedDef == "Settings" ? null : "Settings";
             }
 
-            if (listing_Standard.ListItemSelectable("SMYH.summary".Translate(), Color.yellow,
-                out _, SelectedDef == "Summary"))
-            {
-                SelectedDef = SelectedDef == "Summary" ? null : "Summary";
-            }
-
             listing_Standard.ListItemSelectable(null, Color.yellow, out _);
-            foreach (var thingDef in AllWeapons)
+            selectedHasManualDefs = new List<string>();
+            foreach (var thingDef in weaponsToShow)
             {
+                var toolTip = "SMYH.weaponrow.red";
                 if (!DefinedByDef.Contains(thingDef.defName) &&
                     !instance.Settings.ManualMainHandPositions.ContainsKey(thingDef.defName))
                 {
@@ -748,12 +794,22 @@ namespace ShowMeYourHands
                 }
                 else
                 {
-                    GUI.color = Color.green;
+                    if (instance.Settings.ManualMainHandPositions.ContainsKey(thingDef.defName))
+                    {
+                        toolTip = "SMYH.weaponrow.green";
+                        GUI.color = Color.green;
+                        selectedHasManualDefs.Add(thingDef.defName);
+                    }
+                    else
+                    {
+                        toolTip = "SMYH.weaponrow.cyan";
+                        GUI.color = Color.cyan;
+                    }
                 }
 
                 if (listing_Standard.ListItemSelectable(thingDef.label.CapitalizeFirst(), Color.yellow,
                     out var position,
-                    SelectedDef == thingDef.defName, thingDef.modContentPack?.Name == selectedSubDef))
+                    SelectedDef == thingDef.defName, false, toolTip.Translate()))
                 {
                     SelectedDef = SelectedDef == thingDef.defName ? null : thingDef.defName;
                     currentMainHand = Vector3.zero;
@@ -765,8 +821,37 @@ namespace ShowMeYourHands
                 DrawWeapon(thingDef, new Rect(position, iconSize));
             }
 
+            if (!string.IsNullOrEmpty(selectedSubDef))
+            {
+                listing_Standard.ListItemSelectable(null, Color.yellow, out _);
+                if (listing_Standard.ListItemSelectable(
+                    "SMYH.showhidden".Translate(AllWeapons.Count - weaponsToShow.Count), Color.yellow,
+                    out _))
+                {
+                    selectedSubDef = string.Empty;
+                }
+            }
+
             //Text.Font = GameFont.Small;
             listing_Standard.EndScrollView(ref tabContentRect);
+        }
+
+        private void ResetOneWeapon(ThingDef currentDef, ref WhandCompProps compProperties)
+        {
+            instance.Settings.ManualMainHandPositions.Remove(currentDef.defName);
+            instance.Settings.ManualOffHandPositions.Remove(currentDef.defName);
+            if (compProperties == null)
+            {
+                compProperties = currentDef.GetCompProperties<WhandCompProps>();
+            }
+
+            compProperties.MainHand = Vector3.zero;
+            compProperties.SecHand = Vector3.zero;
+            RimWorld_MainMenuDrawer_MainMenuOnGUI.LoadFromDefs(currentDef);
+            if (compProperties.MainHand == Vector3.zero)
+            {
+                RimWorld_MainMenuDrawer_MainMenuOnGUI.FigureOutSpecific(currentDef);
+            }
         }
 
         private Color GetColorFromPercent(decimal percent)

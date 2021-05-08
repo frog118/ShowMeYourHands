@@ -7,7 +7,7 @@ using Verse.Sound;
 public static class ListingExtension
 {
     public static bool ListItemSelectable(this Listing lister, string header, Color hoverColor, out Vector2 position,
-        bool selected = false, bool visualize = false)
+        bool selected = false, bool visualize = false, string toolTip = null)
     {
         var anchor = Text.Anchor;
         var color = GUI.color;
@@ -34,6 +34,10 @@ public static class ListingExtension
         if (header != null)
         {
             Widgets.Label(rect, header);
+            if (toolTip != null)
+            {
+                TooltipHandler.TipRegion(rect, toolTip);
+            }
         }
 
         Text.Anchor = anchor;

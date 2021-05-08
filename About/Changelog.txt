@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.11.0 - Better view of what weapons have settings, possible to export/reset settings per mod. Fixed y-order again.
+
+
 1.0.10.0 - Added confirmations to the reset-buttons, increased the config-preview size
 
 

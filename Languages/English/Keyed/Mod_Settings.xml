@@ -2,15 +2,18 @@
 <LanguageData>
   <SMYH.settings>Settings</SMYH.settings>
   <SMYH.summary>Summary</SMYH.summary>
+  <SMYH.summary.tooltip>Click on a mod-name to filter the list to only show weapons from that mod</SMYH.summary.tooltip>
   <SMYH.unknown>Unknown</SMYH.unknown>
   <SMYH.uiscale.label>INFO \nUI-scale is not set to 1.0x. The settings GUI will look strange for some weapons.</SMYH.uiscale.label>
   <SMYH.uiscale.tooltip>Some weapons need to be rotated as their texture dose not have the default angle. The rotation-function has issues when the UI-scale is set to anything else than 1.0x. It does not need to be changed for the settings to have effect.</SMYH.uiscale.tooltip>
   <SMYH.copy.label>Copy manual values</SMYH.copy.label>
   <SMYH.copy.tooltip>Copies the changed values to a XML-format that can be used to create better default definitions</SMYH.copy.tooltip>
-  <SMYH.copy.button>Copy to clipboard</SMYH.copy.button>
+  <SMYH.copy.button>Copy all</SMYH.copy.button>
+  <SMYH.copyselected.button>Copy selected</SMYH.copyselected.button>
   <SMYH.resetall.label>Manual config reset</SMYH.resetall.label>
   <SMYH.resetall.tooltip>Reset all defined hand-settings</SMYH.resetall.tooltip>
   <SMYH.resetall.button>Reset all</SMYH.resetall.button>
+  <SMYH.resetselected.button>Reset selected</SMYH.resetselected.button>
   <SMYH.logging.label>Enable verbose logging</SMYH.logging.label>
   <SMYH.logging.tooltip>Shows verbose logging, for finding errors</SMYH.logging.tooltip>
   <SMYH.version.label>Installed mod-version: {0}</SMYH.version.label>
@@ -28,4 +31,9 @@
   <SMYH.save.button>Save</SMYH.save.button>
   <SMYH.resetsingle.confirm>This will remove any saved hand-setting for the weapon and reload the default settings</SMYH.resetsingle.confirm>
   <SMYH.resetall.confirm>This will remove ALL saved hand-setting for ALL weapons and reload the default settings</SMYH.resetall.confirm>
+  <SMYH.resetselected.confirm>This will remove all saved hand-setting for the mod {0}</SMYH.resetselected.confirm>
+  <SMYH.showhidden>Show {0} hidden weapons</SMYH.showhidden>
+  <SMYH.weaponrow.red>Uses the default settings</SMYH.weaponrow.red>
+  <SMYH.weaponrow.cyan>Has custom settings included in the mod</SMYH.weaponrow.cyan>
+  <SMYH.weaponrow.green>Has personal settings defined by the player</SMYH.weaponrow.green>
 </LanguageData>

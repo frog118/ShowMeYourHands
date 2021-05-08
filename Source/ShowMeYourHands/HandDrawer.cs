@@ -100,8 +100,8 @@ namespace ShowMeYourHands
                 }
             }
 
-            //rootLoc.y += 0.0449999981f;
-            rootLoc.y += 0.0367346928f;
+            rootLoc.y += 0.0449999981f;
+            //rootLoc.y += 0.0367346928f; <-- this is vanillas value for weapons
             if (pawn.stances.curStance is Stance_Busy {neverAimWeapon: false} stance_Busy &&
                 stance_Busy.focusTarg.IsValid)
             {

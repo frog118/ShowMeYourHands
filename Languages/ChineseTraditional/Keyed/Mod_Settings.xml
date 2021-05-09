@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <SMYH.settings>設置</SMYH.settings>
+  <SMYH.summary>總結</SMYH.summary>
+  <SMYH.summary.tooltip>按一下mod名稱以篩選清單，僅顯示該mod中的武器</SMYH.summary.tooltip>
+  <SMYH.unknown>不明</SMYH.unknown>
+  <SMYH.uiscale.label>INFO \nUI比例未設置為1.0x。對於某些武器，設置GUI看起來會很奇怪。</SMYH.uiscale.label>
+  <SMYH.uiscale.tooltip>有些武器紋理需要旋轉，因為圖檔沒有預設角度。 當UI比例設置為1.0倍以上時，旋轉功能會出現問題。它不需要更改設置才能產生效果。</SMYH.uiscale.tooltip>
+  <SMYH.copy.label>複製自訂值</SMYH.copy.label>
+  <SMYH.copy.tooltip>將更改的數值複製到XML文件裡，可用於創建更好的預設</SMYH.copy.tooltip>
+  <SMYH.copy.button>複製到剪貼簿</SMYH.copy.button>
+  <SMYH.copyselected.button>複製選定</SMYH.copyselected.button>
+  <SMYH.resetall.label>重置自訂設置</SMYH.resetall.label>
+  <SMYH.resetall.tooltip>重置所有的自訂設置</SMYH.resetall.tooltip>
+  <SMYH.resetall.button>重置所有</SMYH.resetall.button>
+  <SMYH.resetselected.button>重置選定</SMYH.resetselected.button>
+  <SMYH.logging.label>啟用詳細記錄</SMYH.logging.label>
+  <SMYH.logging.tooltip>顯示詳細的日誌記錄，以查找錯誤</SMYH.logging.tooltip>
+  <SMYH.version.label>模組版本：{0}</SMYH.version.label>
+  <SMYH.error.weapon>錯誤，資料庫中沒有找到{0}</SMYH.error.weapon>
+  <SMYH.error.hands>錯誤，資料庫中沒有找到{0}的手部位置</SMYH.error.hands>
+  <SMYH.error.texture>錯誤，資料庫中沒有找到{0}的紋理圖檔</SMYH.error.texture>
+  <SMYH.twohands.label>使用雙手持武</SMYH.twohands.label>
+  <SMYH.mainhandhorizontal.label>水平(主手)</SMYH.mainhandhorizontal.label>
+  <SMYH.mainhandvertical.label>垂直(主手)</SMYH.mainhandvertical.label>
+  <SMYH.renderbehind.label>手改到背面</SMYH.renderbehind.label>
+  <SMYH.offhandhorizontal.label>水平(副手)</SMYH.offhandhorizontal.label>
+  <SMYH.offhandvertical.label>垂直(副手)</SMYH.offhandvertical.label>
+  <SMYH.reset.button>重置</SMYH.reset.button>
+  <SMYH.undo.button>撤銷</SMYH.undo.button>
+  <SMYH.save.button>保存</SMYH.save.button>
+  <SMYH.resetsingle.confirm>將刪除保存的自訂設置，並重新載入預設</SMYH.resetsingle.confirm>
+  <SMYH.resetall.confirm>將刪除所有保存的自訂設置，並重新載入預設</SMYH.resetall.confirm>
+  <SMYH.resetselected.confirm>將刪除{0}的所有已保存的自訂設置</SMYH.resetselected.confirm>
+  <SMYH.showhidden>顯示{0}個武器</SMYH.showhidden>
+  <SMYH.weaponrow.red>使用預設</SMYH.weaponrow.red>
+  <SMYH.weaponrow.cyan>mod原設置</SMYH.weaponrow.cyan>
+  <SMYH.weaponrow.green>個人自訂設置</SMYH.weaponrow.green>
+
+</LanguageData>

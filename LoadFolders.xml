@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<loadFolders>
+  <v1.1>
+    <li>/</li>
+    <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
+    <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
+    <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
+    <li IfModActive="Mlie.ArrowPlease">ModSupport/Mlie.ArrowPlease</li>
+    <li IfModActive="Mlie.Blowguns">ModSupport/Mlie.Blowguns</li>
+    <li IfModActive="Mlie.Cactaceae">ModSupport/Mlie.Cactaceae</li>
+    <li IfModActive="Mlie.CallofCthulhuCults">ModSupport/Mlie.CallofCthulhuCults</li>
+    <li IfModActive="Mlie.CallofCthulhuFactions">ModSupport/Mlie.CallofCthulhuFactions</li>
+    <li IfModActive="Mlie.CaridionArsenal">ModSupport/Mlie.CaridionArsenal</li>
+    <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
+    <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
+    <li IfModActive="Mlie.Dune">ModSupport/Mlie.Dune</li>
+    <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
+    <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
+    <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>
+    <li IfModActive="Mlie.GonewiththeRimwave">ModSupport/Mlie.GonewiththeRimwave</li>
+    <li IfModActive="Mlie.HaloRimworldPsychicPulseArmory">ModSupport/Mlie.HaloRimworldPsychicPulseArmory</li>
+    <li IfModActive="Mlie.HarrowedLight">ModSupport/Mlie.HarrowedLight</li>
+    <li IfModActive="Mlie.HumanoidProject">ModSupport/Mlie.HumanoidProject</li>
+    <li IfModActive="Mlie.InfinityRimAriadna">ModSupport/Mlie.InfinityRimAriadna</li>
+    <li IfModActive="Mlie.LogannRace">ModSupport/Mlie.LogannRace</li>
+    <li IfModActive="Mlie.LordoftheRimsDwarves">ModSupport/Mlie.LordoftheRimsDwarves</li>
+    <li IfModActive="Mlie.LordoftheRimsElves">ModSupport/Mlie.LordoftheRimsElves</li>
+    <li IfModActive="Mlie.LordoftheRimsHobbits">ModSupport/Mlie.LordoftheRimsHobbits</li>
+    <li IfModActive="Mlie.LordoftheRimsMenAndBeasts">ModSupport/Mlie.LordoftheRimsMenAndBeasts</li>
+    <li IfModActive="Mlie.Lysitheans">ModSupport/Mlie.Lysitheans</li>
+    <li IfModActive="Mlie.NanotrasenArmory">ModSupport/Mlie.NanotrasenArmory</li>
+    <li IfModActive="Mlie.NapoleonicAge">ModSupport/Mlie.NapoleonicAge</li>
+    <li IfModActive="Mlie.Norbals">ModSupport/Mlie.Norbals</li>
+    <li IfModActive="Mlie.O21Rimhammer40K">ModSupport/Mlie.O21Rimhammer40K</li>
+    <li IfModActive="Mlie.OuterRimTatooine">ModSupport/Mlie.OuterRimTatooine</li>
+    <li IfModActive="Mlie.Pirates">ModSupport/Mlie.Pirates</li>
+    <li IfModActive="Mlie.PreTranscended">ModSupport/Mlie.PreTranscended</li>
+    <li IfModActive="Mlie.RaccRace">ModSupport/Mlie.RaccRace</li>
+  </v1.1>
+  <v1.2>
+    <li>/</li>
+    <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
+    <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
+    <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
+    <li IfModActive="Mlie.ArrowPlease">ModSupport/Mlie.ArrowPlease</li>
+    <li IfModActive="Mlie.Blowguns">ModSupport/Mlie.Blowguns</li>
+    <li IfModActive="Mlie.Cactaceae">ModSupport/Mlie.Cactaceae</li>
+    <li IfModActive="Mlie.CallofCthulhuCults">ModSupport/Mlie.CallofCthulhuCults</li>
+    <li IfModActive="Mlie.CallofCthulhuFactions">ModSupport/Mlie.CallofCthulhuFactions</li>
+    <li IfModActive="Mlie.CaridionArsenal">ModSupport/Mlie.CaridionArsenal</li>
+    <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
+    <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
+    <li IfModActive="Mlie.Dune">ModSupport/Mlie.Dune</li>
+    <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
+    <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
+    <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>
+    <li IfModActive="Mlie.GonewiththeRimwave">ModSupport/Mlie.GonewiththeRimwave</li>
+    <li IfModActive="Mlie.HaloRimworldPsychicPulseArmory">ModSupport/Mlie.HaloRimworldPsychicPulseArmory</li>
+    <li IfModActive="Mlie.HarrowedLight">ModSupport/Mlie.HarrowedLight</li>
+    <li IfModActive="Mlie.HumanoidProject">ModSupport/Mlie.HumanoidProject</li>
+    <li IfModActive="Mlie.InfinityRimAriadna">ModSupport/Mlie.InfinityRimAriadna</li>
+    <li IfModActive="Mlie.LogannRace">ModSupport/Mlie.LogannRace</li>
+    <li IfModActive="Mlie.LordoftheRimsDwarves">ModSupport/Mlie.LordoftheRimsDwarves</li>
+    <li IfModActive="Mlie.LordoftheRimsElves">ModSupport/Mlie.LordoftheRimsElves</li>
+    <li IfModActive="Mlie.LordoftheRimsHobbits">ModSupport/Mlie.LordoftheRimsHobbits</li>
+    <li IfModActive="Mlie.LordoftheRimsMenAndBeasts">ModSupport/Mlie.LordoftheRimsMenAndBeasts</li>
+    <li IfModActive="Mlie.Lysitheans">ModSupport/Mlie.Lysitheans</li>
+    <li IfModActive="Mlie.NanotrasenArmory">ModSupport/Mlie.NanotrasenArmory</li>
+    <li IfModActive="Mlie.NapoleonicAge">ModSupport/Mlie.NapoleonicAge</li>
+    <li IfModActive="Mlie.Norbals">ModSupport/Mlie.Norbals</li>
+    <li IfModActive="Mlie.O21Rimhammer40K">ModSupport/Mlie.O21Rimhammer40K</li>
+    <li IfModActive="Mlie.OuterRimTatooine">ModSupport/Mlie.OuterRimTatooine</li>
+    <li IfModActive="Mlie.Pirates">ModSupport/Mlie.Pirates</li>
+    <li IfModActive="Mlie.PreTranscended">ModSupport/Mlie.PreTranscended</li>
+    <li IfModActive="Mlie.RaccRace">ModSupport/Mlie.RaccRace</li>
+  </v1.2>
+</loadFolders>

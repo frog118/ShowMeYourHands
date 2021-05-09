@@ -1,34 +1,40 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ColorMine.ColorSpaces;
+using ColorMine.ColorSpaces.Comparisons;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using static System.Byte;
 
 namespace ShowMeYourHands
 {
     [StaticConstructorOnStartup]
     public class HandDrawer : ThingComp
     {
-        //private static ThingDef lastApparel;
-
+        private static Dictionary<ThingDef, Color> colorDictionary;
         private Vector3 FHand;
 
         private Color handColor;
         private Graphic HandTex;
-        private Graphic OffHandTex;
+        private Graphic HandTexClean;
 
+        private bool hasGloves;
+        private Graphic OffHandTex;
+        private Graphic OffHandTexClean;
         private Vector3 SHand;
 
         private Color HandColor
         {
             get
             {
-                if (GenTicks.TicksAbs % 400 != 0 && handColor != default)
+                if (GenTicks.TicksAbs % 100 != 0 && handColor != default)
                 {
                     return handColor;
                 }
 
                 var pawn = parent as Pawn;
                 handColor = getHandColor(pawn);
-                ShowMeYourHandsMain.LogMessage(handColor.ToString());
                 return handColor;
             }
             set => handColor = value;
@@ -162,7 +168,11 @@ namespace ShowMeYourHands
             Vector3 offhandDrawLoc = new Vector3())
         {
             var flipped = false;
-            var pawn = parent as Pawn;
+            if (!(parent is Pawn pawn))
+            {
+                return;
+            }
+
             var num = aimAngle - 90f;
             var offNum = num;
             if (aimAngle is > 200f and < 340f)
@@ -197,98 +207,123 @@ namespace ShowMeYourHands
 
             num %= 360f;
             offNum %= 360f;
-            if (HandTex != null)
+
+            if (HandTex == null)
             {
-                var matSingle = HandTex.MatSingle;
-                var offSingle = matSingle;
-                if (OffHandTex != null)
+                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+            }
+
+            if (OffHandTex == null)
+            {
+                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+            }
+
+            if (HandTexClean == null)
+            {
+                HandTexClean = GraphicDatabase.Get<Graphic_Single>("HandClean", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+            }
+
+            if (OffHandTexClean == null)
+            {
+                OffHandTexClean = GraphicDatabase.Get<Graphic_Single>("OffHandClean", ShaderDatabase.CutoutSkin,
+                    new Vector2(1f, 1f),
+                    pawn.story.SkinColor, pawn.story.SkinColor);
+            }
+
+            if (HandTex == null)
+            {
+                return;
+            }
+
+            var currentColor = HandColor;
+            var matSingle = HandTex.MatSingle;
+            if (hasGloves)
+            {
+                matSingle = HandTexClean.MatSingle;
+            }
+
+            matSingle.color = currentColor;
+
+            var offSingle = matSingle;
+            if (OffHandTex != null)
+            {
+                offSingle = OffHandTex.MatSingle;
+                if (hasGloves)
                 {
-                    offSingle = OffHandTex.MatSingle;
+                    offSingle = OffHandTexClean.MatSingle;
                 }
 
-                if (pawn == null)
-                {
-                    return;
-                }
+                offSingle.color = currentColor;
+            }
 
-                matSingle.color = HandColor;
-                if (FHand != Vector3.zero)
-                {
-                    var num2 = FHand.x;
-                    var z = FHand.z;
-                    var y = FHand.y < 0 ? -0.01f : 0.3f;
-                    if (flipped)
-                    {
-                        num2 = -num2;
-                    }
-
-                    if (offhand != null)
-                    {
-                        if (pawn.Rotation != Rot4.West)
-                        {
-                            Graphics.DrawMesh(MeshPool.plane08,
-                                mainhandDrawLoc + new Vector3(num2, y + 2f, z).RotatedBy(num),
-                                Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
-                        }
-                    }
-                    else
-                    {
-                        Graphics.DrawMesh(MeshPool.plane08,
-                            mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
-                            Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
-                    }
-                }
-
-                if (SHand == Vector3.zero)
-                {
-                    return;
-                }
-
-                var num3 = SHand.x;
-                var z2 = SHand.z;
-                var y2 = SHand.y < 0 ? -0.01f : 0.3f;
+            if (FHand != Vector3.zero)
+            {
+                var num2 = FHand.x;
+                var z = FHand.z;
+                var y = FHand.y < 0 ? -0.01f : 0.3f;
                 if (flipped)
                 {
-                    num3 = -num3;
+                    num2 = -num2;
                 }
 
                 if (offhand != null)
                 {
-                    if (pawn.Rotation == Rot4.East)
+                    if (pawn.Rotation != Rot4.West)
                     {
-                        return;
+                        Graphics.DrawMesh(MeshPool.plane08,
+                            mainhandDrawLoc + new Vector3(num2, y + 2f, z).RotatedBy(num),
+                            Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
                     }
-
-                    var drawLocation = mainhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
-                    if (pawn.Rotation == Rot4.South)
-                    {
-                        drawLocation = offhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
-                    }
-
-                    Graphics.DrawMesh(MeshPool.plane08, drawLocation,
-                        Quaternion.AngleAxis(offNum, Vector3.up),
-                        matSingle, 0);
                 }
                 else
                 {
                     Graphics.DrawMesh(MeshPool.plane08,
-                        mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
-                        Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
+                        mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
+                        Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
                 }
             }
-            else if (HandTex == null)
+
+            if (SHand == Vector3.zero)
             {
-                if (pawn == null)
+                return;
+            }
+
+            var num3 = SHand.x;
+            var z2 = SHand.z;
+            var y2 = SHand.y < 0 ? -0.01f : 0.3f;
+            if (flipped)
+            {
+                num3 = -num3;
+            }
+
+            if (offhand != null)
+            {
+                if (pawn.Rotation == Rot4.East)
                 {
                     return;
                 }
 
-                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
+                var drawLocation = mainhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
+                if (pawn.Rotation == Rot4.South)
+                {
+                    drawLocation = offhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
+                }
+
+                Graphics.DrawMesh(MeshPool.plane08, drawLocation,
+                    Quaternion.AngleAxis(offNum, Vector3.up),
+                    matSingle, 0);
+            }
+            else
+            {
+                Graphics.DrawMesh(MeshPool.plane08,
+                    mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
+                    Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
             }
         }
 
@@ -353,34 +388,64 @@ namespace ShowMeYourHands
 
         private Color getHandColor(Pawn pawn)
         {
-            return pawn.story.SkinColor;
+            hasGloves = false;
+            if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor)
+            {
+                return pawn.story.SkinColor;
+            }
 
-            // TODO: Add coloring based on the armor
-            //var handApparel = from apparel in pawn.apparel.WornApparel
-            //    where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
-            //    select apparel.def;
-            //if (!handApparel.Any())
-            //{
-            //    return pawn.story.SkinColor;
-            //}
+            var handApparel = from apparel in pawn.apparel.WornApparel
+                where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
+                select apparel.def;
+            if (!handApparel.Any())
+            {
+                return pawn.story.SkinColor;
+            }
 
             //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
-            //var outerApparel = handApparel.OrderBy(def => def.apparel.layers).First();
-            //if (outerApparel == null)
-            //{
-            //    return pawn.story.SkinColor;
-            //}
 
-            //if (outerApparel == lastApparel)
-            //{
-            //    return pawn.story.SkinColor;
-            //}
+            ThingDef outerApparel = null;
+            foreach (var thingDef in handApparel)
+            {
+                if (outerApparel == null)
+                {
+                    outerApparel = thingDef;
+                    continue;
+                }
 
-            //lastApparel = outerApparel;
-            //return AverageColorFromTexture((Texture2D) outerApparel.graphicData.Graphic.MatSingle.mainTexture);
+                if (thingDef.apparel.layers.Contains(ApparelLayerDefOf.Shell))
+                {
+                    outerApparel = thingDef;
+                    break;
+                }
+
+                if (thingDef.apparel.layers.Contains(ApparelLayerDefOf.Middle))
+                {
+                    outerApparel = thingDef;
+                }
+            }
+
+            if (outerApparel == null)
+            {
+                return pawn.story.SkinColor;
+            }
+
+            hasGloves = true;
+            if (colorDictionary == null)
+            {
+                colorDictionary = new Dictionary<ThingDef, Color>();
+            }
+
+            if (!colorDictionary.ContainsKey(outerApparel))
+            {
+                colorDictionary[outerApparel] =
+                    AverageColorFromTexture((Texture2D) outerApparel.graphicData.Graphic.MatSingle.mainTexture);
+            }
+
+            return colorDictionary[outerApparel];
         }
 
-        private Color AverageColorFromTexture(Texture2D texture)
+        private Color32 AverageColorFromTexture(Texture2D texture)
         {
             var renderTexture = RenderTexture.GetTemporary(
                 texture.width,
@@ -399,26 +464,53 @@ namespace ShowMeYourHands
 
             var texColors = tex.GetPixels32();
 
-            var total = texColors.Length;
-
-            float r = 0;
-            float g = 0;
-            float b = 0;
-            var count = 0;
-            for (var i = 0; i < total; i++)
+            var shadeDictionary = new Dictionary<Color32, int>();
+            foreach (var texColor in texColors)
             {
-                if (texColors[i].a < 5)
+                if (texColor.a < 50)
                 {
+                    // Ignore low transparency
                     continue;
                 }
 
-                r += texColors[i].r;
-                g += texColors[i].g;
-                b += texColors[i].b;
-                count++;
+                var currentRgb = new Rgb {B = texColor.b, G = texColor.b, R = texColor.r};
+
+                if (currentRgb.Compare(new Rgb {B = 0, G = 0, R = 0}, new Cie1976Comparison()) < 2)
+                {
+                    // Ignore black pixels
+                    continue;
+                }
+
+                if (shadeDictionary.Count == 0)
+                {
+                    shadeDictionary[texColor] = 1;
+                    continue;
+                }
+
+
+                var added = false;
+                foreach (var rgb in shadeDictionary.Keys.Where(rgb =>
+                    currentRgb.Compare(new Rgb {B = rgb.b, G = rgb.b, R = rgb.r}, new Cie1976Comparison()) < 2))
+                {
+                    shadeDictionary[rgb]++;
+                    added = true;
+                    break;
+                }
+
+                if (!added)
+                {
+                    shadeDictionary[texColor] = 1;
+                }
             }
 
-            return new Color32((byte) (r / count), (byte) (g / count), (byte) (b / count), byte.MaxValue);
+            if (shadeDictionary.Count == 0)
+            {
+                return new Color32(0, 0, 0, MaxValue);
+            }
+
+            var greatestValue = shadeDictionary.Aggregate((rgb, max) => rgb.Value > max.Value ? rgb : max).Key;
+            greatestValue.a = MaxValue;
+            return greatestValue;
         }
     }
 }

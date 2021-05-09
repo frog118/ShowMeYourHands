@@ -16,6 +16,8 @@
   <SMYH.resetselected.button>Reset selected</SMYH.resetselected.button>
   <SMYH.logging.label>Enable verbose logging</SMYH.logging.label>
   <SMYH.logging.tooltip>Shows verbose logging, for finding errors</SMYH.logging.tooltip>
+  <SMYH.matcharmor.label>Try to match armor color</SMYH.matcharmor.label>
+  <SMYH.matcharmor.tooltip>If the pawn is wearing an armor that covers the hands, the color of the hands will try to match the armors color</SMYH.matcharmor.tooltip>
   <SMYH.version.label>Installed mod-version: {0}</SMYH.version.label>
   <SMYH.error.weapon>Error, could not find weapon {0} in the database</SMYH.error.weapon>
   <SMYH.error.hands>Error, could not find handinfo of {0} in the database</SMYH.error.hands>

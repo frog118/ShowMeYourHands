@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.13.0 - Added definitions for all continued mods
+
+
 1.0.12.0 - Added definitions for continued mods, added option to match hand-color with worn armor, sort of
 
 

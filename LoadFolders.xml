@@ -36,6 +36,25 @@
     <li IfModActive="Mlie.Pirates">ModSupport/Mlie.Pirates</li>
     <li IfModActive="Mlie.PreTranscended">ModSupport/Mlie.PreTranscended</li>
     <li IfModActive="Mlie.RaccRace">ModSupport/Mlie.RaccRace</li>
+    <li IfModActive="Mlie.RamboWeaponsPack">ModSupport/Mlie.RamboWeaponsPack</li>
+    <li IfModActive="Mlie.RedArmy">ModSupport/Mlie.RedArmy</li>
+    <li IfModActive="Mlie.RimGateJaffaKree">ModSupport/Mlie.RimGateJaffaKree</li>
+    <li IfModActive="Mlie.RimworldWesternizationProject">ModSupport/Mlie.RimworldWesternizationProject</li>
+    <li IfModActive="Mlie.SimpleSlingshot">ModSupport/Mlie.SimpleSlingshot</li>
+    <li IfModActive="Mlie.SkavenUpgraded">ModSupport/Mlie.SkavenUpgraded</li>
+    <li IfModActive="Mlie.SOS2SpaceGear">ModSupport/Mlie.SOS2SpaceGear</li>
+    <li IfModActive="Mlie.StarshipTroopersWeapons">ModSupport/Mlie.StarshipTroopersWeapons</li>
+    <li IfModActive="Mlie.StarTrekFederation">ModSupport/Mlie.StarTrekFederation</li>
+    <li IfModActive="Mlie.StarWarsFactions">ModSupport/Mlie.StarWarsFactions</li>
+    <li IfModActive="Mlie.Swords">ModSupport/Mlie.Swords</li>
+    <li IfModActive="Mlie.SyndicateClassic">ModSupport/Mlie.SyndicateClassic</li>
+    <li IfModActive="Mlie.TacticalChargedGear">ModSupport/Mlie.TacticalChargedGear</li>
+    <li IfModActive="Mlie.TheWitcherTrials">ModSupport/Mlie.TheWitcherTrials</li>
+    <li IfModActive="Mlie.ThoriumMod">ModSupport/Mlie.ThoriumMod</li>
+    <li IfModActive="Mlie.TuskenGearMod">ModSupport/Mlie.TuskenGearMod</li>
+    <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
+    <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
+    <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -73,5 +92,22 @@
     <li IfModActive="Mlie.Pirates">ModSupport/Mlie.Pirates</li>
     <li IfModActive="Mlie.PreTranscended">ModSupport/Mlie.PreTranscended</li>
     <li IfModActive="Mlie.RaccRace">ModSupport/Mlie.RaccRace</li>
+    <li IfModActive="Mlie.RamboWeaponsPack">ModSupport/Mlie.RamboWeaponsPack</li>
+    <li IfModActive="Mlie.RedArmy">ModSupport/Mlie.RedArmy</li>
+    <li IfModActive="Mlie.RimGateJaffaKree">ModSupport/Mlie.RimGateJaffaKree</li>
+    <li IfModActive="Mlie.RimworldWesternizationProject">ModSupport/Mlie.RimworldWesternizationProject</li>
+    <li IfModActive="Mlie.SimpleSlingshot">ModSupport/Mlie.SimpleSlingshot</li>
+    <li IfModActive="Mlie.SkavenUpgraded">ModSupport/Mlie.SkavenUpgraded</li>
+    <li IfModActive="Mlie.SOS2SpaceGear">ModSupport/Mlie.SOS2SpaceGear</li>
+    <li IfModActive="Mlie.StarTrekFederation">ModSupport/Mlie.StarTrekFederation</li>
+    <li IfModActive="Mlie.StarWarsFactions">ModSupport/Mlie.StarWarsFactions</li>
+    <li IfModActive="Mlie.Swords">ModSupport/Mlie.Swords</li>
+    <li IfModActive="Mlie.TacticalChargedGear">ModSupport/Mlie.TacticalChargedGear</li>
+    <li IfModActive="Mlie.TheWitcherTrials">ModSupport/Mlie.TheWitcherTrials</li>
+    <li IfModActive="Mlie.ThoriumMod">ModSupport/Mlie.ThoriumMod</li>
+    <li IfModActive="Mlie.TuskenGearMod">ModSupport/Mlie.TuskenGearMod</li>
+    <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
+    <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
+    <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
   </v1.2>
 </loadFolders>

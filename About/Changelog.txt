@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.14.0 - Added option to resize hands based on bodysize, added hands for Rimsec Security-mod
+
+
 1.0.13.0 - Added definitions for all continued mods
 
 

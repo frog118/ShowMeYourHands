@@ -10,10 +10,12 @@ Works with roolos https://steamcommunity.com/sharedfiles/filedetails/?id=1628211
 Based on https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutter Weapon Hands but dynamically sets the hands based on the graphics of the weapon. It will however still use the old hand-definitions if they exist.
 
 There is also mod-settings where you can modify the settings for each weapon. These settings can be exported and included in a mod to add native support.
+All my "Continued"-mods should have native support.
 
 [h2]Credits[/h2]
 Telefonmast for the support with the texture-code.
 qux for the updated hand-texture.
+shiuanyue for the Chinese translation.
 Preview-image includes armor and weapons from the excellent XCOM-mods by velcroboy333
 https://steamcommunity.com/sharedfiles/filedetails/?id=2317335843]XCOM Armor
 https://steamcommunity.com/sharedfiles/filedetails/?id=2062766405]XCOM Weapons

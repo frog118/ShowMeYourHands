@@ -478,11 +478,12 @@ namespace ShowMeYourHands
                         listing_Standard.Gap((buttonSize.y * 2) + 12);
                     }
 
-                    listing_Standard.Gap();
                     listing_Standard.CheckboxLabeled("SMYH.logging.label".Translate(), ref Settings.VerboseLogging,
                         "SMYH.logging.tooltip".Translate());
                     listing_Standard.CheckboxLabeled("SMYH.matcharmor.label".Translate(), ref Settings.MatchArmorColor,
                         "SMYH.matcharmor.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("SMYH.resizehands.label".Translate(), ref Settings.ResizeHands,
+                        "SMYH.resizehands.tooltip".Translate());
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
@@ -499,8 +500,8 @@ namespace ShowMeYourHands
                     listing_Standard.End();
 
                     var tabFrameRect = frameRect;
-                    tabFrameRect.y += 240;
-                    tabFrameRect.height -= 240;
+                    tabFrameRect.y += 250;
+                    tabFrameRect.height -= 250;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;

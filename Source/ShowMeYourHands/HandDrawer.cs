@@ -13,16 +13,13 @@ namespace ShowMeYourHands
     public class HandDrawer : ThingComp
     {
         private static Dictionary<ThingDef, Color> colorDictionary;
-        private Vector3 FHand;
+
+        private readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
+        private readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
 
         private Color handColor;
-        private Graphic HandTex;
-        private Graphic HandTexClean;
-
-        private bool hasGloves;
-        private Graphic OffHandTex;
-        private Graphic OffHandTexClean;
-        private Vector3 SHand;
+        private Vector3 MainHand;
+        private Vector3 OffHand;
 
         private Color HandColor
         {
@@ -33,8 +30,47 @@ namespace ShowMeYourHands
                     return handColor;
                 }
 
-                var pawn = parent as Pawn;
-                handColor = getHandColor(pawn);
+                if (!(parent is Pawn pawn))
+                {
+                    return Color.white;
+                }
+
+                handColor = getHandColor(pawn, out var hasGloves);
+                if (!mainHandGraphics.ContainsKey(pawn) || mainHandGraphics[pawn].color != handColor)
+                {
+                    if (hasGloves)
+                    {
+                        mainHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("HandClean", ShaderDatabase.Cutout,
+                            new Vector2(1f, 1f),
+                            handColor, handColor);
+                    }
+                    else
+                    {
+                        mainHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.Cutout,
+                            new Vector2(1f, 1f),
+                            handColor, handColor);
+                    }
+                }
+
+                if (offHandGraphics.ContainsKey(pawn) && offHandGraphics[pawn].color == handColor)
+                {
+                    return handColor;
+                }
+
+                if (hasGloves)
+                {
+                    offHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("OffHandClean",
+                        ShaderDatabase.Cutout,
+                        new Vector2(1f, 1f),
+                        handColor, handColor);
+                }
+                else
+                {
+                    offHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.Cutout,
+                        new Vector2(1f, 1f),
+                        handColor, handColor);
+                }
+
                 return handColor;
             }
             set => handColor = value;
@@ -45,12 +81,12 @@ namespace ShowMeYourHands
             var whandCompProps = (WhandCompProps) props;
             if (whandCompProps.MainHand != Vector3.zero)
             {
-                FHand = whandCompProps.MainHand;
+                MainHand = whandCompProps.MainHand;
             }
 
             if (whandCompProps.SecHand != Vector3.zero)
             {
-                SHand = whandCompProps.SecHand;
+                OffHand = whandCompProps.SecHand;
             }
         }
 
@@ -84,13 +120,13 @@ namespace ShowMeYourHands
             var compProperties = mainhandWeapon.def.GetCompProperties<WhandCompProps>();
             if (compProperties != null)
             {
-                FHand = compProperties.MainHand;
-                SHand = compProperties.SecHand;
+                MainHand = compProperties.MainHand;
+                OffHand = compProperties.SecHand;
             }
             else
             {
-                SHand = Vector3.zero;
-                FHand = Vector3.zero;
+                OffHand = Vector3.zero;
+                MainHand = Vector3.zero;
             }
 
             ThingWithComps offhandWeapon = null;
@@ -102,7 +138,7 @@ namespace ShowMeYourHands
                 var offhandComp = offhandWeapon?.def.GetCompProperties<WhandCompProps>();
                 if (offhandComp != null)
                 {
-                    SHand = offhandComp.MainHand;
+                    OffHand = offhandComp.MainHand;
                 }
             }
 
@@ -208,65 +244,59 @@ namespace ShowMeYourHands
             num %= 360f;
             offNum %= 360f;
 
-            if (HandTex == null)
-            {
-                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-            }
+            var unused = HandColor;
 
-            if (OffHandTex == null)
-            {
-                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-            }
-
-            if (HandTexClean == null)
-            {
-                HandTexClean = GraphicDatabase.Get<Graphic_Single>("HandClean", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-            }
-
-            if (OffHandTexClean == null)
-            {
-                OffHandTexClean = GraphicDatabase.Get<Graphic_Single>("OffHandClean", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-            }
-
-            if (HandTex == null)
+            if (!mainHandGraphics.ContainsKey(pawn) || !offHandGraphics.ContainsKey(pawn))
             {
                 return;
             }
 
-            var currentColor = HandColor;
-            var matSingle = HandTex.MatSingle;
-            if (hasGloves)
+            var mainHandTex = mainHandGraphics[pawn];
+            var offHandTex = offHandGraphics[pawn];
+
+
+            if (mainHandTex == null || offHandTex == null)
             {
-                matSingle = HandTexClean.MatSingle;
+                return;
             }
 
-            matSingle.color = currentColor;
+            var matSingle = mainHandTex.MatSingle;
+            var offSingle = offHandTex.MatSingle;
+            var drawSize = 1f;
 
-            var offSingle = matSingle;
-            if (OffHandTex != null)
+            if (eq.def.graphicData != null && eq.def?.graphicData?.drawSize.x != 1f)
             {
-                offSingle = OffHandTex.MatSingle;
-                if (hasGloves)
+                drawSize = eq.def.graphicData.drawSize.x;
+            }
+
+            var drawMesh = MeshPool.plane08;
+            if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+            {
+                switch (pawn.RaceProps?.baseBodySize)
                 {
-                    offSingle = OffHandTexClean.MatSingle;
+                    case < 0.5f:
+                        drawMesh = MeshPool.plane03;
+                        break;
+                    case < 0.75f:
+                        drawMesh = MeshPool.plane05;
+                        break;
+                    case > 2.0f:
+                        drawMesh = MeshPool.plane20;
+                        break;
+                    case > 1.5f:
+                        drawMesh = MeshPool.plane14;
+                        break;
+                    case > 1.2f:
+                        drawMesh = MeshPool.plane10;
+                        break;
                 }
-
-                offSingle.color = currentColor;
             }
 
-            if (FHand != Vector3.zero)
+            if (MainHand != Vector3.zero)
             {
-                var num2 = FHand.x;
-                var z = FHand.z;
-                var y = FHand.y < 0 ? -0.01f : 0.3f;
+                var num2 = MainHand.x * drawSize;
+                var z = MainHand.z * drawSize;
+                var y = MainHand.y < 0 ? -0.01f : 0.3f;
                 if (flipped)
                 {
                     num2 = -num2;
@@ -276,27 +306,30 @@ namespace ShowMeYourHands
                 {
                     if (pawn.Rotation != Rot4.West)
                     {
-                        Graphics.DrawMesh(MeshPool.plane08,
+                        Graphics.DrawMesh(drawMesh,
                             mainhandDrawLoc + new Vector3(num2, y + 2f, z).RotatedBy(num),
                             Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
                     }
                 }
                 else
                 {
-                    Graphics.DrawMesh(MeshPool.plane08,
+                    Graphics.DrawMesh(drawMesh,
                         mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
                         Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
                 }
             }
 
-            if (SHand == Vector3.zero)
+            if (OffHand == Vector3.zero)
             {
                 return;
             }
 
-            var num3 = SHand.x;
-            var z2 = SHand.z;
-            var y2 = SHand.y < 0 ? -0.01f : 0.3f;
+
+            var num3 = OffHand.x * drawSize;
+            var z2 = OffHand.z * drawSize;
+            var y2 = OffHand.y < 0 ? -0.01f : 0.3f;
+
+
             if (flipped)
             {
                 num3 = -num3;
@@ -315,13 +348,13 @@ namespace ShowMeYourHands
                     drawLocation = offhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
                 }
 
-                Graphics.DrawMesh(MeshPool.plane08, drawLocation,
+                Graphics.DrawMesh(drawMesh, drawLocation,
                     Quaternion.AngleAxis(offNum, Vector3.up),
                     matSingle, 0);
             }
             else
             {
-                Graphics.DrawMesh(MeshPool.plane08,
+                Graphics.DrawMesh(drawMesh,
                     mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
                     Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
             }
@@ -366,27 +399,10 @@ namespace ShowMeYourHands
 
         public override void PostDraw()
         {
-            if (HandTex != null)
-            {
-                AngleCalc(parent.DrawPos);
-            }
-            else
-            {
-                if (parent is not Pawn pawn)
-                {
-                    return;
-                }
-
-                HandTex = GraphicDatabase.Get<Graphic_Single>("Hand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-                OffHandTex = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
-                    pawn.story.SkinColor, pawn.story.SkinColor);
-            }
+            AngleCalc(parent.DrawPos);
         }
 
-        private Color getHandColor(Pawn pawn)
+        private Color getHandColor(Pawn pawn, out bool hasGloves)
         {
             hasGloves = false;
             if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor)

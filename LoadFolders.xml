@@ -54,7 +54,9 @@
     <li IfModActive="Mlie.TuskenGearMod">ModSupport/Mlie.TuskenGearMod</li>
     <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
+    <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
+    <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -108,6 +110,8 @@
     <li IfModActive="Mlie.TuskenGearMod">ModSupport/Mlie.TuskenGearMod</li>
     <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
+    <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
+    <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
   </v1.2>
 </loadFolders>

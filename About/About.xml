@@ -33,6 +33,12 @@ Based on [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]
 There is also mod-settings where you can modify the settings for each weapon. These settings can be exported and included in a mod to add native support.
 All my "Continued"-mods should have native support.
 
+Settings
+[list]
+[*] Coloring the hands based on apparel/armor color
+[*] Resizing the hands based on the bodysize of the pawn
+[/list]
+
 [h2]Credits[/h2]
 Telefonmast for the support with the texture-code.
 qux for the updated hand-texture.

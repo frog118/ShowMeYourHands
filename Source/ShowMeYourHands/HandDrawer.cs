@@ -99,7 +99,7 @@ namespace ShowMeYourHands
                                                                pawn.mindState.duty.def.alwaysShowWeapon);
         }
 
-        private void AngleCalc(Vector3 rootLoc)
+        private void AngleCalc()
         {
             if (!(parent is Pawn pawn) || pawn.Dead || !pawn.Spawned)
             {
@@ -142,8 +142,6 @@ namespace ShowMeYourHands
                 }
             }
 
-            rootLoc.y += 0.0449999981f;
-            //rootLoc.y += 0.0367346928f; <-- this is vanillas value for weapons
             if (pawn.stances.curStance is Stance_Busy {neverAimWeapon: false} stance_Busy &&
                 stance_Busy.focusTarg.IsValid)
             {
@@ -157,51 +155,37 @@ namespace ShowMeYourHands
                     num = (a - pawn.DrawPos).AngleFlat();
                 }
 
-                var b = new Vector3(0f, 0f, 0.4f).RotatedBy(num);
-                DrawHands(mainhandWeapon, rootLoc + b, num, offhandWeapon);
+                DrawHands(mainhandWeapon, num, offhandWeapon);
+                return;
             }
-            else if (CarryWeaponOpenly(pawn))
-            {
-                if (pawn.Rotation == Rot4.South)
-                {
-                    var drawLoc = rootLoc +
-                                  new Vector3(0f, 0f, -0.22f);
-                    var offhandDrawLoc = rootLoc + new Vector3(0.44f, 0f, -0.22f);
-                    if (offhandWeapon != null)
-                    {
-                        if (mainhandWeapon.def.IsMeleeWeapon)
-                        {
-                            drawLoc.x -= 0.1f;
-                        }
 
-                        if (offhandWeapon.def.IsMeleeWeapon)
-                        {
-                            offhandDrawLoc.x += 0.1f;
-                        }
-                    }
-
-                    DrawHands(mainhandWeapon, drawLoc, 143f, offhandWeapon, offhandDrawLoc);
-                }
-                else if (pawn.Rotation == Rot4.East)
-                {
-                    var drawLoc2 = rootLoc + new Vector3(0.2f, 0f, -0.22f);
-                    DrawHands(mainhandWeapon, drawLoc2, 143f, offhandWeapon);
-                }
-                else if (pawn.Rotation == Rot4.West)
-                {
-                    var drawLoc3 = rootLoc + new Vector3(-0.2f, 0f, -0.22f);
-                    DrawHands(mainhandWeapon, drawLoc3, 217f, offhandWeapon);
-                }
-            }
-            else
+            if (!CarryWeaponOpenly(pawn))
             {
-                GunDrawer(mainhandWeapon, pawn.DrawPos, pawn);
+                return;
             }
+
+            if (pawn.Rotation == Rot4.South || pawn.Rotation == Rot4.North)
+            {
+                DrawHands(mainhandWeapon, 143f, offhandWeapon, true);
+                return;
+            }
+
+            if (pawn.Rotation == Rot4.East)
+            {
+                DrawHands(mainhandWeapon, 143f, offhandWeapon);
+                return;
+            }
+
+            if (pawn.Rotation != Rot4.West)
+            {
+                return;
+            }
+
+            DrawHands(mainhandWeapon, 217f, offhandWeapon);
         }
 
 
-        private void DrawHands(Thing eq, Vector3 mainhandDrawLoc, float aimAngle, Thing offhand = null,
-            Vector3 offhandDrawLoc = new Vector3())
+        private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false)
         {
             var flipped = false;
             if (!(parent is Pawn pawn))
@@ -209,40 +193,95 @@ namespace ShowMeYourHands
                 return;
             }
 
-            var num = aimAngle - 90f;
-            var offNum = num;
-            if (aimAngle is > 200f and < 340f)
+            var mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
+            var mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+            var offhandWeaponLocation = Vector3.zero;
+            var offHandAngle = mainHandAngle;
+            var mainMeleeExtra = 0f;
+            var offMeleeExtra = 0f;
+            var mainMelee = false;
+            var offMelee = false;
+            if (offHandWeapon != null)
             {
-                num -= 180f;
-                offNum -= 180f;
-                if (eq.def.IsMeleeWeapon)
-                {
-                    num -= eq.def.equippedAngleOffset;
-                }
+                offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
+                offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
+            }
 
-                if (offhand?.def.IsMeleeWeapon == true)
-                {
-                    offNum -= offhand.def.equippedAngleOffset;
-                }
-
+            //ShowMeYourHandsMain.LogMessage($"main {mainWeaponLocation}, off {offhandWeaponLocation}");
+            mainHandAngle = mainHandAngle - 90f;
+            offHandAngle = offHandAngle - 90f;
+            if (pawn.Rotation == Rot4.West)
+            {
                 flipped = true;
+            }
+
+            if (mainHandWeapon.def.IsMeleeWeapon)
+            {
+                mainMelee = true;
+                mainMeleeExtra = 0.0001f;
+                if (idle && offHandWeapon != null) //Dual wield idle vertical
+                {
+                    if (pawn.Rotation == Rot4.South)
+                    {
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        mainHandAngle -= 180f;
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
             }
             else
             {
-                if (eq.def.IsMeleeWeapon)
+                if (aimAngle is > 200f and < 340f || flipped)
                 {
-                    num += eq.def.equippedAngleOffset;
-                }
-
-                if (offhand?.def.IsMeleeWeapon == true)
-                {
-                    offNum += offhand.def.equippedAngleOffset;
+                    mainHandAngle -= 180f;
                 }
             }
 
+            if (offHandWeapon?.def.IsMeleeWeapon == true)
+            {
+                offMelee = true;
+                offMeleeExtra = 0.0001f;
+                if (idle && pawn.Rotation == Rot4.North) //Dual wield north
+                {
+                    offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        offHandAngle -= 180f;
+                        offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        offHandAngle += offHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+            }
+            else
+            {
+                if (aimAngle is > 200f and < 340f || flipped)
+                {
+                    offHandAngle -= 180f;
+                }
+            }
 
-            num %= 360f;
-            offNum %= 360f;
+            mainHandAngle %= 360f;
+            offHandAngle %= 360f;
 
             var unused = HandColor;
 
@@ -264,59 +303,41 @@ namespace ShowMeYourHands
             var offSingle = offHandTex.MatSingle;
             var drawSize = 1f;
 
-            if (eq.def.graphicData != null && eq.def?.graphicData?.drawSize.x != 1f)
+            if (mainHandWeapon.def.graphicData != null && mainHandWeapon.def?.graphicData?.drawSize.x != 1f)
             {
-                drawSize = eq.def.graphicData.drawSize.x;
+                drawSize = mainHandWeapon.def.graphicData.drawSize.x;
             }
 
-            var drawMesh = MeshPool.plane08;
+            var mesh = MeshMakerPlanes.NewPlaneMesh(0.8f, flipped);
             if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
             {
-                switch (pawn.RaceProps?.baseBodySize)
+                if (pawn.RaceProps != null)
                 {
-                    case < 0.5f:
-                        drawMesh = MeshPool.plane03;
-                        break;
-                    case < 0.75f:
-                        drawMesh = MeshPool.plane05;
-                        break;
-                    case > 2.0f:
-                        drawMesh = MeshPool.plane20;
-                        break;
-                    case > 1.5f:
-                        drawMesh = MeshPool.plane14;
-                        break;
-                    case > 1.2f:
-                        drawMesh = MeshPool.plane10;
-                        break;
+                    var convertedBodySize = 0.8f * pawn.RaceProps.baseBodySize;
+                    mesh = MeshMakerPlanes.NewPlaneMesh(convertedBodySize, flipped);
                 }
             }
+
 
             if (MainHand != Vector3.zero)
             {
-                var num2 = MainHand.x * drawSize;
+                var x = MainHand.x * drawSize;
                 var z = MainHand.z * drawSize;
-                var y = MainHand.y < 0 ? -0.01f : 0.3f;
+                var y = MainHand.y < 0 ? -0.0001f : 0f;
+
                 if (flipped)
                 {
-                    num2 = -num2;
+                    x *= -1;
                 }
 
-                if (offhand != null)
+                if (pawn.Rotation == Rot4.North && !mainMelee)
                 {
-                    if (pawn.Rotation != Rot4.West)
-                    {
-                        Graphics.DrawMesh(drawMesh,
-                            mainhandDrawLoc + new Vector3(num2, y + 2f, z).RotatedBy(num),
-                            Quaternion.AngleAxis(num, Vector3.up), matSingle, 0);
-                    }
+                    z += 0.1f;
                 }
-                else
-                {
-                    Graphics.DrawMesh(drawMesh,
-                        mainhandDrawLoc + new Vector3(num2, y, z).RotatedBy(num),
-                        Quaternion.AngleAxis(num, Vector3.up), y < 0 ? offSingle : matSingle, 0);
-                }
+
+                Graphics.DrawMesh(mesh,
+                    mainWeaponLocation + new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle),
+                    Quaternion.AngleAxis(mainHandAngle, Vector3.up), y >= 0 ? matSingle : offSingle, 0);
             }
 
             if (OffHand == Vector3.zero)
@@ -325,81 +346,46 @@ namespace ShowMeYourHands
             }
 
 
-            var num3 = OffHand.x * drawSize;
+            var x2 = OffHand.x * drawSize;
             var z2 = OffHand.z * drawSize;
-            var y2 = OffHand.y < 0 ? -0.01f : 0.3f;
-
+            var y2 = OffHand.y < 0 ? -0.0001f : 0f;
 
             if (flipped)
             {
-                num3 = -num3;
+                x2 *= -1;
             }
 
-            if (offhand != null)
+            if (offHandWeapon != null)
             {
-                if (pawn.Rotation == Rot4.East)
+                if (idle && !offMelee)
                 {
-                    return;
+                    if (pawn.Rotation == Rot4.South)
+                    {
+                        z2 += 0.05f;
+                    }
+                    else
+                    {
+                        z2 -= 0.05f;
+                    }
                 }
 
-                var drawLocation = mainhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
-                if (pawn.Rotation == Rot4.South)
-                {
-                    drawLocation = offhandDrawLoc + new Vector3(num3, y2 + 2f, z2).RotatedBy(offNum);
-                }
-
-                Graphics.DrawMesh(drawMesh, drawLocation,
-                    Quaternion.AngleAxis(offNum, Vector3.up),
-                    matSingle, 0);
-            }
-            else
-            {
-                Graphics.DrawMesh(drawMesh,
-                    mainhandDrawLoc + new Vector3(num3, y2, z2).RotatedBy(num),
-                    Quaternion.AngleAxis(num, Vector3.up), y2 < 0 ? offSingle : matSingle, 0);
-            }
-        }
-
-        private void GunDrawer(Thing eq, Vector3 drawLoc, Pawn pawn)
-        {
-            if (eq == null || eq.def.defName != "Gun_Pistol")
-            {
+                Graphics.DrawMesh(mesh,
+                    offhandWeaponLocation + new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle),
+                    Quaternion.AngleAxis(offHandAngle, Vector3.up),
+                    y2 >= 0 ? matSingle : offSingle, 0);
                 return;
             }
 
-            var WepHolderPos = new Vector3(0, 5f, 0);
-            var matrix = default(Matrix4x4);
-            var size = new Vector3(0.84f, 0f, 0.84f);
-            var mesh = MeshPool.plane10;
-            float num = 90;
 
-            if (pawn.Rotation == Rot4.South)
-            {
-                WepHolderPos = new Vector3(0.3f, 5f, -0.3f);
-                num = 270f;
-            }
-            else if (pawn.Rotation == Rot4.East)
-            {
-                WepHolderPos = new Vector3(0, 5f, -0.3f);
-            }
-            else if (pawn.Rotation == Rot4.West)
-            {
-                WepHolderPos = new Vector3(0, 0f, -0.3f);
-                num = 270f;
-            }
-            else if (pawn.Rotation == Rot4.North)
-            {
-                WepHolderPos = new Vector3(-0.3f, 0f, -0.3f);
-                num = 75f;
-            }
-
-            matrix.SetTRS(drawLoc + WepHolderPos, Quaternion.AngleAxis(num, Vector3.up), size);
-            Graphics.DrawMesh(mesh, matrix, eq.Graphic.MatSingle, 0);
+            Graphics.DrawMesh(mesh,
+                mainWeaponLocation + new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(mainHandAngle),
+                Quaternion.AngleAxis(mainHandAngle, Vector3.up), y2 >= 0 ? matSingle : offSingle, 0);
         }
+
 
         public override void PostDraw()
         {
-            AngleCalc(parent.DrawPos);
+            AngleCalc();
         }
 
         private Color getHandColor(Pawn pawn, out bool hasGloves)

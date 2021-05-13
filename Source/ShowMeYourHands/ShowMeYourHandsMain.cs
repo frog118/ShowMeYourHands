@@ -1,13 +1,19 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using UnityEngine;
 using Verse;
 
 namespace ShowMeYourHands
 {
     [StaticConstructorOnStartup]
-    internal static class ShowMeYourHandsMain
+    public static class ShowMeYourHandsMain
     {
+        public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations =
+            new Dictionary<Thing, Tuple<Vector3, float>>();
+
         static ShowMeYourHandsMain()
         {
             var compProperties = new CompProperties {compClass = typeof(HandDrawer)};

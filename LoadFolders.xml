@@ -2,6 +2,7 @@
 <loadFolders>
   <v1.1>
     <li>/</li>
+    <li IfModActive="Roolo.DualWield">DualWield</li>
     <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
     <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
     <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
@@ -60,6 +61,7 @@
   </v1.1>
   <v1.2>
     <li>/</li>
+    <li IfModActive="Roolo.DualWield">DualWield</li>
     <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
     <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
     <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>

@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.15.0 - Rewrote the hand-placement code, added support for Yayos combat 3 and Dual Wield
+
+
 1.0.14.0 - Added option to resize hands based on bodysize, added hands for Rimsec Security-mod
 
 

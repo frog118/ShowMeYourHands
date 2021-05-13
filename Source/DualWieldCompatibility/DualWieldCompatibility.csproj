@@ -4,42 +4,33 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FBCF6F90-100E-4B7E-AE2D-3D35D70062B3}</ProjectGuid>
+    <ProjectGuid>{A385C815-57F0-4949-8DB5-EE5282F966F0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ShowMeYourHands</RootNamespace>
-    <AssemblyName>ShowMeYourHands</AssemblyName>
+    <AssemblyName>DualWieldCompatibility</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Assemblies\</OutputPath>
+    <OutputPath>..\..\DualWield\Assemblies</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\1.2\Assemblies</OutputPath>
+    <OutputPath>..\..\DualWield\Assemblies</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ColorMine">
-      <Version>*</Version>
-    </PackageReference>
     <PackageReference Include="Krafs.Rimworld.Ref">
       <Version>*</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
@@ -51,28 +42,25 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ListingExtension.cs" />
-    <Compile Include="PawnRenderer_DrawEquipmentAiming.cs" />
-    <Compile Include="SaveableVector3.cs" />
-    <Compile Include="ShowMeYourHandsMod.cs" />
-    <Compile Include="WhandCompProps.cs" />
-    <Compile Include="HandDrawer.cs" />
-    <Compile Include="WhandComp.cs" />
-    <Compile Include="ClutterHandsTDef.cs" />
-    <Compile Include="ShowMeYourHandsMain.cs" />
-    <Compile Include="RimWorld_MainMenuDrawer_MainMenuOnGUI.cs" />
+    <Compile Include="DualWieldMain.cs" />
+    <Compile Include="PawnRenderer_DrawEquipmentAiming_DrawEquipmentAimingOverride.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShowMeYourHandsModSettings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="VersionFromManifest">
-      <HintPath>..\VersionFromManifest.dll</HintPath>
+    <ProjectReference Include="..\ShowMeYourHands\ShowMeYourHands.csproj">
+      <Project>{fbcf6f90-100e-4b7e-ae2d-3d35d70062b3}</Project>
+      <Name>ShowMeYourHands</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="DualWield">
+      <HintPath>..\..\..\..\..\..\workshop\content\294100\1628211313\1.1\Assemblies\DualWield.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>*</Version>
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>DEL "$(OutDir)\ColorMine.dll"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

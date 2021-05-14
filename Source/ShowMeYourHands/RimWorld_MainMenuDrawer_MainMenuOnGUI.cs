@@ -26,6 +26,62 @@ namespace ShowMeYourHands
             alreadyRun = true;
 
             UpdateHandDefinitions();
+
+            // get the MethodBase of the original
+            var original = typeof(PawnRenderer).GetMethod("DrawEquipmentAiming");
+
+// retrieve all patches
+            var patches = Harmony.GetPatchInfo(original);
+            if (patches is null)
+            {
+                return; // not patched
+            }
+
+            var knownPatches = new List<string>
+            {
+                "com.yayo.combat",
+                "Mlie.ShowMeYourHands",
+                "Roolo.DualWield",
+                "com.yayo.combat3"
+            };
+
+            if (patches.Prefixes.Count > 0)
+            {
+                ShowMeYourHandsMain.LogMessage($"{patches.Prefixes.Count} current active prefixes");
+                foreach (var patch in patches.Prefixes)
+                {
+                    if (knownPatches.Contains(patch.owner))
+                    {
+                        ShowMeYourHandsMain.LogMessage(
+                            $"Prefix {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}");
+                    }
+                    else
+                    {
+                        ShowMeYourHandsMain.LogMessage(
+                            $"There is an unexpected patch of the weapon-rendering function. This may affect hand-positions. Please report the following information to the author of the 'Show Me Your Hands'-mod\nPrefix {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}",
+                            false, true);
+                    }
+                }
+            }
+
+            if (patches.Transpilers.Count > 0)
+            {
+                ShowMeYourHandsMain.LogMessage($"{patches.Transpilers.Count} current active transpilers");
+                foreach (var patch in patches.Transpilers)
+                {
+                    if (knownPatches.Contains(patch.owner))
+                    {
+                        ShowMeYourHandsMain.LogMessage(
+                            $"Transpiler {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}");
+                    }
+                    else
+                    {
+                        ShowMeYourHandsMain.LogMessage(
+                            $"There is an unexpected patch of the weapon-rendering function. This may affect hand-positions. Please report the following information to the author of the 'Show Me Your Hands'-mod\nTranspiler {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}",
+                            false, true);
+                    }
+                }
+            }
         }
 
         public static void UpdateHandDefinitions()

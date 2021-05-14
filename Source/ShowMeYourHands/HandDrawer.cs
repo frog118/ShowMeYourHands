@@ -323,7 +323,7 @@ namespace ShowMeYourHands
             {
                 var x = MainHand.x * drawSize;
                 var z = MainHand.z * drawSize;
-                var y = MainHand.y < 0 ? -0.0001f : 0f;
+                var y = MainHand.y < 0 ? -0.0001f : 0.0001f;
 
                 if (flipped)
                 {
@@ -348,7 +348,7 @@ namespace ShowMeYourHands
 
             var x2 = OffHand.x * drawSize;
             var z2 = OffHand.z * drawSize;
-            var y2 = OffHand.y < 0 ? -0.0001f : 0f;
+            var y2 = OffHand.y < 0 ? -0.0001f : 0.0001f;
 
             if (flipped)
             {

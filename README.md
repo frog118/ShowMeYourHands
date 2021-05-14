@@ -12,6 +12,8 @@ Based on https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutt
 There is also mod-settings where you can modify the settings for each weapon. These settings can be exported and included in a mod to add native support.
 All my "Continued"-mods should have native support.
 
+There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo's Combat 3 and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations.
+
 Settings
 
 

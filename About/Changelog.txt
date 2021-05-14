@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.16.0 - Fixed a silly mistake where the hands got the same y-value as the weapon somtimes
+
+
 1.0.15.0 - Rewrote the hand-placement code, added support for Yayos combat 3 and Dual Wield
 
 

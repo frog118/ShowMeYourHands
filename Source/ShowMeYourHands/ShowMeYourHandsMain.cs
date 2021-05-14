@@ -25,11 +25,18 @@ namespace ShowMeYourHands
             }
 
             var harmony = new Harmony("Mlie.ShowMeYourHands");
+
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
-        public static void LogMessage(string message, bool forced = false)
+        public static void LogMessage(string message, bool forced = false, bool warning = false)
         {
+            if (warning)
+            {
+                Log.Warning($"[ShowMeYourHands]: {message}");
+                return;
+            }
+
             if (!forced && !ShowMeYourHandsMod.instance.Settings.VerboseLogging)
             {
                 return;

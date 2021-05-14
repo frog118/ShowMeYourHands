@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>ShowMeYourHands</modNameReadable>
@@ -12,10 +12,10 @@
 There is also an option for coloring the hands the same color as worn apparel or armor that covers the hands. It tries to pick the main color of the armor but it is a tricky process so it may not always work.
 |Each update of the mod can also contain more hand-placements for weapons, more customized than the automatic placements. You can see this in the mod options where the color of the weapon in the list shows if it uses the automatic placement, definitions added by this or another mod, or your own custom setting.</content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>ShowMeYourHands_1_0_15_0</defName>
-		<assemblyVersion>1.0.15.0</assemblyVersion>
-		<content>Added support for Yayos combat 3 and the Dual Wield-mod. So now hands will follow the weapon even during the extra animations. Should also be easier to add support for other mods that changes the weapon rendering since the code for the hand-placement has been rewritten.
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>ShowMeYourHands_1_0_15_0</defName>
+    <assemblyVersion>1.0.15.0</assemblyVersion>
+    <content>Added support for Yayos combat 3 and the Dual Wield-mod. So now hands will follow the weapon even during the extra animations. Should also be easier to add support for other mods that changes the weapon rendering since the code for the hand-placement has been rewritten.
 </content>
-	</HugsLib.UpdateFeatureDef>
+  </HugsLib.UpdateFeatureDef>
 </Defs>

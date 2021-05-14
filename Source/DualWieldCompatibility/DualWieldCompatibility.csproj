@@ -64,3 +64,4 @@
     <PostBuildEvent>DEL "$(OutDir)\ColorMine.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
+

@@ -29,6 +29,7 @@
     <li IfModActive="Mlie.LordoftheRimsHobbits">ModSupport/Mlie.LordoftheRimsHobbits</li>
     <li IfModActive="Mlie.LordoftheRimsMenAndBeasts">ModSupport/Mlie.LordoftheRimsMenAndBeasts</li>
     <li IfModActive="Mlie.Lysitheans">ModSupport/Mlie.Lysitheans</li>
+    <li IfModActive="Mlie.MeleePlease">ModSupport/Mlie.MeleePlease</li>
     <li IfModActive="Mlie.NanotrasenArmory">ModSupport/Mlie.NanotrasenArmory</li>
     <li IfModActive="Mlie.NapoleonicAge">ModSupport/Mlie.NapoleonicAge</li>
     <li IfModActive="Mlie.Norbals">ModSupport/Mlie.Norbals</li>
@@ -56,6 +57,7 @@
     <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
+    <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
   </v1.1>
@@ -88,6 +90,7 @@
     <li IfModActive="Mlie.LordoftheRimsHobbits">ModSupport/Mlie.LordoftheRimsHobbits</li>
     <li IfModActive="Mlie.LordoftheRimsMenAndBeasts">ModSupport/Mlie.LordoftheRimsMenAndBeasts</li>
     <li IfModActive="Mlie.Lysitheans">ModSupport/Mlie.Lysitheans</li>
+    <li IfModActive="Mlie.MeleePlease">ModSupport/Mlie.MeleePlease</li>
     <li IfModActive="Mlie.NanotrasenArmory">ModSupport/Mlie.NanotrasenArmory</li>
     <li IfModActive="Mlie.NapoleonicAge">ModSupport/Mlie.NapoleonicAge</li>
     <li IfModActive="Mlie.Norbals">ModSupport/Mlie.Norbals</li>
@@ -113,6 +116,7 @@
     <li IfModActive="Mlie.Westerado">ModSupport/Mlie.Westerado</li>
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
+    <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
   </v1.2>

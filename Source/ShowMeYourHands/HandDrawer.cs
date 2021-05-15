@@ -193,6 +193,14 @@ namespace ShowMeYourHands
                 return;
             }
 
+            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+            {
+                Log.ErrorOnce(
+                    $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.NameShortColored}. Please report this issue to the author of Show Me Your Hands if possible.",
+                    mainHandWeapon.def.GetHashCode());
+                return;
+            }
+
             var mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
             var mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
             var offhandWeaponLocation = Vector3.zero;

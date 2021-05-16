@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.18.0 - Verified patch-priorities and added android-tiers reference
+
+
 1.0.17.0 - Added better support for VFE lasers, O21 lasers, Gunplay and Jecs Oversized
 
 

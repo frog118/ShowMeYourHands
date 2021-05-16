@@ -13,8 +13,13 @@ namespace ShowMeYourHands
         // JecsTools Oversized overrides always
         // Gunplay overrides if animations is turned on
         // [O21] Toolbox overrides if animations is turned on
-        [HarmonyBefore("jecstools.jecrell.comps.oversized", "com.github.automatic1111.gunplay",
-            "com.o21toolbox.rimworld.mod")]
+        // Yayo Combat 3 overrides if animations is turned on
+        [HarmonyBefore("jecstools.jecrell.comps.oversized",
+            "rimworld.androitiers-jecrell.comps.oversized",
+            "com.github.automatic1111.gunplay",
+            "com.o21toolbox.rimworld.mod",
+            "com.yayo.combat",
+            "com.yayo.combat3")]
         public static void SaveWeaponLocation(ref Thing eq, ref Vector3 drawLoc, ref float aimAngle)
         {
             //ShowMeYourHandsMain.LogMessage($"Saving from vanilla {eq.def.defName}, {drawLoc}, {aimAngle}");

@@ -31,6 +31,7 @@ namespace ShowMeYourHands
             "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser",
             // JecsTools
             "jecstools.jecrell.comps.oversized",
+            "rimworld.androitiers-jecrell.comps.oversized",
             "jecstools.jecrell.comps.installedpart",
             // Gunplay
             "com.github.automatic1111.gunplay",

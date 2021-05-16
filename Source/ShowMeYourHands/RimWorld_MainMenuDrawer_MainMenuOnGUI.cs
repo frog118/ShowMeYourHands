@@ -34,6 +34,23 @@ namespace ShowMeYourHands
                 return;
             }
 
+            if (patches.Prefixes.Count > 0)
+            {
+                foreach (var patch in patches.Prefixes)
+                {
+                    if ((patch.owner == "com.o21toolbox.rimworld.mod" ||
+                         patch.owner == "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser")
+                        && patch.PatchMethod.Name == "Prefix")
+                    {
+                        var prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
+                        ShowMeYourHandsMain.LogMessage(
+                            $"Patch named {patch.owner} loaded, adding extra patch after that");
+                        ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, patch.priority - 1));
+                    }
+                }
+            }
+
+            patches = Harmony.GetPatchInfo(original);
 
             if (patches.Prefixes.Count > 0)
             {
@@ -44,17 +61,6 @@ namespace ShowMeYourHands
                     {
                         ShowMeYourHandsMain.LogMessage(
                             $"Prefix {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod.Name}, Prio: {patch.priority}");
-
-                        // ReSharper disable once InvertIf, Unreadable otherwise
-                        if ((patch.owner == "com.o21toolbox.rimworld.mod" ||
-                             patch.owner == "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser")
-                            && patch.PatchMethod.Name == "Prefix")
-                        {
-                            var prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
-                            ShowMeYourHandsMain.LogMessage(
-                                $"Patch named {patch.owner} loaded, adding extra patch after that");
-                            ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, patch.priority - 1));
-                        }
                     }
                     else
                     {

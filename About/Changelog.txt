@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.19.0 - Simplified the patching, adds patch first and last, plus intermedate if needed
+
+
 1.0.18.0 - Verified patch-priorities and added android-tiers reference
 
 

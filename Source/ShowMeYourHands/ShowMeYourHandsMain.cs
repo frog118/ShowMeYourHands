@@ -14,29 +14,37 @@ namespace ShowMeYourHands
         public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations =
             new Dictionary<Thing, Tuple<Vector3, float>>();
 
-        public static Harmony harmony;
+        public static readonly Harmony harmony;
 
         public static readonly List<string> knownPatches = new List<string>
         {
             // This mod
             "Mlie.ShowMeYourHands",
             // Yayos Combat 3
+            // Replaces weapon drawer
             "com.yayo.combat",
             "com.yayo.combat3",
             // Dual Wield
+            // Replaces weapon drawer if dual wielding
             "Roolo.DualWield",
             // Vanilla Expanded Framework
             "OskarPotocki.VFECore",
             // Vanilla Weapons Expanded - Laser
+            // Modifies weapon position for lasers
             "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser",
             // JecsTools
             "jecstools.jecrell.comps.oversized",
             "rimworld.androitiers-jecrell.comps.oversized",
             "jecstools.jecrell.comps.installedpart",
             // Gunplay
+            // Modifies weapon position
             "com.github.automatic1111.gunplay",
             // [O21] Toolbox
-            "com.o21toolbox.rimworld.mod"
+            // Modifies weapon position for lasers
+            "com.o21toolbox.rimworld.mod",
+            // Rimlaser
+            // Modifies weapon position for lasers
+            "com.github.automatic1111.rimlaser"
         };
 
         static ShowMeYourHandsMain()

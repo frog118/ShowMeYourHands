@@ -29,43 +29,46 @@ namespace ShowMeYourHands
 
             var original = typeof(PawnRenderer).GetMethod("DrawEquipmentAiming");
             var patches = Harmony.GetPatchInfo(original);
+            var prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
             if (patches is null)
             {
+                ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.High));
                 return;
             }
 
-            if (patches.Prefixes.Count > 0)
+            var modifyingPatches = new List<string>
             {
-                foreach (var patch in patches.Prefixes)
-                {
-                    if ((patch.owner == "com.o21toolbox.rimworld.mod" ||
-                         patch.owner == "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser")
-                        && patch.PatchMethod.Name == "Prefix")
-                    {
-                        var prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
-                        ShowMeYourHandsMain.LogMessage(
-                            $"Patch named {patch.owner} loaded, adding extra patch after that");
-                        ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, patch.priority - 1));
-                    }
-                }
+                "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser",
+                "com.github.automatic1111.gunplay",
+                "com.o21toolbox.rimworld.mod",
+                "com.github.automatic1111.rimlaser"
+            };
+
+            ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.First));
+
+            foreach (var patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
+            {
+                ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, -1, null, new[] {patch.owner}));
             }
+
+            ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.Last));
 
             patches = Harmony.GetPatchInfo(original);
 
             if (patches.Prefixes.Count > 0)
             {
                 ShowMeYourHandsMain.LogMessage($"{patches.Prefixes.Count} current active prefixes");
-                foreach (var patch in patches.Prefixes)
+                foreach (var patch in patches.Prefixes.OrderByDescending(patch => patch.priority))
                 {
                     if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
                     {
                         ShowMeYourHandsMain.LogMessage(
-                            $"Prefix {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod.Name}, Prio: {patch.priority}");
+                            $"Prefix - Owner: {patch.owner}, Method: {patch.PatchMethod.Name}, Prio: {patch.priority}");
                     }
                     else
                     {
                         ShowMeYourHandsMain.LogMessage(
-                            $"There is an unexpected patch of the weapon-rendering function. This may affect hand-positions. Please report the following information to the author of the 'Show Me Your Hands'-mod\nPrefix {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod.Name}, Prio: {patch.priority}",
+                            $"There is an unexpected patch of the weapon-rendering function. This may affect hand-positions. Please report the following information to the author of the 'Show Me Your Hands'-mod\nPrefix - Owner: {patch.owner}, Method: {patch.PatchMethod.Name}, Prio: {patch.priority}",
                             false, true);
                     }
                 }
@@ -77,12 +80,12 @@ namespace ShowMeYourHands
             }
 
             ShowMeYourHandsMain.LogMessage($"{patches.Transpilers.Count} current active transpilers");
-            foreach (var patch in patches.Transpilers)
+            foreach (var patch in patches.Transpilers.OrderByDescending(patch => patch.priority))
             {
                 if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
                 {
                     ShowMeYourHandsMain.LogMessage(
-                        $"Transpiler {patch.index}. Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}");
+                        $"Transpiler - Owner: {patch.owner}, Method: {patch.PatchMethod}, Prio: {patch.priority}");
                 }
                 else
                 {

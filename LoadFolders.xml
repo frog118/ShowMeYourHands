@@ -60,6 +60,7 @@
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
+    <li IfModActive="automatic.rimlaser">ModSupport/automatic.rimlaser</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -119,5 +120,6 @@
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
+    <li IfModActive="automatic.rimlaser">ModSupport/automatic.rimlaser</li>
   </v1.2>
 </loadFolders>

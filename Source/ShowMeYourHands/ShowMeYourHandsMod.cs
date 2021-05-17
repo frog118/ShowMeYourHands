@@ -484,6 +484,9 @@ namespace ShowMeYourHands
                         "SMYH.matcharmor.tooltip".Translate());
                     listing_Standard.CheckboxLabeled("SMYH.resizehands.label".Translate(), ref Settings.ResizeHands,
                         "SMYH.resizehands.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("SMYH.repositionhands.label".Translate(),
+                        ref Settings.RepositionHands,
+                        "SMYH.repositionhands.tooltip".Translate());
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
@@ -500,8 +503,8 @@ namespace ShowMeYourHands
                     listing_Standard.End();
 
                     var tabFrameRect = frameRect;
-                    tabFrameRect.y += 250;
-                    tabFrameRect.height -= 250;
+                    tabFrameRect.y += 275;
+                    tabFrameRect.height -= 275;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;

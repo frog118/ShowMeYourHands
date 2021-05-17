@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.21.0 - Added setting to not account for weapon resizing, since yayo combat does not show larger weapons
+
+
 1.0.20.0 - Assemblies mysteriously vanished on last publish
 
 

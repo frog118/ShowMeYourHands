@@ -5,7 +5,6 @@
 
 Pawns show their hands on their weapon when drafted. 
 Should work with most weapons, vanilla and modded.
-Works with roolos https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield
 
 Based on https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutter Weapon Hands but dynamically sets the hands based on the graphics of the weapon. It will however still use the old hand-definitions if they exist.
 

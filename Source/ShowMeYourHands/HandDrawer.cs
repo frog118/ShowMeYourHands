@@ -311,7 +311,8 @@ namespace ShowMeYourHands
             var offSingle = offHandTex.MatSingle;
             var drawSize = 1f;
 
-            if (mainHandWeapon.def.graphicData != null && mainHandWeapon.def?.graphicData?.drawSize.x != 1f)
+            if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
+                mainHandWeapon.def?.graphicData?.drawSize.x != 1f)
             {
                 drawSize = mainHandWeapon.def.graphicData.drawSize.x;
             }
@@ -365,6 +366,22 @@ namespace ShowMeYourHands
 
             if (offHandWeapon != null)
             {
+                drawSize = 1f;
+
+                if (ShowMeYourHandsMod.instance.Settings.RepositionHands && offHandWeapon.def.graphicData != null &&
+                    offHandWeapon.def?.graphicData?.drawSize.x != 1f)
+                {
+                    drawSize = offHandWeapon.def.graphicData.drawSize.x;
+                }
+
+                x2 = OffHand.x * drawSize;
+                z2 = OffHand.z * drawSize;
+
+                if (flipped)
+                {
+                    x2 *= -1;
+                }
+
                 if (idle && !offMelee)
                 {
                     if (pawn.Rotation == Rot4.South)

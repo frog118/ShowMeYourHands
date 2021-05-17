@@ -20,6 +20,8 @@
   <SMYH.matcharmor.tooltip>If the pawn is wearing an armor that covers the hands, the color of the hands will try to match the armors color</SMYH.matcharmor.tooltip>
   <SMYH.resizehands.label>Resize hands based on body-drawsize</SMYH.resizehands.label>
   <SMYH.resizehands.tooltip>Tries to match the size of the pawn when drawing the hands. This can look strange if the race-definition uses unexpected values.</SMYH.resizehands.tooltip>
+  <SMYH.repositionhands.label>Reposition hands on oversized weapons</SMYH.repositionhands.label>
+  <SMYH.repositionhands.tooltip>Will compensate for weapons that have a larger draw-size. This option can be turned off in some cases where another mod overrides the draw-size, for example the animations in Yayo Combat 3.</SMYH.repositionhands.tooltip>
   <SMYH.version.label>Installed mod-version: {0}</SMYH.version.label>
   <SMYH.error.weapon>Error, could not find weapon {0} in the database</SMYH.error.weapon>
   <SMYH.error.hands>Error, could not find handinfo of {0} in the database</SMYH.error.hands>

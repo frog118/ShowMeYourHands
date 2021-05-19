@@ -155,7 +155,7 @@ namespace ShowMeYourHands
                     num = (a - pawn.DrawPos).AngleFlat();
                 }
 
-                DrawHands(mainhandWeapon, num, offhandWeapon);
+                DrawHands(mainhandWeapon, num, offhandWeapon, false, true);
                 return;
             }
 
@@ -185,7 +185,8 @@ namespace ShowMeYourHands
         }
 
 
-        private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false)
+        private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false,
+            bool aiming = false)
         {
             var flipped = false;
             if (!(parent is Pawn pawn))
@@ -218,7 +219,7 @@ namespace ShowMeYourHands
             //ShowMeYourHandsMain.LogMessage($"main {mainWeaponLocation}, off {offhandWeaponLocation}");
             mainHandAngle = mainHandAngle - 90f;
             offHandAngle = offHandAngle - 90f;
-            if (pawn.Rotation == Rot4.West)
+            if (pawn.Rotation == Rot4.West && !aiming)
             {
                 flipped = true;
             }
@@ -256,6 +257,7 @@ namespace ShowMeYourHands
                 if (aimAngle is > 200f and < 340f || flipped)
                 {
                     mainHandAngle -= 180f;
+                    flipped = true;
                 }
             }
 
@@ -285,6 +287,7 @@ namespace ShowMeYourHands
                 if (aimAngle is > 200f and < 340f || flipped)
                 {
                     offHandAngle -= 180f;
+                    flipped = true;
                 }
             }
 
@@ -339,7 +342,7 @@ namespace ShowMeYourHands
                     x *= -1;
                 }
 
-                if (pawn.Rotation == Rot4.North && !mainMelee)
+                if (pawn.Rotation == Rot4.North && !mainMelee && !aiming)
                 {
                     z += 0.1f;
                 }

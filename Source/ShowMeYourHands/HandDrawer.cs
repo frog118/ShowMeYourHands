@@ -2,6 +2,7 @@
 using System.Linq;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -16,6 +17,7 @@ namespace ShowMeYourHands
 
         private readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
         private readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
+        private readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
 
         private Color handColor;
         private Vector3 MainHand;
@@ -320,16 +322,34 @@ namespace ShowMeYourHands
                 drawSize = mainHandWeapon.def.graphicData.drawSize.x;
             }
 
-            var mesh = MeshMakerPlanes.NewPlaneMesh(0.8f, flipped);
-            if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+            if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
             {
-                if (pawn.RaceProps != null)
+                var bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
                 {
-                    var convertedBodySize = 0.8f * pawn.RaceProps.baseBodySize;
-                    mesh = MeshMakerPlanes.NewPlaneMesh(convertedBodySize, flipped);
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null)
+                    {
+                        var type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
+                        if (type != null)
+                        {
+                            var method = type.GetMethod("GetBodySizeScaling");
+                            if (method != null)
+                            {
+                                bodySize = (float) method.Invoke(null, new object[] {pawn});
+                            }
+                        }
+                    }
                 }
+
+                pawnBodySizes[pawn] = 0.8f * bodySize;
             }
 
+            var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn], flipped);
 
             if (MainHand != Vector3.zero)
             {

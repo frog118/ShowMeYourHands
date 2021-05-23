@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.23.0 - Added support for childrens hand-sizes
+
+
 1.0.22.0 - Now supports Run and Gun
 
 

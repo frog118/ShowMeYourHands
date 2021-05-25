@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.24.0 - Should now show the correct color of hands based on armor, even using yayo or other layer-changing mods
+
+
 1.0.23.0 - Added support for childrens hand-sizes
 
 

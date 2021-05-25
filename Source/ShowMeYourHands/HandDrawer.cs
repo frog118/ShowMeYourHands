@@ -3,7 +3,6 @@ using System.Linq;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
 using HarmonyLib;
-using RimWorld;
 using UnityEngine;
 using Verse;
 using static System.Byte;
@@ -13,7 +12,7 @@ namespace ShowMeYourHands
     [StaticConstructorOnStartup]
     public class HandDrawer : ThingComp
     {
-        private static Dictionary<ThingDef, Color> colorDictionary;
+        private static Dictionary<Thing, Color> colorDictionary;
 
         private readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
         private readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
@@ -446,7 +445,7 @@ namespace ShowMeYourHands
 
             var handApparel = from apparel in pawn.apparel.WornApparel
                 where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
-                select apparel.def;
+                select apparel;
             if (!handApparel.Any())
             {
                 return pawn.story.SkinColor;
@@ -454,25 +453,19 @@ namespace ShowMeYourHands
 
             //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
 
-            ThingDef outerApparel = null;
-            foreach (var thingDef in handApparel)
+            Thing outerApparel = null;
+            var highestDrawOrder = 0;
+            foreach (var thing in handApparel)
             {
-                if (outerApparel == null)
+                var thingOutmostLayer =
+                    thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
+                if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
                 {
-                    outerApparel = thingDef;
                     continue;
                 }
 
-                if (thingDef.apparel.layers.Contains(ApparelLayerDefOf.Shell))
-                {
-                    outerApparel = thingDef;
-                    break;
-                }
-
-                if (thingDef.apparel.layers.Contains(ApparelLayerDefOf.Middle))
-                {
-                    outerApparel = thingDef;
-                }
+                highestDrawOrder = thingOutmostLayer;
+                outerApparel = thing;
             }
 
             if (outerApparel == null)
@@ -483,17 +476,27 @@ namespace ShowMeYourHands
             hasGloves = true;
             if (colorDictionary == null)
             {
-                colorDictionary = new Dictionary<ThingDef, Color>();
+                colorDictionary = new Dictionary<Thing, Color>();
             }
 
-            if (!colorDictionary.ContainsKey(outerApparel))
+            if (colorDictionary.ContainsKey(outerApparel))
+            {
+                return colorDictionary[outerApparel];
+            }
+
+            if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
+            {
+                colorDictionary[outerApparel] = outerApparel.def.GetColorForStuff(outerApparel.Stuff);
+            }
+            else
             {
                 colorDictionary[outerApparel] =
-                    AverageColorFromTexture((Texture2D) outerApparel.graphicData.Graphic.MatSingle.mainTexture);
+                    AverageColorFromTexture((Texture2D) outerApparel.Graphic.MatSingle.mainTexture);
             }
 
             return colorDictionary[outerApparel];
         }
+
 
         private Color32 AverageColorFromTexture(Texture2D texture)
         {
@@ -511,11 +514,13 @@ namespace ShowMeYourHands
             tex.Apply();
             RenderTexture.active = previous;
             RenderTexture.ReleaseTemporary(renderTexture);
+            return AverageColorFromColors(tex.GetPixels32());
+        }
 
-            var texColors = tex.GetPixels32();
-
+        private Color32 AverageColorFromColors(Color32[] colors)
+        {
             var shadeDictionary = new Dictionary<Color32, int>();
-            foreach (var texColor in texColors)
+            foreach (var texColor in colors)
             {
                 if (texColor.a < 50)
                 {

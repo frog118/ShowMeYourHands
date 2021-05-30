@@ -36,6 +36,7 @@ namespace ShowMeYourHands
             "jecstools.jecrell.comps.oversized",
             "rimworld.androitiers-jecrell.comps.oversized",
             "jecstools.jecrell.comps.installedpart",
+            "rimworld.Ogliss.comps.oversized",
             // Gunplay
             // Modifies weapon position
             "com.github.automatic1111.gunplay",

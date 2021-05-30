@@ -65,6 +65,7 @@
     <li IfModActive="PitchStone.HeavyMeleeWeapons.">ModSupport/PitchStone.HeavyMeleeWeapons</li>
     <li IfModActive="CP.Military.Furniture">ModSupport/CP.Military.Furniture</li>
     <li IfModActive="CP.RimmuNation.Weapons">ModSupport/CP.RimmuNation.Weapons</li>
+    <li IfModActive="Ogliss.AlienVsPredator">ModSupport/Ogliss.AlienVsPredator</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -129,5 +130,6 @@
     <li IfModActive="PitchStone.HeavyMeleeWeapons.">ModSupport/PitchStone.HeavyMeleeWeapons</li>
     <li IfModActive="CP.Military.Furniture">ModSupport/CP.Military.Furniture</li>
     <li IfModActive="CP.RimmuNation.Weapons">ModSupport/CP.RimmuNation.Weapons</li>
+    <li IfModActive="Ogliss.AlienVsPredator">ModSupport/Ogliss.AlienVsPredator</li>
   </v1.2>
 </loadFolders>

@@ -22,7 +22,8 @@ Settings
 
 
 
-[h2]Credits[/h2]
+## Credits
+
 Telefonmast for the support with the texture-code.
 qux for the updated hand-texture.
 shiuanyue for the Chinese translation.

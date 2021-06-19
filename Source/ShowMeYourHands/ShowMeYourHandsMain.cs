@@ -16,6 +16,8 @@ namespace ShowMeYourHands
 
         public static readonly Harmony harmony;
 
+        public static bool BabysAndChildrenLoaded;
+
         public static readonly List<string> knownPatches = new List<string>
         {
             // This mod
@@ -45,11 +47,14 @@ namespace ShowMeYourHands
             "com.o21toolbox.rimworld.mod",
             // Rimlaser
             // Modifies weapon position for lasers
-            "com.github.automatic1111.rimlaser"
+            "com.github.automatic1111.rimlaser",
+            // Combat extended
+            "CombatExtended.HarmonyCE"
         };
 
         static ShowMeYourHandsMain()
         {
+            BabysAndChildrenLoaded = ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null;
             var compProperties = new CompProperties {compClass = typeof(HandDrawer)};
             foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                 where race.race?.Humanlike == true

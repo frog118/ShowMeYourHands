@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.26.0 - Verified CE, fixed hands in melee when facing west, added error-handling on offhand-issues
+
+
 1.0.25.0 - Added support for AvP
 
 

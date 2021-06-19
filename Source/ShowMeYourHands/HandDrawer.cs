@@ -198,7 +198,7 @@ namespace ShowMeYourHands
             if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
             {
                 Log.ErrorOnce(
-                    $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.NameShortColored}. Please report this issue to the author of Show Me Your Hands if possible.",
+                    $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
                     mainHandWeapon.def.GetHashCode());
                 return;
             }
@@ -213,14 +213,22 @@ namespace ShowMeYourHands
             var offMelee = false;
             if (offHandWeapon != null)
             {
-                offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
-                offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
+                if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        offHandWeapon.def.GetHashCode());
+                }
+                else
+                {
+                    offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
+                    offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
+                }
             }
 
-            //ShowMeYourHandsMain.LogMessage($"main {mainWeaponLocation}, off {offhandWeaponLocation}");
             mainHandAngle = mainHandAngle - 90f;
             offHandAngle = offHandAngle - 90f;
-            if (pawn.Rotation == Rot4.West && !aiming)
+            if (pawn.Rotation == Rot4.West)
             {
                 flipped = true;
             }
@@ -331,7 +339,7 @@ namespace ShowMeYourHands
                         bodySize = pawn.RaceProps.baseBodySize;
                     }
 
-                    if (ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null)
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded)
                     {
                         var type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
                         if (type != null)
@@ -381,10 +389,6 @@ namespace ShowMeYourHands
             var z2 = OffHand.z * drawSize;
             var y2 = OffHand.y < 0 ? -0.0001f : 0.0001f;
 
-            if (flipped)
-            {
-                x2 *= -1;
-            }
 
             if (offHandWeapon != null)
             {
@@ -423,6 +427,10 @@ namespace ShowMeYourHands
                 return;
             }
 
+            if (flipped)
+            {
+                x2 *= -1;
+            }
 
             Graphics.DrawMesh(mesh,
                 mainWeaponLocation + new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(mainHandAngle),

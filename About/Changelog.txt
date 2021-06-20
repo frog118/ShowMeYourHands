@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.27.0 - Added native support for 40 more mods, thank you Arcanant!
+
+
 1.0.26.0 - Verified CE, fixed hands in melee when facing west, added error-handling on offhand-issues
 
 

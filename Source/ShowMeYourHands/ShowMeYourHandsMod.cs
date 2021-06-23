@@ -281,16 +281,21 @@ namespace ShowMeYourHands
 
         private bool DrawIcon(ThingDef thing, Rect rect, Vector3 mainHandPosition, Vector3 offHandPosition)
         {
-            Texture texture;
-
-            if (thing?.graphicData?.graphicClass == typeof(Graphic_StackCount))
+            if (thing == null)
             {
-                texture = (thing.graphicData?.Graphic as Graphic_StackCount)?.SubGraphicForStackCount(1, thing)
-                    .MatSingle.mainTexture;
+                return false;
             }
-            else
+
+            var texture = thing.graphicData?.Graphic?.MatSingle?.mainTexture;
+            if (thing.graphicData?.graphicClass == typeof(Graphic_Random))
             {
-                texture = thing?.graphicData?.Graphic?.MatSingle?.mainTexture;
+                texture = ((Graphic_Random) thing.graphicData.Graphic)?.FirstSubgraphic().MatSingle.mainTexture;
+            }
+
+            if (thing.graphicData?.graphicClass == typeof(Graphic_StackCount))
+            {
+                texture = ((Graphic_StackCount) thing.graphicData.Graphic)?.SubGraphicForStackCount(1, thing).MatSingle
+                    .mainTexture;
             }
 
             if (texture == null)
@@ -374,6 +379,17 @@ namespace ShowMeYourHands
             }
 
             var texture2D = thing.graphicData.Graphic.MatSingle.mainTexture;
+            if (thing.graphicData.graphicClass == typeof(Graphic_Random))
+            {
+                texture2D = ((Graphic_Random) thing.graphicData.Graphic).FirstSubgraphic().MatSingle.mainTexture;
+            }
+
+            if (thing.graphicData.graphicClass == typeof(Graphic_StackCount))
+            {
+                texture2D = ((Graphic_StackCount) thing.graphicData.Graphic).SubGraphicForStackCount(1, thing).MatSingle
+                    .mainTexture;
+            }
+
             if (texture2D.width != texture2D.height)
             {
                 var ratio = (float) texture2D.width / texture2D.height;
@@ -444,7 +460,11 @@ namespace ShowMeYourHands
                             {
                                 Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                                     "SMYH.resetall.confirm".Translate(),
-                                    delegate { instance.Settings.ResetManualValues(); }));
+                                    delegate
+                                    {
+                                        instance.Settings.ResetManualValues();
+                                        UpdateWeaponStatistics();
+                                    }));
                             }, "SMYH.resetall.button".Translate(),
                             new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
                         if (!string.IsNullOrEmpty(selectedSubDef) && selectedHasManualDefs.Count > 0)
@@ -459,7 +479,10 @@ namespace ShowMeYourHands
                                         delegate
                                         {
                                             foreach (var weaponDef in from ThingDef weapon in AllWeapons
-                                                where weapon.modContentPack?.Name == selectedSubDef
+                                                where
+                                                    weapon.modContentPack == null &&
+                                                    selectedSubDef == "SMYH.unknown".Translate() ||
+                                                    weapon.modContentPack?.Name == selectedSubDef
                                                 select weapon)
                                             {
                                                 WhandCompProps whandCompProps = null;
@@ -467,6 +490,7 @@ namespace ShowMeYourHands
                                             }
 
                                             selectedHasManualDefs = new List<string>();
+                                            UpdateWeaponStatistics();
                                         }));
                                 }, "SMYH.resetselected.button".Translate(),
                                 new Vector2(labelPoint.position.x + buttonSpacer + buttonSize.x + 10,
@@ -719,7 +743,9 @@ namespace ShowMeYourHands
             if (onlySelected)
             {
                 var weaponsDefsToSelectFrom = (from ThingDef weapon in AllWeapons
-                    where weapon.modContentPack?.Name == selectedSubDef
+                    where weapon.modContentPack == null &&
+                          selectedSubDef == "SMYH.unknown".Translate() ||
+                          weapon.modContentPack?.Name == selectedSubDef
                     select weapon.defName).ToList();
                 handPositionsToIterate = new Dictionary<string, SaveableVector3>(
                     from position in instance.Settings.ManualMainHandPositions
@@ -774,7 +800,9 @@ namespace ShowMeYourHands
             if (!string.IsNullOrEmpty(selectedSubDef))
             {
                 weaponsToShow = (from ThingDef weapon in AllWeapons
-                    where weapon.modContentPack?.Name == selectedSubDef
+                    where weapon.modContentPack == null &&
+                          selectedSubDef == "SMYH.unknown".Translate() ||
+                          weapon.modContentPack?.Name == selectedSubDef
                     select weapon).ToList();
                 listAddition = 60;
             }

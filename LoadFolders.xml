@@ -58,6 +58,7 @@
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="Mlie.CrusadersFaction">ModSupport/Mlie.CrusadersFaction</li>
+    <li IfModActive="Mlie.GerrymonsSombrero">ModSupport/Mlie.GerrymonsSombrero</li>
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
@@ -109,6 +110,10 @@
     <li IfModActive="JangoDsoul.TierArmor.Civil">ModSupport/JangoDsoul.TierArmor.Civil</li>
     <li IfModActive="Rick.FCPDR">ModSupport/Rick.FCPDR</li>
     <li IfModActive="Si.ThrumboHornWeapons">ModSupport/Si.ThrumboHornWeapons</li>
+    <li IfModActive="hamster.personacryptech">ModSupport/hamster.personacryptech</li>
+    <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
+    <li IfModActive="sarg.geneticrim">ModSupport/sarg.geneticrim</li>
+    <li IfModActive="Aelanna.EccentricTech.Flares">ModSupport/Aelanna.EccentricTech.Flares</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -166,6 +171,7 @@
     <li IfModActive="Mlie.XennRace">ModSupport/Mlie.XennRace</li>
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="Mlie.CrusadersFaction">ModSupport/Mlie.CrusadersFaction</li>
+    <li IfModActive="Mlie.GerrymonsSombrero">ModSupport/Mlie.GerrymonsSombrero</li>
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
@@ -217,5 +223,9 @@
     <li IfModActive="JangoDsoul.TierArmor.Civil">ModSupport/JangoDsoul.TierArmor.Civil</li>
     <li IfModActive="Rick.FCPDR">ModSupport/Rick.FCPDR</li>
     <li IfModActive="Si.ThrumboHornWeapons">ModSupport/Si.ThrumboHornWeapons</li>
+    <li IfModActive="hamster.personacryptech">ModSupport/hamster.personacryptech</li>
+    <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
+    <li IfModActive="sarg.geneticrim">ModSupport/sarg.geneticrim</li>
+    <li IfModActive="Aelanna.EccentricTech.Flares">ModSupport/Aelanna.EccentricTech.Flares</li>
   </v1.2>
 </loadFolders>

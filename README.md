@@ -25,6 +25,7 @@ Settings
 
 ## Credits
 
+Arcanant for providing hand-definitions for a lot of mods.
 Telefonmast for the support with the texture-code.
 qux for the updated hand-texture.
 shiuanyue for the Chinese translation.

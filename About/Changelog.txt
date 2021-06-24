@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.29.0 - More weapon-defs via Arcanant, support for Grab your tool
+
+
 1.0.28.0 - Added more defs via Arcanant, fixed unknown-defs support and things with random/stack-graphics
 
 

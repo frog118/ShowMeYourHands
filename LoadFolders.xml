@@ -114,6 +114,15 @@
     <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
     <li IfModActive="sarg.geneticrim">ModSupport/sarg.geneticrim</li>
     <li IfModActive="Aelanna.EccentricTech.Flares">ModSupport/Aelanna.EccentricTech.Flares</li>
+    <li IfModActive="atomicravioli.crystalloid">ModSupport/atomicravioli.crystalloid</li>
+    <li IfModActive="warbanner.warbanner">ModSupport/warbanner.warbanner</li>
+    <li IfModActive="alien.arasakacorporation">ModSupport/alien.arasakacorporation</li>
+    <li IfModActive="kompadt.warhammer.skaven">ModSupport/kompadt.warhammer.skaven</li>
+    <li IfModActive="iluvsilicon.dishonoredarmorandweapons">ModSupport/iluvsilicon.dishonoredarmorandweapons</li>
+    <li IfModActive="spino.megafauna">ModSupport/spino.megafauna</li>
+    <li IfModActive="jangodsoul.bot.soldier">ModSupport/jangodsoul.bot.soldier</li>
+    <li IfModActive="morgante.lotrurukhairacemod">ModSupport/morgante.lotrurukhairacemod</li>
+    <li IfModActive="vanillaexpanded.vbrewecandt">ModSupport/vanillaexpanded.vbrewecandt</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -227,5 +236,14 @@
     <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
     <li IfModActive="sarg.geneticrim">ModSupport/sarg.geneticrim</li>
     <li IfModActive="Aelanna.EccentricTech.Flares">ModSupport/Aelanna.EccentricTech.Flares</li>
+    <li IfModActive="atomicravioli.crystalloid">ModSupport/atomicravioli.crystalloid</li>
+    <li IfModActive="warbanner.warbanner">ModSupport/warbanner.warbanner</li>
+    <li IfModActive="alien.arasakacorporation">ModSupport/alien.arasakacorporation</li>
+    <li IfModActive="kompadt.warhammer.skaven">ModSupport/kompadt.warhammer.skaven</li>
+    <li IfModActive="iluvsilicon.dishonoredarmorandweapons">ModSupport/iluvsilicon.dishonoredarmorandweapons</li>
+    <li IfModActive="spino.megafauna">ModSupport/spino.megafauna</li>
+    <li IfModActive="jangodsoul.bot.soldier">ModSupport/jangodsoul.bot.soldier</li>
+    <li IfModActive="morgante.lotrurukhairacemod">ModSupport/morgante.lotrurukhairacemod</li>
+    <li IfModActive="vanillaexpanded.vbrewecandt">ModSupport/vanillaexpanded.vbrewecandt</li>
   </v1.2>
 </loadFolders>

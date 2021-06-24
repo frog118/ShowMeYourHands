@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
 using HarmonyLib;
@@ -160,7 +161,10 @@ namespace ShowMeYourHands
                 return;
             }
 
-            if (!CarryWeaponOpenly(pawn))
+            var baseType = pawn.Drawer.renderer.GetType();
+            var methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
+            var result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
+            if (result == null || !(bool) result)
             {
                 return;
             }

@@ -343,17 +343,9 @@ namespace ShowMeYourHands
                         bodySize = pawn.RaceProps.baseBodySize;
                     }
 
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded)
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
                     {
-                        var type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
-                        if (type != null)
-                        {
-                            var method = type.GetMethod("GetBodySizeScaling");
-                            if (method != null)
-                            {
-                                bodySize = (float) method.Invoke(null, new object[] {pawn});
-                            }
-                        }
+                        bodySize = (float) ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] {pawn});
                     }
                 }
 
@@ -378,6 +370,11 @@ namespace ShowMeYourHands
                     z += 0.1f;
                 }
 
+                if (ShowMeYourHandsMain.OversizedWeaponLoaded)
+                {
+                    mainWeaponLocation += AdjustRenderOffsetFromDir(pawn, mainHandWeapon as ThingWithComps);
+                }
+
                 Graphics.DrawMesh(mesh,
                     mainWeaponLocation + new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle),
                     Quaternion.AngleAxis(mainHandAngle, Vector3.up), y >= 0 ? matSingle : offSingle, 0);
@@ -387,7 +384,6 @@ namespace ShowMeYourHands
             {
                 return;
             }
-
 
             var x2 = OffHand.x * drawSize;
             var z2 = OffHand.z * drawSize;
@@ -422,6 +418,12 @@ namespace ShowMeYourHands
                     {
                         z2 -= 0.05f;
                     }
+                }
+
+
+                if (ShowMeYourHandsMain.OversizedWeaponLoaded)
+                {
+                    offhandWeaponLocation += AdjustRenderOffsetFromDir(pawn, offHandWeapon as ThingWithComps);
                 }
 
                 Graphics.DrawMesh(mesh,
@@ -578,6 +580,46 @@ namespace ShowMeYourHands
             var greatestValue = shadeDictionary.Aggregate((rgb, max) => rgb.Value > max.Value ? rgb : max).Key;
             greatestValue.a = MaxValue;
             return greatestValue;
+        }
+
+        private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
+        {
+            var thingComp = weapon.AllComps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
+            if (thingComp == null)
+            {
+                return Vector3.zero;
+            }
+
+            var props = Traverse.Create(thingComp).Property("Props");
+            if (props == null)
+            {
+                return Vector3.zero;
+            }
+
+            Traverse offset = null;
+
+            if (pawn.Rotation == Rot4.North)
+            {
+                offset = props.Field("northOffset");
+            }
+
+            if (pawn.Rotation == Rot4.East)
+            {
+                offset = props.Field("eastOffset");
+            }
+
+            if (pawn.Rotation == Rot4.South)
+            {
+                offset = props.Field("southOffset");
+            }
+
+            if (pawn.Rotation == Rot4.West)
+            {
+                offset = props.Field("westOffset");
+            }
+
+            var value = offset?.GetValue<Vector3>();
+            return value ?? Vector3.zero;
         }
     }
 }

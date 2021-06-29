@@ -59,6 +59,7 @@
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="Mlie.CrusadersFaction">ModSupport/Mlie.CrusadersFaction</li>
     <li IfModActive="Mlie.GerrymonsSombrero">ModSupport/Mlie.GerrymonsSombrero</li>
+    <li IfModActive="Mlie.Thingamajigs">ModSupport/Mlie.Thingamajigs</li>
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
@@ -123,6 +124,7 @@
     <li IfModActive="jangodsoul.bot.soldier">ModSupport/jangodsoul.bot.soldier</li>
     <li IfModActive="morgante.lotrurukhairacemod">ModSupport/morgante.lotrurukhairacemod</li>
     <li IfModActive="vanillaexpanded.vbrewecandt">ModSupport/vanillaexpanded.vbrewecandt</li>
+    <li IfModActive="Atlas.AndroidTiers">ModSupport/Atlas.AndroidTiers</li>
   </v1.1>
   <v1.2>
     <li>/</li>
@@ -181,6 +183,7 @@
     <li IfModActive="Mlie.TakisRandomStuff">ModSupport/Mlie.TakisRandomStuff</li>
     <li IfModActive="Mlie.CrusadersFaction">ModSupport/Mlie.CrusadersFaction</li>
     <li IfModActive="Mlie.GerrymonsSombrero">ModSupport/Mlie.GerrymonsSombrero</li>
+    <li IfModActive="Mlie.Thingamajigs">ModSupport/Mlie.Thingamajigs</li>
     <li IfModActive="VanillaExpanded.VWEL">ModSupport/VanillaExpanded.VWEL</li>
     <li IfModActive="XCOMWeapons.velcroboy333">ModSupport/XCOMWeapons.velcroboy333</li>
     <li IfModActive="shakesthespeare.RimsecSecurity">ModSupport/shakesthespeare.RimsecSecurity</li>
@@ -245,5 +248,6 @@
     <li IfModActive="jangodsoul.bot.soldier">ModSupport/jangodsoul.bot.soldier</li>
     <li IfModActive="morgante.lotrurukhairacemod">ModSupport/morgante.lotrurukhairacemod</li>
     <li IfModActive="vanillaexpanded.vbrewecandt">ModSupport/vanillaexpanded.vbrewecandt</li>
+    <li IfModActive="Atlas.AndroidTiers">ModSupport/Atlas.AndroidTiers</li>
   </v1.2>
 </loadFolders>

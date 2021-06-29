@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.30.0 - Should now correctly display weapons using CompOversizedWeapon for positioning
+
+
 1.0.29.0 - More weapon-defs via Arcanant, support for Grab your tool
 
 

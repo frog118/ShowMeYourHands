@@ -18,6 +18,10 @@ namespace ShowMeYourHands
 
         public static bool BabysAndChildrenLoaded;
 
+        public static MethodInfo GetBodySizeScaling;
+
+        public static bool OversizedWeaponLoaded;
+
         public static readonly List<string> knownPatches = new List<string>
         {
             // This mod
@@ -42,6 +46,9 @@ namespace ShowMeYourHands
             // Gunplay
             // Modifies weapon position
             "com.github.automatic1111.gunplay",
+            // Red Scare Framework
+            // Modifies weapon position, not sure why
+            "Chismar.RedScare",
             // [O21] Toolbox
             // Modifies weapon position for lasers
             "com.o21toolbox.rimworld.mod",
@@ -55,6 +62,23 @@ namespace ShowMeYourHands
         static ShowMeYourHandsMain()
         {
             BabysAndChildrenLoaded = ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null;
+            if (BabysAndChildrenLoaded)
+            {
+                var type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
+                if (type != null)
+                {
+                    GetBodySizeScaling = type.GetMethod("GetBodySizeScaling");
+                }
+
+                LogMessage("BabiesAndChildren loaded, will compensate for children hand size");
+            }
+
+            OversizedWeaponLoaded = AccessTools.TypeByName("CompOversizedWeapon.CompOversizedWeapon") != null;
+            if (OversizedWeaponLoaded)
+            {
+                LogMessage("OversizedWeapon loaded, will compensate positioning");
+            }
+
             var compProperties = new CompProperties {compClass = typeof(HandDrawer)};
             foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                 where race.race?.Humanlike == true

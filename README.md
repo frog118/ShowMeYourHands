@@ -13,6 +13,7 @@ All my "Continued"-mods should have native support.
 
 There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo's Combat 3, https://steamcommunity.com/sharedfiles/filedetails/?id=1204108550]RunAndGun and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations. 
 Verified to work with https://steamcommunity.com/sharedfiles/filedetails/?id=1631756268]Combat Extended
+Also shows hands when using https://steamcommunity.com/sharedfiles/filedetails/?id=2355912467]Grab your Tool
 
 Settings
 

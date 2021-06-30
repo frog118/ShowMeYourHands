@@ -90,6 +90,18 @@ namespace ShowMeYourHands
             harmony = new Harmony("Mlie.ShowMeYourHands");
 
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+            if (ModLister.GetActiveModWithIdentifier("MalteSchulze.RIMMSqol") == null)
+            {
+                return;
+            }
+
+            LogMessage(
+                "RIMMSqol loaded, will remove their destructive Prefixes for the rotation-methods");
+            var original = typeof(Pawn_RotationTracker).GetMethod("FaceCell");
+            harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
+            original = typeof(Pawn_RotationTracker).GetMethod("Face");
+            harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
         }
 
         public static void LogMessage(string message, bool forced = false, bool warning = false)

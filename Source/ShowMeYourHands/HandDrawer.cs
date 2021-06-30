@@ -232,7 +232,7 @@ namespace ShowMeYourHands
 
             mainHandAngle = mainHandAngle - 90f;
             offHandAngle = offHandAngle - 90f;
-            if (pawn.Rotation == Rot4.West)
+            if (pawn.Rotation == Rot4.West || aimAngle is > 200f and < 340f)
             {
                 flipped = true;
             }
@@ -267,10 +267,9 @@ namespace ShowMeYourHands
             }
             else
             {
-                if (aimAngle is > 200f and < 340f || flipped)
+                if (flipped)
                 {
                     mainHandAngle -= 180f;
-                    flipped = true;
                 }
             }
 
@@ -297,10 +296,9 @@ namespace ShowMeYourHands
             }
             else
             {
-                if (aimAngle is > 200f and < 340f || flipped)
+                if (flipped)
                 {
                     offHandAngle -= 180f;
-                    flipped = true;
                 }
             }
 

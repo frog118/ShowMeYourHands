@@ -18,6 +18,7 @@
   </modDependencies>
   <loadAfter>
     <li>brrainz.harmony</li>
+    <li>MalteSchulze.RIMMSqol</li>
   </loadAfter>
   <incompatibleWith>
     <li>Mlie.ClutterWeaponHands</li>

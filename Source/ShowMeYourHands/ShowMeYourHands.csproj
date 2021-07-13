@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputPath>..\..\Assemblies</OutputPath>
+    <OutputPath>..\..\1.3\Assemblies</OutputPath>
     <TargetFramework>net472</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -9,9 +9,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ColorMine" Version="1.1.3" />
     <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>*</Version>
+       <Version>*</Version> 
+      <!--<Version>1.3.3058-beta</Version>-->
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -21,19 +21,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="ColorMine">
+      <HintPath>..\ColorMine.dll</HintPath>
+    </Reference>
     <Reference Include="VersionFromManifest">
       <HintPath>..\VersionFromManifest.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <!-- 1.3.3058-beta -->
 </Project>
-
-
-
-
-
-
-
-
-
-
-

@@ -147,7 +147,7 @@ namespace ShowMeYourHands
         private static void FigureOutTheRest()
         {
             foreach (var weapon in from weapon in DefDatabase<ThingDef>.AllDefsListForReading
-                where weapon.IsWeapon && !weapon.destroyOnDrop && !weapon.menuHidden &&
+                where weapon.IsWeapon && !weapon.destroyOnDrop &&
                       !doneWeapons.Contains(weapon)
                 select weapon)
             {

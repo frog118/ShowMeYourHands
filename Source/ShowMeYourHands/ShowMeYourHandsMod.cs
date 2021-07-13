@@ -132,7 +132,7 @@ namespace ShowMeYourHands
                 if (allWeapons == null || allWeapons.Count == 0)
                 {
                     allWeapons = (from weapon in DefDatabase<ThingDef>.AllDefsListForReading
-                        where weapon.IsWeapon && !weapon.destroyOnDrop && !weapon.menuHidden && !IsShield(weapon)
+                        where weapon.IsWeapon && !weapon.destroyOnDrop && !IsShield(weapon)
                         orderby weapon.label
                         select weapon).ToList();
                 }
@@ -538,7 +538,7 @@ namespace ShowMeYourHands
                     }
 
                     tabContentRect.height = (totalWeaponsByMod.Count * 25f) + 15;
-                    listing_Standard.BeginScrollView(tabFrameRect, ref summaryScrollPosition, ref tabContentRect);
+                    BeginScrollView(ref listing_Standard, tabFrameRect, ref summaryScrollPosition, ref tabContentRect);
                     foreach (var keyValuePair in totalWeaponsByMod)
                     {
                         var fixedWeapons = 0;
@@ -563,7 +563,8 @@ namespace ShowMeYourHands
                         GUI.color = Color.white;
                     }
 
-                    listing_Standard.EndScrollView(ref tabContentRect);
+                    EndScrollView(ref listing_Standard, ref tabContentRect, tabFrameRect.width,
+                        listing_Standard.CurHeight);
                     break;
                 }
 
@@ -720,6 +721,22 @@ namespace ShowMeYourHands
             }
         }
 
+        private static void BeginScrollView(ref Listing_Standard listingStandard, Rect rect, ref Vector2 scrollPosition,
+            ref Rect viewRect)
+        {
+            Widgets.BeginScrollView(rect, ref scrollPosition, viewRect);
+            rect.height = 100000f;
+            rect.width -= 20f;
+            listingStandard.Begin(rect.AtZero());
+        }
+
+        private void EndScrollView(ref Listing_Standard listingStandard, ref Rect viewRect, float width, float height)
+        {
+            viewRect = new Rect(0f, 0f, width, height);
+            Widgets.EndScrollView();
+            listingStandard.End();
+        }
+
         private void CopyChangedWeapons(bool onlySelected = false)
         {
             if (onlySelected && string.IsNullOrEmpty(selectedSubDef))
@@ -808,7 +825,7 @@ namespace ShowMeYourHands
             }
 
             tabContentRect.height = (weaponsToShow.Count * 25f) + listAddition;
-            listing_Standard.BeginScrollView(tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
+            BeginScrollView(ref listing_Standard, tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
             //Text.Font = GameFont.Tiny;
             if (listing_Standard.ListItemSelectable("SMYH.settings".Translate(), Color.yellow,
                 out _, SelectedDef == "Settings"))
@@ -867,7 +884,7 @@ namespace ShowMeYourHands
             }
 
             //Text.Font = GameFont.Small;
-            listing_Standard.EndScrollView(ref tabContentRect);
+            EndScrollView(ref listing_Standard, ref tabContentRect, tabFrameRect.width, listing_Standard.CurHeight);
         }
 
         private void ResetOneWeapon(ThingDef currentDef, ref WhandCompProps compProperties)

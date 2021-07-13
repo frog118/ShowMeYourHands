@@ -9,9 +9,9 @@ Should work with most weapons, vanilla and modded.
 Based on https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutter Weapon Hands but dynamically sets the hands based on the graphics of the weapon. It will however still use the old hand-definitions if they exist.
 
 There is also mod-settings where you can modify the settings for each weapon. These settings can be exported and included in a mod to add native support.
-All my "Continued"-mods should have native support.
+All my &quot;Continued&quot;-mods should have native support.
 
-There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo's Combat 3, https://steamcommunity.com/sharedfiles/filedetails/?id=1204108550]RunAndGun and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations. 
+There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo&apos;s Combat 3, https://steamcommunity.com/sharedfiles/filedetails/?id=1204108550]RunAndGun and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations. 
 Verified to work with https://steamcommunity.com/sharedfiles/filedetails/?id=1631756268]Combat Extended
 Also shows hands when using https://steamcommunity.com/sharedfiles/filedetails/?id=2355912467]Grab your Tool
 

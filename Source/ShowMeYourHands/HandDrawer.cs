@@ -201,9 +201,13 @@ namespace ShowMeYourHands
 
             if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
             {
-                Log.ErrorOnce(
-                    $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
-                    mainHandWeapon.def.GetHashCode());
+                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        mainHandWeapon.def.GetHashCode());
+                }
+
                 return;
             }
 
@@ -219,9 +223,12 @@ namespace ShowMeYourHands
             {
                 if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
                 {
-                    Log.ErrorOnce(
-                        $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
-                        offHandWeapon.def.GetHashCode());
+                    if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                    {
+                        Log.ErrorOnce(
+                            $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                            offHandWeapon.def.GetHashCode());
+                    }
                 }
                 else
                 {

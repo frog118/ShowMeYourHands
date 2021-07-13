@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.32.0 - Mod updated for 1.3 and passed autotests
+
+
 1.0.31.0 - Fix for RIMMSqol users and a rare melee-aiming bug, thanks pointmort. for testing and Bradson for unpatching input
 
 

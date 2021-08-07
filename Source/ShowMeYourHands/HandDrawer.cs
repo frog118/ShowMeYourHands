@@ -375,10 +375,7 @@ namespace ShowMeYourHands
                     z += 0.1f;
                 }
 
-                if (ShowMeYourHandsMain.OversizedWeaponLoaded)
-                {
-                    mainWeaponLocation += AdjustRenderOffsetFromDir(pawn, mainHandWeapon as ThingWithComps);
-                }
+                mainWeaponLocation += AdjustRenderOffsetFromDir(pawn, mainHandWeapon as ThingWithComps);
 
                 Graphics.DrawMesh(mesh,
                     mainWeaponLocation + new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle),
@@ -426,10 +423,7 @@ namespace ShowMeYourHands
                 }
 
 
-                if (ShowMeYourHandsMain.OversizedWeaponLoaded)
-                {
-                    offhandWeaponLocation += AdjustRenderOffsetFromDir(pawn, offHandWeapon as ThingWithComps);
-                }
+                offhandWeaponLocation += AdjustRenderOffsetFromDir(pawn, offHandWeapon as ThingWithComps);
 
                 Graphics.DrawMesh(mesh,
                     offhandWeaponLocation + new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle),
@@ -589,42 +583,76 @@ namespace ShowMeYourHands
 
         private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
         {
-            var thingComp = weapon.AllComps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
-            if (thingComp == null)
+            if (ShowMeYourHandsMain.OversizedWeaponLoaded)
+            {
+                var thingComp =
+                    weapon.AllComps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
+                if (thingComp == null)
+                {
+                    return Vector3.zero;
+                }
+
+                var props = Traverse.Create(thingComp).Property("Props");
+                if (props == null)
+                {
+                    return Vector3.zero;
+                }
+
+                Traverse offset = null;
+                if (pawn.Rotation == Rot4.North)
+                {
+                    offset = props.Field("northOffset");
+                }
+                else if (pawn.Rotation == Rot4.East)
+                {
+                    offset = props.Field("eastOffset");
+                }
+
+                else if (pawn.Rotation == Rot4.South)
+                {
+                    offset = props.Field("southOffset");
+                }
+
+                else if (pawn.Rotation == Rot4.West)
+                {
+                    offset = props.Field("westOffset");
+                }
+
+                var value = offset?.GetValue<Vector3>();
+                return value ?? Vector3.zero;
+            }
+
+            if (!ShowMeYourHandsMain.EnableOversizedLoaded)
             {
                 return Vector3.zero;
             }
 
-            var props = Traverse.Create(thingComp).Property("Props");
-            if (props == null)
+            var dataDrawOffset = weapon.Graphic.data.drawOffset;
+            if (pawn.Rotation == Rot4.North && weapon.Graphic?.data?.drawOffsetNorth != null)
             {
-                return Vector3.zero;
+                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetNorth;
+            }
+            else if (pawn.Rotation == Rot4.East && weapon.Graphic?.data?.drawOffsetEast != null)
+            {
+                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetEast;
             }
 
-            Traverse offset = null;
-
-            if (pawn.Rotation == Rot4.North)
+            else if (pawn.Rotation == Rot4.South && weapon.Graphic?.data?.drawOffsetSouth != null)
             {
-                offset = props.Field("northOffset");
+                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetSouth;
             }
 
-            if (pawn.Rotation == Rot4.East)
+            else if (pawn.Rotation == Rot4.West && weapon.Graphic?.data?.drawOffsetWest != null)
             {
-                offset = props.Field("eastOffset");
+                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetWest;
             }
 
-            if (pawn.Rotation == Rot4.South)
+            if (dataDrawOffset != null)
             {
-                offset = props.Field("southOffset");
+                return dataDrawOffset;
             }
 
-            if (pawn.Rotation == Rot4.West)
-            {
-                offset = props.Field("westOffset");
-            }
-
-            var value = offset?.GetValue<Vector3>();
-            return value ?? Vector3.zero;
+            return Vector3.zero;
         }
     }
 }

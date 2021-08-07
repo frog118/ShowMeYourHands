@@ -11,7 +11,7 @@ Based on https://steamcommunity.com/sharedfiles/filedetails/?id=2171708109]Clutt
 There is also mod-settings where you can modify the settings for each weapon. These settings can be exported and included in a mod to add native support.
 All my &quot;Continued&quot;-mods should have native support.
 
-There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo&apos;s Combat 3, https://steamcommunity.com/sharedfiles/filedetails/?id=1204108550]RunAndGun and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations. 
+There is also support for https://steamcommunity.com/sharedfiles/filedetails/?id=2543371889]Enable Oversized Weapons, https://steamcommunity.com/sharedfiles/filedetails/?id=2038409475]Yayo&apos;s Combat 3, https://steamcommunity.com/sharedfiles/filedetails/?id=2513695736]Yayo&apos;s Combat 3 [Adopted], https://steamcommunity.com/sharedfiles/filedetails/?id=1204108550]RunAndGun and https://steamcommunity.com/sharedfiles/filedetails/?id=1628211313]Dual Wield. Hands will follow the weapons even during the extra animations. 
 Verified to work with https://steamcommunity.com/sharedfiles/filedetails/?id=1631756268]Combat Extended
 Also shows hands when using https://steamcommunity.com/sharedfiles/filedetails/?id=2355912467]Grab your Tool
 
@@ -42,6 +42,13 @@ https://steamcommunity.com/sharedfiles/filedetails/?id=2062766405]XCOM Weapons
 [/td]
 	[/tr]
 [/table]
+
+![Image](https://i.imgur.com/pgjQLXV.png)
+
+Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my https://store.steampowered.com/wishlist/id/Mlie]Wishlist or buy me a cup of tea.
+
+https://ko-fi.com/G2G55DDYD]![Image](https://i.ibb.co/VWJJb3w/Support-Me-dark-2x.png)
+
 
 ![Image](https://i.imgur.com/Rs6T6cr.png)
 

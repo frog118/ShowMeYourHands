@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>ShowMeYourHands</modNameReadable>
@@ -18,4 +18,10 @@ There is also an option for coloring the hands the same color as worn apparel or
     <content>Added support for Yayos combat 3 and the Dual Wield-mod. So now hands will follow the weapon even during the extra animations. Should also be easier to add support for other mods that changes the weapon rendering since the code for the hand-placement has been rewritten.
 </content>
   </HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+		<defName>ShowMeYourHands_1_0_33_0</defName>
+		<assemblyVersion>1.0.33.0</assemblyVersion>
+		<content>The mod should now support the adopted 1.3 version of Yayos Combat 3 as well as the Enable Oversized Weapons-mod. Arcanant have also been busy and there are now 138 mods that have individual hand-positioning.
+</content>
+	</HugsLib.UpdateFeatureDef>
 </Defs>

@@ -22,6 +22,8 @@ namespace ShowMeYourHands
 
         public static bool OversizedWeaponLoaded;
 
+        public static bool EnableOversizedLoaded;
+
         public static readonly List<string> knownPatches = new List<string>
         {
             // This mod
@@ -43,7 +45,13 @@ namespace ShowMeYourHands
             "rimworld.androitiers-jecrell.comps.oversized",
             "jecstools.jecrell.comps.installedpart",
             "rimworld.Ogliss.comps.oversized",
-            // Gunplay
+            "rimworld.jecrellpelador.comps.oversizedbigchoppa",
+            // Adeptus Mechanicus, not sure what
+            "com.ogliss.rimworld.mod.AdeptusMechanicus",
+            // Faction Colors, not sure what
+            "rimworld.ohu.factionColors.main",
+            // Enable oversized weapons
+            "rimworld.carnysenpai.enableoversizedweapons",
             // Modifies weapon position
             "com.github.automatic1111.gunplay",
             // Red Scare Framework
@@ -73,12 +81,13 @@ namespace ShowMeYourHands
                 LogMessage("BabiesAndChildren loaded, will compensate for children hand size");
             }
 
-            OversizedWeaponLoaded = AccessTools.TypeByName("CompOversizedWeapon.CompOversizedWeapon") != null;
+            OversizedWeaponLoaded = AccessTools.TypeByName("CompOversizedWeapon") != null;
             if (OversizedWeaponLoaded)
             {
                 LogMessage("OversizedWeapon loaded, will compensate positioning");
             }
 
+            EnableOversizedLoaded = ModLister.GetActiveModWithIdentifier("CarnySenpai.EnableOversizedWeapons") != null;
             var compProperties = new CompProperties {compClass = typeof(HandDrawer)};
             foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                 where race.race?.Humanlike == true

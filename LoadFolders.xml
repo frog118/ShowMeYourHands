@@ -6,11 +6,13 @@
     <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
     <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
     <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
+    <li IfModActive="Mlie.ApexRimworldLegends">ModSupport/Mlie.ApexRimworldLegends</li>
     <li IfModActive="Mlie.ArrowPlease">ModSupport/Mlie.ArrowPlease</li>
     <li IfModActive="Mlie.Blowguns">ModSupport/Mlie.Blowguns</li>
     <li IfModActive="Mlie.Cactaceae">ModSupport/Mlie.Cactaceae</li>
     <li IfModActive="Mlie.CallofCthulhuCults">ModSupport/Mlie.CallofCthulhuCults</li>
     <li IfModActive="Mlie.CallofCthulhuFactions">ModSupport/Mlie.CallofCthulhuFactions</li>
+    <li IfModActive="Mlie.CallofCthulhuFactionsItemsOnly">ModSupport/Mlie.CallofCthulhuFactions</li>
     <li IfModActive="Mlie.CaridionArsenal">ModSupport/Mlie.CaridionArsenal</li>
     <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
     <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
@@ -18,6 +20,7 @@
     <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
     <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
     <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>
+    <li IfModActive="Mlie.Gimmicks">ModSupport/Mlie.Gimmicks</li>
     <li IfModActive="Mlie.GonewiththeRimwave">ModSupport/Mlie.GonewiththeRimwave</li>
     <li IfModActive="Mlie.HaloRimworldPsychicPulseArmory">ModSupport/Mlie.HaloRimworldPsychicPulseArmory</li>
     <li IfModActive="Mlie.HarrowedLight">ModSupport/Mlie.HarrowedLight</li>
@@ -48,6 +51,7 @@
     <li IfModActive="Mlie.StarshipTroopersWeapons">ModSupport/Mlie.StarshipTroopersWeapons</li>
     <li IfModActive="Mlie.StarTrekFederation">ModSupport/Mlie.StarTrekFederation</li>
     <li IfModActive="Mlie.StarWarsFactions">ModSupport/Mlie.StarWarsFactions</li>
+    <li IfModActive="Mlie.StarWarsFullyFunctionalLightsabers">ModSupport/Mlie.StarWarsFullyFunctionalLightsabers</li>
     <li IfModActive="Mlie.Swords">ModSupport/Mlie.Swords</li>
     <li IfModActive="Mlie.SyndicateClassic">ModSupport/Mlie.SyndicateClassic</li>
     <li IfModActive="Mlie.TacticalChargedGear">ModSupport/Mlie.TacticalChargedGear</li>
@@ -133,11 +137,13 @@
     <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
     <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
     <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
+    <li IfModActive="Mlie.ApexRimworldLegends">ModSupport/Mlie.ApexRimworldLegends</li>
     <li IfModActive="Mlie.ArrowPlease">ModSupport/Mlie.ArrowPlease</li>
     <li IfModActive="Mlie.Blowguns">ModSupport/Mlie.Blowguns</li>
     <li IfModActive="Mlie.Cactaceae">ModSupport/Mlie.Cactaceae</li>
     <li IfModActive="Mlie.CallofCthulhuCults">ModSupport/Mlie.CallofCthulhuCults</li>
     <li IfModActive="Mlie.CallofCthulhuFactions">ModSupport/Mlie.CallofCthulhuFactions</li>
+    <li IfModActive="Mlie.CallofCthulhuFactionsItemsOnly">ModSupport/Mlie.CallofCthulhuFactions</li>
     <li IfModActive="Mlie.CaridionArsenal">ModSupport/Mlie.CaridionArsenal</li>
     <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
     <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
@@ -145,6 +151,7 @@
     <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
     <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
     <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>
+    <li IfModActive="Mlie.Gimmicks">ModSupport/Mlie.Gimmicks</li>
     <li IfModActive="Mlie.GonewiththeRimwave">ModSupport/Mlie.GonewiththeRimwave</li>
     <li IfModActive="Mlie.HaloRimworldPsychicPulseArmory">ModSupport/Mlie.HaloRimworldPsychicPulseArmory</li>
     <li IfModActive="Mlie.HarrowedLight">ModSupport/Mlie.HarrowedLight</li>
@@ -174,6 +181,7 @@
     <li IfModActive="Mlie.SOS2SpaceGear">ModSupport/Mlie.SOS2SpaceGear</li>
     <li IfModActive="Mlie.StarTrekFederation">ModSupport/Mlie.StarTrekFederation</li>
     <li IfModActive="Mlie.StarWarsFactions">ModSupport/Mlie.StarWarsFactions</li>
+    <li IfModActive="Mlie.StarWarsFullyFunctionalLightsabers">ModSupport/Mlie.StarWarsFullyFunctionalLightsabers</li>
     <li IfModActive="Mlie.Swords">ModSupport/Mlie.Swords</li>
     <li IfModActive="Mlie.TacticalChargedGear">ModSupport/Mlie.TacticalChargedGear</li>
     <li IfModActive="Mlie.TheWitcherTrials">ModSupport/Mlie.TheWitcherTrials</li>
@@ -261,19 +269,26 @@
     <li IfModActive="ogliss.gearsofwar.lancer">ModSupport/ogliss.gearsofwar.lancer</li>
     <li IfModActive="rick.fcpfnvpsitols">ModSupport/rick.fcpfnvpsitols</li>
     <li IfModActive="trahspanda.botw.ancientweapons">ModSupport/trahspanda.botw.ancientweapons</li>
+    <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
+    <li IfModActive="4ydra.arsenalofreaction">ModSupport/arsenalofreaction</li>
   </v1.2>
   <v1.3>
     <li>/</li>
     <li>1.3</li>
     <li IfModActive="Roolo.DualWield">DualWield/1.3</li>
+    <li IfModActive="com.yayo.combat3">YayoAdapted/1.3</li>
     <li IfModActive="Mlie.21stCenturyArsenal">ModSupport/Mlie.21stCenturyArsenal</li>
     <li IfModActive="Mlie.AdaptationRefusal">ModSupport/Mlie.AdaptationRefusal</li>
+    <li IfModActive="Mlie.AncientAsianWeapons">ModSupport/Mlie.AncientAsianWeapons</li>
     <li IfModActive="Mlie.AncientRim">ModSupport/Mlie.AncientRim</li>
+    <li IfModActive="Mlie.ApexRimworldLegends">ModSupport/Mlie.ApexRimworldLegends</li>
     <li IfModActive="Mlie.ArrowPlease">ModSupport/Mlie.ArrowPlease</li>
+    <li IfModActive="Mlie.AvaliRaceMod">ModSupport/Mlie.AvaliRaceMod</li>
     <li IfModActive="Mlie.Blowguns">ModSupport/Mlie.Blowguns</li>
     <li IfModActive="Mlie.Cactaceae">ModSupport/Mlie.Cactaceae</li>
     <li IfModActive="Mlie.CallofCthulhuCults">ModSupport/Mlie.CallofCthulhuCults</li>
     <li IfModActive="Mlie.CallofCthulhuFactions">ModSupport/Mlie.CallofCthulhuFactions</li>
+    <li IfModActive="Mlie.CallofCthulhuFactionsItemsOnly">ModSupport/Mlie.CallofCthulhuFactions</li>
     <li IfModActive="Mlie.CaridionArsenal">ModSupport/Mlie.CaridionArsenal</li>
     <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
     <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
@@ -281,6 +296,7 @@
     <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
     <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
     <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>
+    <li IfModActive="Mlie.Gimmicks">ModSupport/Mlie.Gimmicks</li>
     <li IfModActive="Mlie.GonewiththeRimwave">ModSupport/Mlie.GonewiththeRimwave</li>
     <li IfModActive="Mlie.HaloRimworldPsychicPulseArmory">ModSupport/Mlie.HaloRimworldPsychicPulseArmory</li>
     <li IfModActive="Mlie.HarrowedLight">ModSupport/Mlie.HarrowedLight</li>
@@ -310,6 +326,7 @@
     <li IfModActive="Mlie.SOS2SpaceGear">ModSupport/Mlie.SOS2SpaceGear</li>
     <li IfModActive="Mlie.StarTrekFederation">ModSupport/Mlie.StarTrekFederation</li>
     <li IfModActive="Mlie.StarWarsFactions">ModSupport/Mlie.StarWarsFactions</li>
+    <li IfModActive="Mlie.StarWarsFullyFunctionalLightsabers">ModSupport/Mlie.StarWarsFullyFunctionalLightsabers</li>
     <li IfModActive="Mlie.Swords">ModSupport/Mlie.Swords</li>
     <li IfModActive="Mlie.TacticalChargedGear">ModSupport/Mlie.TacticalChargedGear</li>
     <li IfModActive="Mlie.TheWitcherTrials">ModSupport/Mlie.TheWitcherTrials</li>
@@ -397,5 +414,7 @@
     <li IfModActive="ogliss.gearsofwar.lancer">ModSupport/ogliss.gearsofwar.lancer</li>
     <li IfModActive="rick.fcpfnvpsitols">ModSupport/rick.fcpfnvpsitols</li>
     <li IfModActive="trahspanda.botw.ancientweapons">ModSupport/trahspanda.botw.ancientweapons</li>
+    <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
+    <li IfModActive="4ydra.arsenalofreaction">ModSupport/arsenalofreaction</li>
   </v1.3>
 </loadFolders>

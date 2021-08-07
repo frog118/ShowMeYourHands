@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.33.0 - Fixed compatibility with adopted yayos and enable oversized weapons-mod. Some hand-postitions added
+
+
 1.0.32.0 - Mod updated for 1.3 and passed autotests
 
 

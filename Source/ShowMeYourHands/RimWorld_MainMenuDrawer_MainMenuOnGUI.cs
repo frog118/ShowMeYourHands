@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using RimWorld;
@@ -99,9 +100,22 @@ namespace ShowMeYourHands
         public static void UpdateHandDefinitions()
         {
             doneWeapons = new List<ThingDef>();
-            LoadFromSettings();
-            LoadFromDefs();
-            FigureOutTheRest();
+            var currentStage = "LoadFromSettings";
+
+            try
+            {
+                LoadFromSettings();
+                currentStage = "LoadFromDefs";
+                LoadFromDefs();
+                currentStage = "FigureOutTheRest";
+                FigureOutTheRest();
+            }
+            catch (Exception exception)
+            {
+                ShowMeYourHandsMain.LogMessage(
+                    $"Failed to save some settings, if debugging the stage it failed was {currentStage}.\n{exception}");
+            }
+
             ShowMeYourHandsMain.LogMessage($"Defined hand definitions of {doneWeapons.Count} weapons", true);
         }
 

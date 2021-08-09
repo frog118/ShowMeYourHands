@@ -293,6 +293,7 @@
     <li IfModActive="Mlie.CyberneticWarfare">ModSupport/Mlie.CyberneticWarfare</li>
     <li IfModActive="Mlie.DoomFactions">ModSupport/Mlie.DoomFactions</li>
     <li IfModActive="Mlie.Dune">ModSupport/Mlie.Dune</li>
+    <li IfModActive="Mlie.EMAncientTechnology">ModSupport/Mlie.EMAncientTechnology</li>
     <li IfModActive="Mlie.FerrexRace">ModSupport/Mlie.FerrexRace</li>
     <li IfModActive="Mlie.FilthyOrcInvasion">ModSupport/Mlie.FilthyOrcInvasion</li>
     <li IfModActive="Mlie.GhostGear">ModSupport/Mlie.GhostGear</li>

@@ -270,7 +270,8 @@
     <li IfModActive="rick.fcpfnvpsitols">ModSupport/rick.fcpfnvpsitols</li>
     <li IfModActive="trahspanda.botw.ancientweapons">ModSupport/trahspanda.botw.ancientweapons</li>
     <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
-    <li IfModActive="4ydra.arsenalofreaction">ModSupport/arsenalofreaction</li>
+    <li IfModActive="4ydra.arsenalofreaction">ModSupport/4ydra.arsenalofreaction</li>
+    <li IfModActive="jangodsoul.exileddawn">ModSupport/jangodsoul.exileddawn</li>
   </v1.2>
   <v1.3>
     <li>/</li>
@@ -416,6 +417,7 @@
     <li IfModActive="rick.fcpfnvpsitols">ModSupport/rick.fcpfnvpsitols</li>
     <li IfModActive="trahspanda.botw.ancientweapons">ModSupport/trahspanda.botw.ancientweapons</li>
     <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
-    <li IfModActive="4ydra.arsenalofreaction">ModSupport/arsenalofreaction</li>
+    <li IfModActive="4ydra.arsenalofreaction">ModSupport/4ydra.arsenalofreaction</li>
+    <li IfModActive="jangodsoul.exileddawn">ModSupport/jangodsoul.exileddawn</li>
   </v1.3>
 </loadFolders>

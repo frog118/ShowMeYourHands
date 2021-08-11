@@ -37,7 +37,7 @@ namespace ShowMeYourHands
                     return Color.white;
                 }
 
-                handColor = getHandColor(pawn, out var hasGloves);
+                handColor = getHandColor(pawn, out var hasGloves, out var secondColor);
                 if (!mainHandGraphics.ContainsKey(pawn) || mainHandGraphics[pawn].color != handColor)
                 {
                     if (hasGloves)
@@ -68,9 +68,19 @@ namespace ShowMeYourHands
                 }
                 else
                 {
-                    offHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.Cutout,
-                        new Vector2(1f, 1f),
-                        handColor, handColor);
+                    if (secondColor != default)
+                    {
+                        offHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("OffHand",
+                            ShaderDatabase.Cutout,
+                            new Vector2(1f, 1f),
+                            secondColor, secondColor);
+                    }
+                    else
+                    {
+                        offHandGraphics[pawn] = GraphicDatabase.Get<Graphic_Single>("OffHand", ShaderDatabase.Cutout,
+                            new Vector2(1f, 1f),
+                            handColor, handColor);
+                    }
                 }
 
                 return handColor;
@@ -448,21 +458,61 @@ namespace ShowMeYourHands
             AngleCalc();
         }
 
-        private Color getHandColor(Pawn pawn, out bool hasGloves)
+        private Color getHandColor(Pawn pawn, out bool hasGloves, out Color secondColor)
         {
             hasGloves = false;
-            if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor)
+            secondColor = default;
+            if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
+                where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
+                select apparel).Any())
             {
-                return pawn.story.SkinColor;
+                if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
+                {
+                    return pawn.story.SkinColor;
+                }
+
+                var addedHands = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
+                    .Where(x => x.Part.def == ShowMeYourHandsMain.HandDef ||
+                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.HandDef));
+                if (addedHands == null || !addedHands.Any())
+                {
+                    return pawn.story.SkinColor;
+                }
+
+                var mainColor = (Color) default;
+
+                foreach (var hediffAddedPart in addedHands)
+                {
+                    if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
+                    {
+                        continue;
+                    }
+
+                    if (mainColor == default)
+                    {
+                        mainColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
+                        continue;
+                    }
+
+                    secondColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
+                }
+
+                if (mainColor == default)
+                {
+                    return pawn.story.SkinColor;
+                }
+
+                if (secondColor == default)
+                {
+                    secondColor = pawn.story.SkinColor;
+                }
+
+                return mainColor;
             }
 
             var handApparel = from apparel in pawn.apparel.WornApparel
                 where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
                 select apparel;
-            if (!handApparel.Any())
-            {
-                return pawn.story.SkinColor;
-            }
 
             //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
 
@@ -509,7 +559,6 @@ namespace ShowMeYourHands
 
             return colorDictionary[outerApparel];
         }
-
 
         private Color32 AverageColorFromTexture(Texture2D texture)
         {

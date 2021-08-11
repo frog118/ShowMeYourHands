@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.35.0 - Added setting for coloring the hands based on artificial limbs, plus some more modsupport-files
+
+
 1.0.34.0 - Added some error-handling, hopefully it will help when bug-fixing
 
 

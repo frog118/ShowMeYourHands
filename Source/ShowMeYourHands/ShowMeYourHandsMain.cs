@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -23,6 +24,10 @@ namespace ShowMeYourHands
         public static bool OversizedWeaponLoaded;
 
         public static bool EnableOversizedLoaded;
+
+        public static BodyPartDef HandDef;
+
+        public static Dictionary<HediffDef, Color> HediffColors;
 
         public static readonly List<string> knownPatches = new List<string>
         {
@@ -96,6 +101,20 @@ namespace ShowMeYourHands
                 thingDef.comps?.Add(compProperties);
             }
 
+            HandDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Hand");
+
+            var partsHediffs =
+                DefDatabase<HediffDef>.AllDefsListForReading.Where(def =>
+                    def.hediffClass == typeof(Hediff_AddedPart) && def.spawnThingOnRemoved != null);
+            HediffColors = new Dictionary<HediffDef, Color>();
+            foreach (var partsHediff in partsHediffs)
+            {
+                var techLevel = partsHediff.spawnThingOnRemoved.techLevel;
+                HediffColors[partsHediff] = GetColorFromTechLevel(techLevel);
+            }
+
+            LogMessage($"Cached {HediffColors.Count} hediffs colors");
+
             harmony = new Harmony("Mlie.ShowMeYourHands");
 
             harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -127,6 +146,26 @@ namespace ShowMeYourHands
             }
 
             Log.Message($"[ShowMeYourHands]: {message}");
+        }
+
+
+        private static Color GetColorFromTechLevel(TechLevel techLevel)
+        {
+            switch (techLevel)
+            {
+                case TechLevel.Neolithic:
+                    return ThingDefOf.WoodLog.stuffProps.color;
+                case TechLevel.Industrial:
+                    return ThingDefOf.Steel.stuffProps.color;
+                case TechLevel.Spacer:
+                    return ThingDefOf.Silver.stuffProps.color;
+                case TechLevel.Ultra:
+                    return ThingDefOf.Gold.stuffProps.color;
+                case TechLevel.Archotech:
+                    return ThingDefOf.Plasteel.stuffProps.color;
+                default:
+                    return ThingDefOf.Steel.stuffProps.color;
+            }
         }
     }
 }

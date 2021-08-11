@@ -20,6 +20,7 @@ namespace ShowMeYourHands
 
         private List<SaveableVector3> manualOffHandPositionsValues;
         public bool MatchArmorColor;
+        public bool MatchArtificialLimbColor;
         public bool RepositionHands = true;
         public bool ResizeHands = true;
         public bool VerboseLogging;
@@ -29,6 +30,7 @@ namespace ShowMeYourHands
             base.ExposeData();
             Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
             Scribe_Values.Look(ref MatchArmorColor, "MatchArmorColor");
+            Scribe_Values.Look(ref MatchArtificialLimbColor, "MatchArtificialLimbColor");
             Scribe_Values.Look(ref ResizeHands, "ResizeHands", true);
             Scribe_Values.Look(ref RepositionHands, "RepositionHands", true);
             Scribe_Collections.Look(ref ManualMainHandPositions, "ManualMainHandPositions", LookMode.Value,

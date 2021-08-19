@@ -37,6 +37,7 @@ namespace ShowMeYourHands
             // Replaces weapon drawer
             "com.yayo.combat",
             "com.yayo.combat3",
+            "com.yayo.yayoAni",
             // Dual Wield
             // Replaces weapon drawer if dual wielding
             "Roolo.DualWield",
@@ -93,7 +94,7 @@ namespace ShowMeYourHands
             }
 
             EnableOversizedLoaded = ModLister.GetActiveModWithIdentifier("CarnySenpai.EnableOversizedWeapons") != null;
-            var compProperties = new CompProperties {compClass = typeof(HandDrawer)};
+            var compProperties = new CompProperties { compClass = typeof(HandDrawer) };
             foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                 where race.race?.Humanlike == true
                 select race)

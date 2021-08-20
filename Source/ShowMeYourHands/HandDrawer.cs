@@ -15,9 +15,9 @@ namespace ShowMeYourHands
     {
         private static Dictionary<Thing, Color> colorDictionary;
 
-        private readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
-        private readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
-        private readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
+        public static readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
+        public static readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
+        public static readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
 
         private Color handColor;
         private Vector3 MainHand;
@@ -90,7 +90,7 @@ namespace ShowMeYourHands
 
         public void ReadXML()
         {
-            var whandCompProps = (WhandCompProps) props;
+            var whandCompProps = (WhandCompProps)props;
             if (whandCompProps.MainHand != Vector3.zero)
             {
                 MainHand = whandCompProps.MainHand;
@@ -154,7 +154,7 @@ namespace ShowMeYourHands
                 }
             }
 
-            if (pawn.stances.curStance is Stance_Busy {neverAimWeapon: false} stance_Busy &&
+            if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false } stance_Busy &&
                 stance_Busy.focusTarg.IsValid)
             {
                 var a = stance_Busy.focusTarg.HasThing
@@ -174,7 +174,7 @@ namespace ShowMeYourHands
             var baseType = pawn.Drawer.renderer.GetType();
             var methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
             var result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
-            if (result == null || !(bool) result)
+            if (result == null || !(bool)result)
             {
                 return;
             }
@@ -199,6 +199,61 @@ namespace ShowMeYourHands
             DrawHands(mainhandWeapon, 217f, offhandWeapon);
         }
 
+
+        public void DrawHands(Thing carriedThing, Vector3 thingPosition)
+        {
+            if (!(parent is Pawn pawn))
+            {
+                return;
+            }
+
+            if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                var bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
+                    }
+                }
+
+                pawnBodySizes[pawn] = 0.8f * bodySize;
+            }
+
+            var unused = HandColor;
+            var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
+            var mainHandTex = mainHandGraphics[pawn];
+            var offHandTex = offHandGraphics[pawn];
+
+
+            if (mainHandTex == null || offHandTex == null)
+            {
+                return;
+            }
+
+            var matSingle = mainHandTex.MatSingle;
+            var offSingle = offHandTex.MatSingle;
+            if (pawn.Rotation == Rot4.West)
+            {
+                Graphics.DrawMesh(mesh,
+                    thingPosition + new Vector3(-0.2f, 0, -0.1f), new Quaternion(), matSingle, 0);
+                Graphics.DrawMesh(mesh,
+                    thingPosition + new Vector3(0.2f, 0, 0.1f), new Quaternion(), offSingle, 0);
+            }
+            else
+            {
+                Graphics.DrawMesh(mesh,
+                    thingPosition + new Vector3(-0.2f, 0, 0.1f), new Quaternion(), matSingle, 0);
+                Graphics.DrawMesh(mesh,
+                    thingPosition + new Vector3(0.2f, 0, -0.1f), new Quaternion(), offSingle, 0);
+            }
+        }
 
         private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false,
             bool aiming = false)
@@ -360,7 +415,7 @@ namespace ShowMeYourHands
 
                     if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
                     {
-                        bodySize = (float) ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] {pawn});
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
                     }
                 }
 
@@ -479,7 +534,7 @@ namespace ShowMeYourHands
                     return pawn.story.SkinColor;
                 }
 
-                var mainColor = (Color) default;
+                var mainColor = (Color)default;
 
                 foreach (var hediffAddedPart in addedHands)
                 {
@@ -554,7 +609,7 @@ namespace ShowMeYourHands
             else
             {
                 colorDictionary[outerApparel] =
-                    AverageColorFromTexture((Texture2D) outerApparel.Graphic.MatSingle.mainTexture);
+                    AverageColorFromTexture((Texture2D)outerApparel.Graphic.MatSingle.mainTexture);
             }
 
             return colorDictionary[outerApparel];
@@ -590,9 +645,9 @@ namespace ShowMeYourHands
                     continue;
                 }
 
-                var currentRgb = new Rgb {B = texColor.b, G = texColor.b, R = texColor.r};
+                var currentRgb = new Rgb { B = texColor.b, G = texColor.b, R = texColor.r };
 
-                if (currentRgb.Compare(new Rgb {B = 0, G = 0, R = 0}, new Cie1976Comparison()) < 2)
+                if (currentRgb.Compare(new Rgb { B = 0, G = 0, R = 0 }, new Cie1976Comparison()) < 2)
                 {
                     // Ignore black pixels
                     continue;
@@ -607,7 +662,7 @@ namespace ShowMeYourHands
 
                 var added = false;
                 foreach (var rgb in shadeDictionary.Keys.Where(rgb =>
-                    currentRgb.Compare(new Rgb {B = rgb.b, G = rgb.b, R = rgb.r}, new Cie1976Comparison()) < 2))
+                    currentRgb.Compare(new Rgb { B = rgb.b, G = rgb.b, R = rgb.r }, new Cie1976Comparison()) < 2))
                 {
                     shadeDictionary[rgb]++;
                     added = true;
@@ -679,21 +734,21 @@ namespace ShowMeYourHands
             var dataDrawOffset = weapon.Graphic.data.drawOffset;
             if (pawn.Rotation == Rot4.North && weapon.Graphic?.data?.drawOffsetNorth != null)
             {
-                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetNorth;
+                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetNorth;
             }
             else if (pawn.Rotation == Rot4.East && weapon.Graphic?.data?.drawOffsetEast != null)
             {
-                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetEast;
+                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetEast;
             }
 
             else if (pawn.Rotation == Rot4.South && weapon.Graphic?.data?.drawOffsetSouth != null)
             {
-                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetSouth;
+                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetSouth;
             }
 
             else if (pawn.Rotation == Rot4.West && weapon.Graphic?.data?.drawOffsetWest != null)
             {
-                dataDrawOffset = (Vector3) weapon.Graphic.data.drawOffsetWest;
+                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetWest;
             }
 
             if (dataDrawOffset != null)

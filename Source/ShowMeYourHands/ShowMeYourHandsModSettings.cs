@@ -23,6 +23,7 @@ namespace ShowMeYourHands
         public bool MatchArtificialLimbColor;
         public bool RepositionHands = true;
         public bool ResizeHands = true;
+        public bool ShowWhenCarry;
         public bool VerboseLogging;
 
         public override void ExposeData()
@@ -33,6 +34,7 @@ namespace ShowMeYourHands
             Scribe_Values.Look(ref MatchArtificialLimbColor, "MatchArtificialLimbColor");
             Scribe_Values.Look(ref ResizeHands, "ResizeHands", true);
             Scribe_Values.Look(ref RepositionHands, "RepositionHands", true);
+            Scribe_Values.Look(ref ShowWhenCarry, "ShowWhenCarry");
             Scribe_Collections.Look(ref ManualMainHandPositions, "ManualMainHandPositions", LookMode.Value,
                 LookMode.Value,
                 ref manualMainHandPositionsKeys, ref manualMainHandPositionsValues);

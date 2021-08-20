@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.37.0 - Added carry hands, hopefully fixed a memory leak
+
+
 1.0.36.0 - Added support for Yayos Animation, added some static hand-settings
 
 

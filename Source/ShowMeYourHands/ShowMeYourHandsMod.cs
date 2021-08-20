@@ -289,12 +289,12 @@ namespace ShowMeYourHands
             var texture = thing.graphicData?.Graphic?.MatSingle?.mainTexture;
             if (thing.graphicData?.graphicClass == typeof(Graphic_Random))
             {
-                texture = ((Graphic_Random) thing.graphicData.Graphic)?.FirstSubgraphic().MatSingle.mainTexture;
+                texture = ((Graphic_Random)thing.graphicData.Graphic)?.FirstSubgraphic().MatSingle.mainTexture;
             }
 
             if (thing.graphicData?.graphicClass == typeof(Graphic_StackCount))
             {
-                texture = ((Graphic_StackCount) thing.graphicData.Graphic)?.SubGraphicForStackCount(1, thing).MatSingle
+                texture = ((Graphic_StackCount)thing.graphicData.Graphic)?.SubGraphicForStackCount(1, thing).MatSingle
                     .mainTexture;
             }
 
@@ -381,18 +381,18 @@ namespace ShowMeYourHands
             var texture2D = thing.graphicData.Graphic.MatSingle.mainTexture;
             if (thing.graphicData.graphicClass == typeof(Graphic_Random))
             {
-                texture2D = ((Graphic_Random) thing.graphicData.Graphic).FirstSubgraphic().MatSingle.mainTexture;
+                texture2D = ((Graphic_Random)thing.graphicData.Graphic).FirstSubgraphic().MatSingle.mainTexture;
             }
 
             if (thing.graphicData.graphicClass == typeof(Graphic_StackCount))
             {
-                texture2D = ((Graphic_StackCount) thing.graphicData.Graphic).SubGraphicForStackCount(1, thing).MatSingle
+                texture2D = ((Graphic_StackCount)thing.graphicData.Graphic).SubGraphicForStackCount(1, thing).MatSingle
                     .mainTexture;
             }
 
             if (texture2D.width != texture2D.height)
             {
-                var ratio = (float) texture2D.width / texture2D.height;
+                var ratio = (float)texture2D.width / texture2D.height;
 
                 if (ratio < 1)
                 {
@@ -514,6 +514,9 @@ namespace ShowMeYourHands
                     listing_Standard.CheckboxLabeled("SMYH.repositionhands.label".Translate(),
                         ref Settings.RepositionHands,
                         "SMYH.repositionhands.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("SMYH.showwhencarry.label".Translate(),
+                        ref Settings.ShowWhenCarry,
+                        "SMYH.showwhencarry.tooltip".Translate());
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
@@ -530,8 +533,8 @@ namespace ShowMeYourHands
                     listing_Standard.End();
 
                     var tabFrameRect = frameRect;
-                    tabFrameRect.y += 300;
-                    tabFrameRect.height -= 300;
+                    tabFrameRect.y += 325;
+                    tabFrameRect.height -= 325;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;
@@ -550,7 +553,7 @@ namespace ShowMeYourHands
                             fixedWeapons = fixedWeaponsByMod[keyValuePair.Key];
                         }
 
-                        var percent = fixedWeapons / (decimal) keyValuePair.Value * 100;
+                        var percent = fixedWeapons / (decimal)keyValuePair.Value * 100;
 
                         GUI.color = GetColorFromPercent(percent);
 

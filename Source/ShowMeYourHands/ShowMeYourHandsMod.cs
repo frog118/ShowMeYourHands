@@ -630,7 +630,7 @@ namespace ShowMeYourHands
                         currentOffHand = compProperties.SecHand;
                         currentHasOffHand = currentOffHand != Vector3.zero;
                         currentMainBehind = compProperties.MainHand.y < 0;
-                        currentOffBehind = compProperties.SecHand.y < 0;
+                        currentOffBehind = compProperties.SecHand.y < 0 || currentOffHand == Vector3.zero;
                     }
 
                     if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand))

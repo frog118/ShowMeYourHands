@@ -22,6 +22,7 @@ Settings
 -  Coloring the hands based on artificial limbs
 -  Resizing the hands based on the bodysize of the pawn, this also works with https://steamcommunity.com/sharedfiles/filedetails/?id=2373187996]Children
 -  Repositioning the hands based on the weaponsize, to support oversized weapons
+-  Showing the hands when pawns carry stuff
 
 
 

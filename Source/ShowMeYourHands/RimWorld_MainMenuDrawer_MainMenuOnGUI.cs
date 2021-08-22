@@ -49,7 +49,7 @@ namespace ShowMeYourHands
 
             foreach (var patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
             {
-                ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, -1, null, new[] {patch.owner}));
+                ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, -1, null, new[] { patch.owner }));
             }
 
             ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.Last));
@@ -382,17 +382,17 @@ namespace ShowMeYourHands
             }
 
 
-            var percentWidth = (endPixel - startPixel) / (float) width;
+            var percentWidth = (endPixel - startPixel) / (float)width;
             var percentStart = 0f;
             if (startPixel != 0)
             {
-                percentStart = startPixel / (float) width;
+                percentStart = startPixel / (float)width;
             }
 
             var percentEnd = 0f;
             if (width - endPixel != 0)
             {
-                percentEnd = (width - endPixel) / (float) width;
+                percentEnd = (width - endPixel) / (float)width;
             }
 
             ShowMeYourHandsMain.LogMessage(
@@ -401,7 +401,7 @@ namespace ShowMeYourHands
             if (percentWidth > 0.7f)
             {
                 mainHand = new Vector3(-0.3f + percentStart, 0.3f, -0.05f);
-                secHand = new Vector3(0.2f, 0, -0.05f);
+                secHand = new Vector3(0.2f, -0.100f, -0.05f);
             }
             else
             {

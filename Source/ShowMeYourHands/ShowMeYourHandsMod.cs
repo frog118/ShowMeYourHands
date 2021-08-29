@@ -509,6 +509,9 @@ namespace ShowMeYourHands
                     listing_Standard.CheckboxLabeled("SMYH.matchartificiallimb.label".Translate(),
                         ref Settings.MatchArtificialLimbColor,
                         "SMYH.matchartificiallimb.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("SMYH.matchhandamounts.label".Translate(),
+                        ref Settings.MatchHandAmounts,
+                        "SMYH.matchhandamounts.tooltip".Translate());
                     listing_Standard.CheckboxLabeled("SMYH.resizehands.label".Translate(), ref Settings.ResizeHands,
                         "SMYH.resizehands.tooltip".Translate());
                     listing_Standard.CheckboxLabeled("SMYH.repositionhands.label".Translate(),
@@ -533,8 +536,8 @@ namespace ShowMeYourHands
                     listing_Standard.End();
 
                     var tabFrameRect = frameRect;
-                    tabFrameRect.y += 325;
-                    tabFrameRect.height -= 325;
+                    tabFrameRect.y += 350;
+                    tabFrameRect.height -= 350;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;

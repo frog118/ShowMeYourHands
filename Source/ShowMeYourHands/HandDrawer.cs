@@ -18,6 +18,7 @@ namespace ShowMeYourHands
         public static readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
         public static readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
         public static readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
+        public static readonly Dictionary<Pawn, bool> pawnsMissingAHand = new Dictionary<Pawn, bool>();
 
         private Color handColor;
         private Vector3 MainHand;
@@ -239,20 +240,23 @@ namespace ShowMeYourHands
 
             var matSingle = mainHandTex.MatSingle;
             var offSingle = offHandTex.MatSingle;
+            var height = new Vector3(0, 0, 0.1f);
+            var width = new Vector3(-0.2f, 0, 0);
             if (pawn.Rotation == Rot4.West)
             {
-                Graphics.DrawMesh(mesh,
-                    thingPosition + new Vector3(-0.2f, 0, -0.1f), new Quaternion(), matSingle, 0);
-                Graphics.DrawMesh(mesh,
-                    thingPosition + new Vector3(0.2f, 0, 0.1f), new Quaternion(), offSingle, 0);
+                height.z *= -1;
             }
-            else
+
+            Graphics.DrawMesh(mesh,
+                thingPosition + height + width, new Quaternion(), matSingle, 0);
+
+            if (pawnsMissingAHand.ContainsKey(pawn) && pawnsMissingAHand[pawn])
             {
-                Graphics.DrawMesh(mesh,
-                    thingPosition + new Vector3(-0.2f, 0, 0.1f), new Quaternion(), matSingle, 0);
-                Graphics.DrawMesh(mesh,
-                    thingPosition + new Vector3(0.2f, 0, -0.1f), new Quaternion(), offSingle, 0);
+                return;
             }
+
+            Graphics.DrawMesh(mesh,
+                thingPosition + (height * -1) + (width * -1), new Quaternion(), offSingle, 0);
         }
 
         private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false,
@@ -447,7 +451,7 @@ namespace ShowMeYourHands
                     Quaternion.AngleAxis(mainHandAngle, Vector3.up), y >= 0 ? matSingle : offSingle, 0);
             }
 
-            if (OffHand == Vector3.zero)
+            if (OffHand == Vector3.zero || pawnsMissingAHand.ContainsKey(pawn) && pawnsMissingAHand[pawn])
             {
                 return;
             }
@@ -517,6 +521,24 @@ namespace ShowMeYourHands
         {
             hasGloves = false;
             secondColor = default;
+            List<Hediff_AddedPart> addedHands = null;
+
+            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts ||
+                ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
+            {
+                addedHands = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
+                    .Where(x => x.Part.def == ShowMeYourHandsMain.HandDef ||
+                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.HandDef)).ToList();
+            }
+
+            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts && pawn.health is { hediffSet: { } })
+            {
+                pawnsMissingAHand[pawn] = pawn.health
+                        .hediffSet
+                        .GetNotMissingParts().Count(record => record.def == ShowMeYourHandsMain.HandDef) +
+                    addedHands?.Count < 2;
+            }
+
             if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
                 where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
                 select apparel).Any())
@@ -526,9 +548,6 @@ namespace ShowMeYourHands
                     return pawn.story.SkinColor;
                 }
 
-                var addedHands = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
-                    .Where(x => x.Part.def == ShowMeYourHandsMain.HandDef ||
-                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.HandDef));
                 if (addedHands == null || !addedHands.Any())
                 {
                     return pawn.story.SkinColor;

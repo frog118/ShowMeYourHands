@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>ShowMeYourHands</modNameReadable>
@@ -32,4 +32,10 @@ I also found some memory leaks and hopefully fixed them.
 Hope its appreciated and report any issues on the mod-page or on the Discord-server!
 </content>
   </HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+		<defName>ShowMeYourHands_1_0_39_0</defName>
+		<assemblyVersion>1.0.39.0</assemblyVersion>
+		<content>There is now an option to hide the second hand of pawns that are missing a hand. They will hold two-handed weapons with the main hand only and carry stuff with only one hand. Hope this will add to the immersion!
+</content>
+	</HugsLib.UpdateFeatureDef>
 </Defs>

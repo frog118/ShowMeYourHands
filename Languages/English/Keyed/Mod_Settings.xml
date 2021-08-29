@@ -18,6 +18,8 @@
   <SMYH.logging.tooltip>Shows verbose logging, for finding errors</SMYH.logging.tooltip>
   <SMYH.matchartificiallimb.label>Try to match replaced hands</SMYH.matchartificiallimb.label>
   <SMYH.matchartificiallimb.tooltip>If the pawns hands are replaced with an artificial hand, it will try to show the color of the artificial limb instead</SMYH.matchartificiallimb.tooltip>
+  <SMYH.matchhandamounts.label>Dont show missing hands</SMYH.matchhandamounts.label>
+  <SMYH.matchhandamounts.tooltip>If the pawn is missing a hand, it will only show the main-hand on two-handed weapons</SMYH.matchhandamounts.tooltip>
   <SMYH.showwhencarry.label>Show hands when carrying things</SMYH.showwhencarry.label>
   <SMYH.showwhencarry.tooltip>Will draw hands when pawns are carrying things</SMYH.showwhencarry.tooltip>
   <SMYH.matcharmor.label>Try to match armor color</SMYH.matcharmor.label>

@@ -520,6 +520,9 @@ namespace ShowMeYourHands
                     listing_Standard.CheckboxLabeled("SMYH.showwhencarry.label".Translate(),
                         ref Settings.ShowWhenCarry,
                         "SMYH.showwhencarry.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("SMYH.showothertimes.label".Translate(),
+                        ref Settings.ShowOtherTmes,
+                        "SMYH.showothertimes.tooltip".Translate());
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
@@ -536,8 +539,8 @@ namespace ShowMeYourHands
                     listing_Standard.End();
 
                     var tabFrameRect = frameRect;
-                    tabFrameRect.y += 350;
-                    tabFrameRect.height -= 350;
+                    tabFrameRect.y += 375;
+                    tabFrameRect.height -= 375;
                     var tabContentRect = tabFrameRect;
                     tabContentRect.x = 0;
                     tabContentRect.y = 0;

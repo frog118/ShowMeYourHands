@@ -24,6 +24,7 @@ namespace ShowMeYourHands
         public bool MatchHandAmounts;
         public bool RepositionHands = true;
         public bool ResizeHands = true;
+        public bool ShowOtherTmes;
         public bool ShowWhenCarry;
         public bool VerboseLogging;
 
@@ -37,6 +38,7 @@ namespace ShowMeYourHands
             Scribe_Values.Look(ref ResizeHands, "ResizeHands", true);
             Scribe_Values.Look(ref RepositionHands, "RepositionHands", true);
             Scribe_Values.Look(ref ShowWhenCarry, "ShowWhenCarry");
+            Scribe_Values.Look(ref ShowOtherTmes, "ShowOtherTmes");
             Scribe_Collections.Look(ref ManualMainHandPositions, "ManualMainHandPositions", LookMode.Value,
                 LookMode.Value,
                 ref manualMainHandPositionsKeys, ref manualMainHandPositionsValues);

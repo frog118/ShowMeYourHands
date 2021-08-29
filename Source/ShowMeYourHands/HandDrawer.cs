@@ -21,6 +21,7 @@ namespace ShowMeYourHands
         public static readonly Dictionary<Pawn, bool> pawnsMissingAHand = new Dictionary<Pawn, bool>();
 
         private Color handColor;
+        private int LastDrawn;
         private Vector3 MainHand;
         private Vector3 OffHand;
 
@@ -201,6 +202,91 @@ namespace ShowMeYourHands
         }
 
 
+        public void DrawHands()
+        {
+            if (!(parent is Pawn pawn))
+            {
+                return;
+            }
+
+            if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                var bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
+                    }
+                }
+
+                pawnBodySizes[pawn] = 0.8f * bodySize;
+            }
+
+            var unused = HandColor;
+            var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
+            var mainHandTex = mainHandGraphics[pawn];
+            var offHandTex = offHandGraphics[pawn];
+
+            if (mainHandTex == null || offHandTex == null)
+            {
+                return;
+            }
+
+            var mainSingle = mainHandTex.MatSingle;
+            var offSingle = offHandTex.MatSingle;
+            var heightOffset = new Vector3(0, 0, 0.7f * pawnBodySizes[pawn] / 2);
+            var sideOffset = new Vector3(0.2f, 0, 0);
+            var layerOffset = new Vector3(0, 0.0001f, 0);
+
+            var basePosition = pawn.DrawPos - heightOffset;
+            if (pawn.Rotation == Rot4.North)
+            {
+                Graphics.DrawMesh(mesh,
+                    basePosition + sideOffset - layerOffset, new Quaternion(), mainSingle, 0);
+            }
+
+            if (pawn.Rotation == Rot4.South)
+            {
+                Graphics.DrawMesh(mesh,
+                    basePosition - sideOffset, new Quaternion(), mainSingle, 0);
+            }
+
+            if (pawn.Rotation == Rot4.East)
+            {
+                Graphics.DrawMesh(mesh,
+                    basePosition, new Quaternion(), mainSingle, 0);
+                return;
+            }
+
+            if (pawnsMissingAHand.ContainsKey(pawn) && pawnsMissingAHand[pawn])
+            {
+                return;
+            }
+
+            if (pawn.Rotation == Rot4.North)
+            {
+                Graphics.DrawMesh(mesh,
+                    basePosition - sideOffset - layerOffset, new Quaternion(), offSingle, 0);
+                return;
+            }
+
+            if (pawn.Rotation == Rot4.South)
+            {
+                Graphics.DrawMesh(mesh,
+                    basePosition + sideOffset, new Quaternion(), offSingle, 0);
+                return;
+            }
+
+            Graphics.DrawMesh(mesh,
+                basePosition, new Quaternion(), offSingle, 0);
+        }
+
         public void DrawHands(Thing carriedThing, Vector3 thingPosition)
         {
             if (!(parent is Pawn pawn))
@@ -238,6 +324,7 @@ namespace ShowMeYourHands
                 return;
             }
 
+            LastDrawn = GenTicks.TicksAbs;
             var matSingle = mainHandTex.MatSingle;
             var offSingle = offHandTex.MatSingle;
             var height = new Vector3(0, 0, 0.1f);
@@ -400,6 +487,7 @@ namespace ShowMeYourHands
             var matSingle = mainHandTex.MatSingle;
             var offSingle = offHandTex.MatSingle;
             var drawSize = 1f;
+            LastDrawn = GenTicks.TicksAbs;
 
             if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
                 mainHandWeapon.def?.graphicData?.drawSize.x != 1f)
@@ -776,6 +864,18 @@ namespace ShowMeYourHands
             }
 
             return Vector3.zero;
+        }
+
+        public override void CompTick()
+        {
+            base.CompTick();
+            if (!ShowMeYourHandsMod.instance.Settings.ShowOtherTmes || LastDrawn == GenTicks.TicksAbs - 1 ||
+                GenTicks.TicksAbs == 0)
+            {
+                return;
+            }
+
+            DrawHands();
         }
     }
 }

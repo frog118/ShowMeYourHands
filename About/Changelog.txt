@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.40.0 - Added the option so always show hands
+
+
 1.0.39.0 - Added an option to not show the offhand when missing
 
 

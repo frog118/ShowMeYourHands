@@ -254,13 +254,13 @@ namespace ShowMeYourHands
             if (pawn.Rotation == Rot4.South)
             {
                 Graphics.DrawMesh(mesh,
-                    basePosition - sideOffset, new Quaternion(), mainSingle, 0);
+                    basePosition - sideOffset + layerOffset, new Quaternion(), mainSingle, 0);
             }
 
             if (pawn.Rotation == Rot4.East)
             {
                 Graphics.DrawMesh(mesh,
-                    basePosition, new Quaternion(), mainSingle, 0);
+                    basePosition + layerOffset, new Quaternion(), mainSingle, 0);
                 return;
             }
 
@@ -279,12 +279,12 @@ namespace ShowMeYourHands
             if (pawn.Rotation == Rot4.South)
             {
                 Graphics.DrawMesh(mesh,
-                    basePosition + sideOffset, new Quaternion(), offSingle, 0);
+                    basePosition + sideOffset + layerOffset, new Quaternion(), offSingle, 0);
                 return;
             }
 
             Graphics.DrawMesh(mesh,
-                basePosition, new Quaternion(), offSingle, 0);
+                basePosition + layerOffset, new Quaternion(), offSingle, 0);
         }
 
         public void DrawHands(Thing carriedThing, Vector3 thingPosition)
@@ -869,7 +869,7 @@ namespace ShowMeYourHands
         public override void CompTick()
         {
             base.CompTick();
-            if (!ShowMeYourHandsMod.instance.Settings.ShowOtherTmes || LastDrawn == GenTicks.TicksAbs - 1 ||
+            if (!ShowMeYourHandsMod.instance.Settings.ShowOtherTmes || LastDrawn >= GenTicks.TicksAbs - 1 ||
                 GenTicks.TicksAbs == 0)
             {
                 return;

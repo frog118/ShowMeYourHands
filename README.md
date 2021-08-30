@@ -23,6 +23,8 @@ Settings
 -  Resizing the hands based on the bodysize of the pawn, this also works with https://steamcommunity.com/sharedfiles/filedetails/?id=2373187996]Children
 -  Repositioning the hands based on the weaponsize, to support oversized weapons
 -  Showing the hands when pawns carry stuff
+-  Showing only one hand if the pawn is missing one
+-  Showing the hands at all times
 
 
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>ShowMeYourHands</modNameReadable>
@@ -38,10 +38,10 @@ Hope its appreciated and report any issues on the mod-page or on the Discord-ser
     <content>There is now an option to hide the second hand of pawns that are missing a hand. They will hold two-handed weapons with the main hand only and carry stuff with only one hand. Hope this will add to the immersion!
 </content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>ShowMeYourHands_1_0_40_0</defName>
-		<assemblyVersion>1.0.40.0</assemblyVersion>
-		<content>Okay, so I found a way to show the hands at all times. Added an option for that too. They will be shown at the sides of the pawn. It was requested so I hope its more or less what you wanted :)
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>ShowMeYourHands_1_0_40_0</defName>
+    <assemblyVersion>1.0.40.0</assemblyVersion>
+    <content>Okay, so I found a way to show the hands at all times. Added an option for that too. They will be shown at the sides of the pawn. It was requested so I hope its more or less what you wanted :)
 </content>
-	</HugsLib.UpdateFeatureDef>
+  </HugsLib.UpdateFeatureDef>
 </Defs>

@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.41.0 - Fixed some flickering
+
+
 1.0.40.0 - Added the option so always show hands
 
 

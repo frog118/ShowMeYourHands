@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.45.0 - Duplicate hand-defs fixed
+
+
 1.0.44.0 - Added some missing handsdefs
 
 

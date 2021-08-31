@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.43.0 - Added caching of oversized offsets, should make for some better performance
+
+
 1.0.42.0 - Added beta-tag to the always-option. Added some weapon-positions
 
 

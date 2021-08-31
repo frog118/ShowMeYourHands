@@ -15,6 +15,11 @@ namespace ShowMeYourHands
         public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations =
             new Dictionary<Thing, Tuple<Vector3, float>>();
 
+        public static readonly Dictionary<ThingDef, Vector3> southOffsets = new Dictionary<ThingDef, Vector3>();
+        public static readonly Dictionary<ThingDef, Vector3> northOffsets = new Dictionary<ThingDef, Vector3>();
+        public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new Dictionary<ThingDef, Vector3>();
+        public static readonly Dictionary<ThingDef, Vector3> westOffsets = new Dictionary<ThingDef, Vector3>();
+
         public static readonly Harmony harmony;
 
         public static bool BabysAndChildrenLoaded;
@@ -88,12 +93,20 @@ namespace ShowMeYourHands
             }
 
             OversizedWeaponLoaded = AccessTools.TypeByName("CompOversizedWeapon") != null;
-            if (OversizedWeaponLoaded)
+            EnableOversizedLoaded = ModLister.GetActiveModWithIdentifier("CarnySenpai.EnableOversizedWeapons") != null;
+
+            if (OversizedWeaponLoaded || EnableOversizedLoaded)
             {
-                LogMessage("OversizedWeapon loaded, will compensate positioning");
+                var allWeapons = DefDatabase<ThingDef>.AllDefsListForReading.Where(def => def.IsWeapon).ToList();
+                foreach (var weapon in allWeapons)
+                {
+                    saveWeaponOffsets(weapon);
+                }
+
+                LogMessage(
+                    $"OversizedWeapon loaded, will compensate positioning. Cached offsets for {allWeapons.Count()} weapons");
             }
 
-            EnableOversizedLoaded = ModLister.GetActiveModWithIdentifier("CarnySenpai.EnableOversizedWeapons") != null;
             var compProperties = new CompProperties { compClass = typeof(HandDrawer) };
             foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                 where race.race?.Humanlike == true
@@ -167,6 +180,71 @@ namespace ShowMeYourHands
                 default:
                     return ThingDefOf.Steel.stuffProps.color;
             }
+        }
+
+
+        private static void saveWeaponOffsets(ThingDef weapon)
+        {
+            if (OversizedWeaponLoaded)
+            {
+                var thingComp =
+                    weapon.comps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
+                if (thingComp == null)
+                {
+                    return;
+                }
+
+                var oversizedType = thingComp.GetType();
+                var fields = oversizedType.GetFields().Where(info => info.Name.Contains("Offset"));
+
+                foreach (var fieldInfo in fields)
+                {
+                    switch (fieldInfo.Name)
+                    {
+                        case "northOffset":
+                            northOffsets[weapon] = fieldInfo.GetValue(thingComp) is Vector3
+                                ? (Vector3)fieldInfo.GetValue(thingComp)
+                                : Vector3.zero;
+                            break;
+                        case "southOffset":
+                            southOffsets[weapon] = fieldInfo.GetValue(thingComp) is Vector3
+                                ? (Vector3)fieldInfo.GetValue(thingComp)
+                                : Vector3.zero;
+                            break;
+                        case "westOffset":
+                            westOffsets[weapon] = fieldInfo.GetValue(thingComp) is Vector3
+                                ? (Vector3)fieldInfo.GetValue(thingComp)
+                                : Vector3.zero;
+                            break;
+                        case "eastOffset":
+                            eastOffsets[weapon] = fieldInfo.GetValue(thingComp) is Vector3
+                                ? (Vector3)fieldInfo.GetValue(thingComp)
+                                : Vector3.zero;
+                            break;
+                    }
+                }
+
+                return;
+            }
+
+            if (!EnableOversizedLoaded)
+            {
+                return;
+            }
+
+            if (weapon.graphicData == null)
+            {
+                return;
+            }
+
+            var graphicData = weapon.graphicData;
+
+            var baseOffset = graphicData.drawOffset;
+
+            northOffsets[weapon] = graphicData.drawOffsetNorth ?? baseOffset;
+            southOffsets[weapon] = graphicData.drawOffsetSouth ?? baseOffset;
+            eastOffsets[weapon] = graphicData.drawOffsetEast ?? baseOffset;
+            westOffsets[weapon] = graphicData.drawOffsetWest ?? baseOffset;
         }
     }
 }

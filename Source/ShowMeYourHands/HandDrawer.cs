@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
-using HarmonyLib;
 using UnityEngine;
 using Verse;
 using static System.Byte;
@@ -599,6 +598,36 @@ namespace ShowMeYourHands
                 Quaternion.AngleAxis(mainHandAngle, Vector3.up), y2 >= 0 ? matSingle : offSingle, 0);
         }
 
+        private Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
+        {
+            if (!ShowMeYourHandsMain.OversizedWeaponLoaded && !ShowMeYourHandsMain.EnableOversizedLoaded)
+            {
+                return Vector3.zero;
+            }
+
+            switch (pawn.Rotation.AsInt)
+            {
+                case 0:
+                    return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out var northValue)
+                        ? northValue
+                        : Vector3.zero;
+                case 1:
+                    return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out var eastValue)
+                        ? eastValue
+                        : Vector3.zero;
+                case 2:
+                    return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out var southValue)
+                        ? southValue
+                        : Vector3.zero;
+                case 3:
+                    return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out var westValue)
+                        ? westValue
+                        : Vector3.zero;
+                default:
+                    return Vector3.zero;
+            }
+        }
+
 
         public override void PostDraw()
         {
@@ -792,79 +821,6 @@ namespace ShowMeYourHands
             return greatestValue;
         }
 
-        private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
-        {
-            if (ShowMeYourHandsMain.OversizedWeaponLoaded)
-            {
-                var thingComp =
-                    weapon.AllComps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
-                if (thingComp == null)
-                {
-                    return Vector3.zero;
-                }
-
-                var props = Traverse.Create(thingComp).Property("Props");
-                if (props == null)
-                {
-                    return Vector3.zero;
-                }
-
-                Traverse offset = null;
-                if (pawn.Rotation == Rot4.North)
-                {
-                    offset = props.Field("northOffset");
-                }
-                else if (pawn.Rotation == Rot4.East)
-                {
-                    offset = props.Field("eastOffset");
-                }
-
-                else if (pawn.Rotation == Rot4.South)
-                {
-                    offset = props.Field("southOffset");
-                }
-
-                else if (pawn.Rotation == Rot4.West)
-                {
-                    offset = props.Field("westOffset");
-                }
-
-                var value = offset?.GetValue<Vector3>();
-                return value ?? Vector3.zero;
-            }
-
-            if (!ShowMeYourHandsMain.EnableOversizedLoaded)
-            {
-                return Vector3.zero;
-            }
-
-            var dataDrawOffset = weapon.Graphic.data.drawOffset;
-            if (pawn.Rotation == Rot4.North && weapon.Graphic?.data?.drawOffsetNorth != null)
-            {
-                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetNorth;
-            }
-            else if (pawn.Rotation == Rot4.East && weapon.Graphic?.data?.drawOffsetEast != null)
-            {
-                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetEast;
-            }
-
-            else if (pawn.Rotation == Rot4.South && weapon.Graphic?.data?.drawOffsetSouth != null)
-            {
-                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetSouth;
-            }
-
-            else if (pawn.Rotation == Rot4.West && weapon.Graphic?.data?.drawOffsetWest != null)
-            {
-                dataDrawOffset = (Vector3)weapon.Graphic.data.drawOffsetWest;
-            }
-
-            if (dataDrawOffset != null)
-            {
-                return dataDrawOffset;
-            }
-
-            return Vector3.zero;
-        }
 
         public override void CompTick()
         {

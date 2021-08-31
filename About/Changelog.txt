@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.42.0 - Added beta-tag to the always-option. Added some weapon-positions
+
+
 1.0.41.0 - Fixed some flickering
 
 

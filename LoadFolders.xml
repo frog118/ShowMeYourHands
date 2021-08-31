@@ -420,5 +420,6 @@
     <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
     <li IfModActive="4ydra.arsenalofreaction">ModSupport/4ydra.arsenalofreaction</li>
     <li IfModActive="jangodsoul.exileddawn">ModSupport/jangodsoul.exileddawn</li>
+    <li IfModActive="DankPyon.Medieval.Overhaul">ModSupport/DankPyon.Medieval.Overhaul</li>
   </v1.3>
 </loadFolders>

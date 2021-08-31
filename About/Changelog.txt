@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.44.0 - Added some missing handsdefs
+
+
 1.0.43.0 - Added caching of oversized offsets, should make for some better performance
 
 

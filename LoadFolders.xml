@@ -113,7 +113,7 @@
     <li IfModActive="JangoDsoul.HiggsA.DS">ModSupport/JangoDsoul.HiggsA.DS</li>
     <li IfModActive="JangoDsoul.Mechanized">ModSupport/JangoDsoul.Mechanized</li>
     <li IfModActive="JangoDsoul.TierArmor.Civil">ModSupport/JangoDsoul.TierArmor.Civil</li>
-    <li IfModActive="Rick.FCPDR">ModSupport/Rick.FCPDR</li>
+    <li IfModActive="rick.fcpdr">ModSupport/rick.fcpdr</li>
     <li IfModActive="Si.ThrumboHornWeapons">ModSupport/Si.ThrumboHornWeapons</li>
     <li IfModActive="hamster.personacryptech">ModSupport/hamster.personacryptech</li>
     <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
@@ -242,7 +242,7 @@
     <li IfModActive="JangoDsoul.HiggsA.DS">ModSupport/JangoDsoul.HiggsA.DS</li>
     <li IfModActive="JangoDsoul.Mechanized">ModSupport/JangoDsoul.Mechanized</li>
     <li IfModActive="JangoDsoul.TierArmor.Civil">ModSupport/JangoDsoul.TierArmor.Civil</li>
-    <li IfModActive="Rick.FCPDR">ModSupport/Rick.FCPDR</li>
+    <li IfModActive="rick.fcpdr">ModSupport/rick.fcpdr</li>
     <li IfModActive="Si.ThrumboHornWeapons">ModSupport/Si.ThrumboHornWeapons</li>
     <li IfModActive="hamster.personacryptech">ModSupport/hamster.personacryptech</li>
     <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
@@ -272,6 +272,17 @@
     <li IfModActive="xrushha.animagear">ModSupport/xrushha.animagear</li>
     <li IfModActive="4ydra.arsenalofreaction">ModSupport/4ydra.arsenalofreaction</li>
     <li IfModActive="jangodsoul.exileddawn">ModSupport/jangodsoul.exileddawn</li>
+    <li IfModActive="jangodsoul.theforge.caesarlegionarmory">ModSupport/jangodsoul.theforge.caesarlegionarmory</li>
+    <li IfModActive="jangodsoul.theforge.ncrarmory">ModSupport/jangodsoul.theforge.ncrarmory</li>
+    <li IfModActive="rick.fcpmmet">ModSupport/rick.fcpmmet</li>
+    <li IfModActive="rick.fcpccrp">ModSupport/rick.fcpccrp</li>
+    <li IfModActive="oskarpotocki.vfe.mechanoid">ModSupport/oskarpotocki.vfe.mechanoid</li>
+    <li IfModActive="nazgul.eisenhanspowerarmor">ModSupport/nazgul.eisenhanspowerarmor</li>
+    <li IfModActive="morgante.morgantepostapocalypticweaponspack">ModSupport/morgante.morgantepostapocalypticweaponspack</li>
+    <li IfModActive="4ydra.arsenalofrevolution">ModSupport/4ydra.arsenalofrevolution</li>
+    <li IfModActive="rust.handmade.weapons">ModSupport/rust.handmade.weapons</li>
+    <li IfModActive="rick.lunz.fcpmks">ModSupport/rick.lunz.fcpmks</li>
+    <li IfModActive="aelanna.eccentrictech.flares2">ModSupport/aelanna.eccentrictech.flares2</li>
   </v1.2>
   <v1.3>
     <li>/</li>
@@ -390,7 +401,7 @@
     <li IfModActive="JangoDsoul.HiggsA.DS">ModSupport/JangoDsoul.HiggsA.DS</li>
     <li IfModActive="JangoDsoul.Mechanized">ModSupport/JangoDsoul.Mechanized</li>
     <li IfModActive="JangoDsoul.TierArmor.Civil">ModSupport/JangoDsoul.TierArmor.Civil</li>
-    <li IfModActive="Rick.FCPDR">ModSupport/Rick.FCPDR</li>
+    <li IfModActive="rick.fcpdr">ModSupport/rick.fcpdr</li>
     <li IfModActive="Si.ThrumboHornWeapons">ModSupport/Si.ThrumboHornWeapons</li>
     <li IfModActive="hamster.personacryptech">ModSupport/hamster.personacryptech</li>
     <li IfModActive="JGH.MechanoidBench2">ModSupport/JGH.MechanoidBench2</li>
@@ -421,5 +432,16 @@
     <li IfModActive="4ydra.arsenalofreaction">ModSupport/4ydra.arsenalofreaction</li>
     <li IfModActive="jangodsoul.exileddawn">ModSupport/jangodsoul.exileddawn</li>
     <li IfModActive="DankPyon.Medieval.Overhaul">ModSupport/DankPyon.Medieval.Overhaul</li>
+    <li IfModActive="jangodsoul.theforge.caesarlegionarmory">ModSupport/jangodsoul.theforge.caesarlegionarmory</li>
+    <li IfModActive="jangodsoul.theforge.ncrarmory">ModSupport/jangodsoul.theforge.ncrarmory</li>
+    <li IfModActive="rick.fcpmmet">ModSupport/rick.fcpmmet</li>
+    <li IfModActive="rick.fcpccrp">ModSupport/rick.fcpccrp</li>
+    <li IfModActive="oskarpotocki.vfe.mechanoid">ModSupport/oskarpotocki.vfe.mechanoid</li>
+    <li IfModActive="nazgul.eisenhanspowerarmor">ModSupport/nazgul.eisenhanspowerarmor</li>
+    <li IfModActive="morgante.morgantepostapocalypticweaponspack">ModSupport/morgante.morgantepostapocalypticweaponspack</li>
+    <li IfModActive="4ydra.arsenalofrevolution">ModSupport/4ydra.arsenalofrevolution</li>
+    <li IfModActive="rust.handmade.weapons">ModSupport/rust.handmade.weapons</li>
+    <li IfModActive="rick.lunz.fcpmks">ModSupport/rick.lunz.fcpmks</li>
+    <li IfModActive="aelanna.eccentrictech.flares2">ModSupport/aelanna.eccentrictech.flares2</li>
   </v1.3>
 </loadFolders>

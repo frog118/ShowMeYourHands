@@ -203,7 +203,7 @@ namespace ShowMeYourHands
 
         public void DrawHands()
         {
-            if (!(parent is Pawn pawn))
+            if (!(parent is Pawn pawn) || pawn.DestroyedOrNull() || pawn.Map == null)
             {
                 return;
             }

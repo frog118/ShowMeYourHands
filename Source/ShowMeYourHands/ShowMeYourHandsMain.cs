@@ -30,6 +30,10 @@ namespace ShowMeYourHands
 
         public static bool EnableOversizedLoaded;
 
+        public static bool DualWieldLoaded;
+
+        public static bool YayoAdoptedLoaded;
+
         public static BodyPartDef HandDef;
 
         public static Dictionary<HediffDef, Color> HediffColors;
@@ -80,6 +84,8 @@ namespace ShowMeYourHands
 
         static ShowMeYourHandsMain()
         {
+            DualWieldLoaded = ModLister.GetActiveModWithIdentifier("Roolo.DualWield") != null;
+            YayoAdoptedLoaded = ModLister.GetActiveModWithIdentifier("com.yayo.combat3") != null;
             BabysAndChildrenLoaded = ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null;
             if (BabysAndChildrenLoaded)
             {
@@ -104,7 +110,7 @@ namespace ShowMeYourHands
                 }
 
                 LogMessage(
-                    $"OversizedWeapon loaded, will compensate positioning. Cached offsets for {allWeapons.Count()} weapons");
+                    $"OversizedWeapon loaded, will compensate positioning. Cached offsets for {allWeapons.Count} weapons");
             }
 
             var compProperties = new CompProperties { compClass = typeof(HandDrawer) };

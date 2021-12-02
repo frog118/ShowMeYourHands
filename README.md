@@ -38,20 +38,11 @@ Preview-image includes armor and weapons from the excellent XCOM-mods by velcrob
 https://steamcommunity.com/sharedfiles/filedetails/?id=2317335843]XCOM Armor
 https://steamcommunity.com/sharedfiles/filedetails/?id=2062766405]XCOM Weapons
 
-[table]
-	[tr]
-		[td]https://invite.gg/Mlie]![Image](https://i.imgur.com/zdzzBrc.png)
-[/td]
-		[td]https://github.com/emipa606/ShowMeYourHands]![Image](https://i.imgur.com/kTkpTOE.png)
-[/td]
-	[/tr]
-[/table]
-
 ![Image](https://i.imgur.com/O0IIlYj.png)
 
 Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my https://store.steampowered.com/wishlist/id/Mlie]Wishlist or buy me a cup of tea.
 
-https://ko-fi.com/G2G55DDYD]![Image](https://i.ibb.co/VWJJb3w/Support-Me-dark-2x.png)
+https://ko-fi.com/G2G55DDYD]![Image](https://i.imgur.com/Utx6OIH.png)
 
 
 ![Image](https://i.imgur.com/PwoNOj4.png)

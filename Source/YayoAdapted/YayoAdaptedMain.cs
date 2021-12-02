@@ -2,15 +2,14 @@
 using HarmonyLib;
 using Verse;
 
-namespace ShowMeYourHands
+namespace ShowMeYourHands;
+
+[StaticConstructorOnStartup]
+public static class YayoAdaptedMain
 {
-    [StaticConstructorOnStartup]
-    public static class YayoAdaptedMain
+    static YayoAdaptedMain()
     {
-        static YayoAdaptedMain()
-        {
-            var harmony = new Harmony("Mlie.ShowMeYourHands.YayoAdaptedCompatibility");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
+        var harmony = new Harmony("Mlie.ShowMeYourHands.YayoAdaptedCompatibility");
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 }

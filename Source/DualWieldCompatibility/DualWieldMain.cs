@@ -2,15 +2,14 @@
 using HarmonyLib;
 using Verse;
 
-namespace ShowMeYourHands
+namespace ShowMeYourHands;
+
+[StaticConstructorOnStartup]
+public static class DualWieldMain
 {
-    [StaticConstructorOnStartup]
-    public static class DualWieldMain
+    static DualWieldMain()
     {
-        static DualWieldMain()
-        {
-            var harmony = new Harmony("Mlie.ShowMeYourHands.DualWieldCompatibility");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
+        var harmony = new Harmony("Mlie.ShowMeYourHands.DualWieldCompatibility");
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 }

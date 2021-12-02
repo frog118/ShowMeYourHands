@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.47.0 - Fixed the scrollview, thanks Taranchuk for the simple solution!
+
+
 1.0.46.0 - Hands should now not be drawn if the pawn has left the map
 
 

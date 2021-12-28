@@ -1,5 +1,8 @@
 # Changelog for ShowMeYourHands
 
+1.0.48.0 - Updated VersionFromManifest-file to not get the 'loading is already in progress' error with some mods
+
+
 1.0.47.0 - Fixed the scrollview, thanks Taranchuk for the simple solution!
 
 

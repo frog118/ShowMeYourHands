@@ -14,6 +14,7 @@ public class HandDrawer : ThingComp
 {
     private static Dictionary<Thing, Color> colorDictionary;
 
+
     public static readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
     public static readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
     public static readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
@@ -731,6 +732,15 @@ public class HandDrawer : ThingComp
         if (colorDictionary == null)
         {
             colorDictionary = new Dictionary<Thing, Color>();
+        }
+
+        if (ShowMeYourHandsMain.IsColorable.Contains(outerApparel.def))
+        {
+            var comp = outerApparel.TryGetComp<CompColorable>();
+            if (comp.Active)
+            {
+                return comp.Color;
+            }
         }
 
         if (colorDictionary.ContainsKey(outerApparel))

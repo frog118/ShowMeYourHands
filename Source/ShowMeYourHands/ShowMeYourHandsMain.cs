@@ -20,23 +20,25 @@ public static class ShowMeYourHandsMain
     public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new Dictionary<ThingDef, Vector3>();
     public static readonly Dictionary<ThingDef, Vector3> westOffsets = new Dictionary<ThingDef, Vector3>();
 
+    public static readonly List<ThingDef> IsColorable;
+
     public static readonly Harmony harmony;
 
-    public static bool BabysAndChildrenLoaded;
+    public static readonly bool BabysAndChildrenLoaded;
 
-    public static MethodInfo GetBodySizeScaling;
+    public static readonly MethodInfo GetBodySizeScaling;
 
-    public static bool OversizedWeaponLoaded;
+    public static readonly bool OversizedWeaponLoaded;
 
-    public static bool EnableOversizedLoaded;
+    public static readonly bool EnableOversizedLoaded;
 
     public static bool DualWieldLoaded;
 
     public static bool YayoAdoptedLoaded;
 
-    public static BodyPartDef HandDef;
+    public static readonly BodyPartDef HandDef;
 
-    public static Dictionary<HediffDef, Color> HediffColors;
+    public static readonly Dictionary<HediffDef, Color> HediffColors;
 
     public static readonly List<string> knownPatches = new List<string>
     {
@@ -134,6 +136,9 @@ public static class ShowMeYourHandsMain
         }
 
         LogMessage($"Cached {HediffColors.Count} hediffs colors");
+
+        IsColorable = DefDatabase<ThingDef>.AllDefsListForReading.Where(def => def.HasComp(typeof(CompColorable)))
+            .ToList();
 
         harmony = new Harmony("Mlie.ShowMeYourHands");
 

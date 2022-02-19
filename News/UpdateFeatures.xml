@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef Abstract="true" Name="Mlie_UpdateFeatureBase">
     <modNameReadable>ShowMeYourHands</modNameReadable>
     <linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2475965842</linkUrl>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_14_0</defName>
     <assemblyVersion>1.0.14.0</assemblyVersion>
     <content>img:resize|caption:There is now an option for resizing the hands depending on the drawsize of the pawn. This should make it look nicer for large or small pawns.
@@ -12,19 +12,19 @@
 There is also an option for coloring the hands the same color as worn apparel or armor that covers the hands. It tries to pick the main color of the armor but it is a tricky process so it may not always work.
 |Each update of the mod can also contain more hand-placements for weapons, more customized than the automatic placements. You can see this in the mod options where the color of the weapon in the list shows if it uses the automatic placement, definitions added by this or another mod, or your own custom setting.</content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_15_0</defName>
     <assemblyVersion>1.0.15.0</assemblyVersion>
     <content>Added support for Yayos combat 3 and the Dual Wield-mod. So now hands will follow the weapon even during the extra animations. Should also be easier to add support for other mods that changes the weapon rendering since the code for the hand-placement has been rewritten.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_33_0</defName>
     <assemblyVersion>1.0.33.0</assemblyVersion>
     <content>The mod should now support the adopted 1.3 version of Yayos Combat 3 as well as the Enable Oversized Weapons-mod. Arcanant have also been busy and there are now 138 mods that have individual hand-positioning.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_37_0</defName>
     <assemblyVersion>1.0.37.0</assemblyVersion>
     <content>There is now an option to enable hands when pawns are carrying stuff. It does not take the objects size into account yetbut I am working on that. 
@@ -32,13 +32,13 @@ I also found some memory leaks and hopefully fixed them.
 Hope its appreciated and report any issues on the mod-page or on the Discord-server!
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_39_0</defName>
     <assemblyVersion>1.0.39.0</assemblyVersion>
     <content>There is now an option to hide the second hand of pawns that are missing a hand. They will hold two-handed weapons with the main hand only and carry stuff with only one hand. Hope this will add to the immersion!
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="Mlie_UpdateFeatureBase">
     <defName>ShowMeYourHands_1_0_40_0</defName>
     <assemblyVersion>1.0.40.0</assemblyVersion>
     <content>Okay, so I found a way to show the hands at all times. Added an option for that too. They will be shown at the sides of the pawn. It was requested so I hope its more or less what you wanted :)

@@ -21,6 +21,7 @@ public class HandDrawer : ThingComp
     public static readonly Dictionary<Pawn, bool> pawnsMissingAHand = new Dictionary<Pawn, bool>();
 
     private Color handColor;
+    private Mesh handMesh;
     private int LastDrawn;
     private Vector3 MainHand;
     private Vector3 OffHand;
@@ -156,8 +157,7 @@ public class HandDrawer : ThingComp
             }
         }
 
-        if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false } stance_Busy &&
-            stance_Busy.focusTarg.IsValid)
+        if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false, focusTarg.IsValid: true } stance_Busy)
         {
             var a = stance_Busy.focusTarg.HasThing
                 ? stance_Busy.focusTarg.Thing.DrawPos
@@ -229,7 +229,11 @@ public class HandDrawer : ThingComp
         }
 
         var unused = HandColor;
-        var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
+        if (handMesh == null)
+        {
+            handMesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
+        }
+
         var mainHandTex = mainHandGraphics[pawn];
         var offHandTex = offHandGraphics[pawn];
 
@@ -247,19 +251,19 @@ public class HandDrawer : ThingComp
         var basePosition = pawn.DrawPos - heightOffset;
         if (pawn.Rotation == Rot4.North)
         {
-            Graphics.DrawMesh(mesh,
+            Graphics.DrawMesh(handMesh,
                 basePosition + sideOffset - layerOffset, new Quaternion(), mainSingle, 0);
         }
 
         if (pawn.Rotation == Rot4.South)
         {
-            Graphics.DrawMesh(mesh,
+            Graphics.DrawMesh(handMesh,
                 basePosition - sideOffset + layerOffset, new Quaternion(), mainSingle, 0);
         }
 
         if (pawn.Rotation == Rot4.East)
         {
-            Graphics.DrawMesh(mesh,
+            Graphics.DrawMesh(handMesh,
                 basePosition + layerOffset, new Quaternion(), mainSingle, 0);
             return;
         }
@@ -271,19 +275,19 @@ public class HandDrawer : ThingComp
 
         if (pawn.Rotation == Rot4.North)
         {
-            Graphics.DrawMesh(mesh,
+            Graphics.DrawMesh(handMesh,
                 basePosition - sideOffset - layerOffset, new Quaternion(), offSingle, 0);
             return;
         }
 
         if (pawn.Rotation == Rot4.South)
         {
-            Graphics.DrawMesh(mesh,
+            Graphics.DrawMesh(handMesh,
                 basePosition + sideOffset + layerOffset, new Quaternion(), offSingle, 0);
             return;
         }
 
-        Graphics.DrawMesh(mesh,
+        Graphics.DrawMesh(handMesh,
             basePosition + layerOffset, new Quaternion(), offSingle, 0);
     }
 
@@ -393,8 +397,8 @@ public class HandDrawer : ThingComp
             }
         }
 
-        mainHandAngle = mainHandAngle - 90f;
-        offHandAngle = offHandAngle - 90f;
+        mainHandAngle -= 90f;
+        offHandAngle -= 90f;
         if (pawn.Rotation == Rot4.West || aimAngle is > 200f and < 340f)
         {
             flipped = true;

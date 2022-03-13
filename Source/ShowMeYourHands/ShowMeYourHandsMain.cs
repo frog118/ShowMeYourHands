@@ -81,7 +81,11 @@ public static class ShowMeYourHandsMain
         // Modifies weapon position for lasers
         "com.github.automatic1111.rimlaser",
         // Combat extended
-        "CombatExtended.HarmonyCE"
+        "CombatExtended.HarmonyCE",
+        // Performance optimizer
+        "PerformanceOptimizer.Main",
+        // RIMMSqol
+        "RIMMSqol"
     };
 
     static ShowMeYourHandsMain()

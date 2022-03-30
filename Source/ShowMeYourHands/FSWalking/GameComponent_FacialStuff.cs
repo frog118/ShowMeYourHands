@@ -2,7 +2,6 @@
 using JetBrains.Annotations;
 using RimWorld;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ShowMeYourHands;
 using UnityEngine;
@@ -420,24 +419,6 @@ namespace FacialStuff
             return ModsConfig.ActiveModsInLoadOrder.Any(mod => mod.Name == "Clutter Laser Rifle");
         }
 
-        private void LaserLoad()
-        {
-            if (HandCheck())
-            {
-                ThingDef wepzie = ThingDef.Named("LaserRifle");
-                if (wepzie != null)
-                {
-                    WhandCompProps extensions =
-                    new()
-                    {
-                        compClass = typeof(WhandComp),
-                        MainHand = new Vector3(-0.2f, 0.3f, -0.05f),
-                        SecHand = new Vector3(0.25f, 0f, -0.05f)
-                    };
-                    wepzie.comps.Add(extensions);
-                }
-            }
-        }
 
 
         private void AnimalPawnCompsImportFromAnimationTargetDefs()
@@ -490,8 +471,6 @@ namespace FacialStuff
                     }
                 }
             }
-
-            this.LaserLoad();
         }
 
         private void AnimalPawnCompsBodyDefImport()

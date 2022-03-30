@@ -49,6 +49,12 @@ internal class ShowMeYourHandsModSettings : ModSettings
         Scribe_Collections.Look(ref ManualOffHandPositions, "ManualOffHandPositions", LookMode.Value,
             LookMode.Value,
             ref manualOffHandPositionsKeys, ref manualOffHandPositionsValues);
+
+        Scribe_Values.Look(ref UseHands, "UseHands", true);
+        Scribe_Values.Look(ref UseFeet, "UseFeet", true);
+        Scribe_Values.Look(ref UsePaws, "UsePaws", true);
+
+
     }
 
     public void ResetManualValues()

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using FacialStuff;
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 
@@ -20,12 +21,12 @@ public static class PawnRenderer_DrawCarriedThing
             return;
         }
 
-        HandDrawer handComp = ___pawn.GetComp<HandDrawer>();
-        if (handComp == null)
+
+        if (!___pawn.GetCompAnim(out CompBodyAnimator anim))
         {
             return;
-        }
 
+        }
         Vector3 vector = drawLoc;
         bool behind = false;
         bool flip = false;
@@ -51,6 +52,7 @@ public static class PawnRenderer_DrawCarriedThing
             vector.y += 0.03474903f;
         }
 
-        handComp.DrawHands(carriedThing, vector);
+        anim.DrawHands(Quaternion.identity, vector, carriedThing, flip);
+
     }
 }

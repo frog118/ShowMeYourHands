@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -71,7 +70,7 @@ namespace FacialStuff
         }
 
         public virtual void DrawHands(Quaternion bodyQuat, Vector3 drawPos, Thing carriedThing = null,
-            bool flip = false, float factor = 1f)
+            bool flip = false)
         {
 
         }

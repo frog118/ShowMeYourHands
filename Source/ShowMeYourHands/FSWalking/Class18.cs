@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using HarmonyLib;
 using Verse;
 
@@ -19,7 +16,9 @@ namespace ShowMeYourHands.FSWalking
 
             MethodInfo drawAtMethod = AccessTools.Method(typeof(Thing), nameof(Thing.DrawAt));
 
+#pragma warning disable CS0252 // Möglicher unbeabsichtigter Referenzvergleich; linke Seite muss umgewandelt werden.
             int indexDrawAt = instructionList.FindIndex(x => x.opcode == OpCodes.Callvirt && x.operand == drawAtMethod);
+#pragma warning restore CS0252 // Möglicher unbeabsichtigter Referenzvergleich; linke Seite muss umgewandelt werden.
 
             instructionList.RemoveAt(indexDrawAt);
             instructionList.InsertRange(indexDrawAt, new List<CodeInstruction>

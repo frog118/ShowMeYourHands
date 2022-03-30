@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using RimWorld;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using ShowMeYourHands;
 using UnityEngine;
@@ -30,7 +29,7 @@ namespace FacialStuff
 
         //   [CanBeNull] public PawnPartsTweener PartTweener;
 
-        [CanBeNull] public PawnBodyGraphic PawnBodyGraphic;
+        [CanBeNull] public PawnBodyGraphic pawnBodyGraphic;
 
         [CanBeNull] public PoseCycleDef PoseCycle;
 
@@ -40,7 +39,6 @@ namespace FacialStuff
         [CanBeNull]
         public WalkCycleDef WalkCycle { get; private set; }
 
-        public Quaternion WeaponQuat = new();
 
         #endregion Public Fields
 
@@ -70,13 +68,13 @@ namespace FacialStuff
 
 
         public JitterHandler Jitterer
-            => GetHiddenValue(typeof(Pawn_DrawTracker), this.ThePawn.Drawer, "jitterer", _infoJitterer) as
+            => GetHiddenValue(typeof(Pawn_DrawTracker), this.pawn.Drawer, "jitterer", _infoJitterer) as
                 JitterHandler;
 
         [NotNull]
-        public Pawn ThePawn => this.parent as Pawn;
+        public Pawn pawn => this.parent as Pawn;
 
-        public List<PawnBodyDrawer> PawnBodyDrawers { get; private set; }
+        public List<PawnBodyDrawer> pawnBodyDrawers { get; private set; }
 
         public CompProperties_BodyAnimator Props => (CompProperties_BodyAnimator)this.props;
 
@@ -90,7 +88,7 @@ namespace FacialStuff
         {
             get
             {
-                if (this.ThePawn.Dead)
+                if (this.pawn.Dead)
                 {
                     return null;
                 }
@@ -100,7 +98,7 @@ namespace FacialStuff
                     return this._theRoom;
                 }
 
-                this._theRoom = this.ThePawn.GetRoom();
+                this._theRoom = this.pawn.GetRoom();
                 this._lastRoomCheck = Find.TickManager.TicksGame;
 
                 return this._theRoom;
@@ -123,16 +121,16 @@ namespace FacialStuff
 
         public void ApplyBodyWobble(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            if (this.PawnBodyDrawers == null)
+            if (this.pawnBodyDrawers == null)
             {
                 return;
             }
 
             int i = 0;
-            int count = this.PawnBodyDrawers.Count;
+            int count = this.pawnBodyDrawers.Count;
             while (i < count)
             {
-                this.PawnBodyDrawers[i].ApplyBodyWobble(ref rootLoc, ref footPos);
+                this.pawnBodyDrawers[i].ApplyBodyWobble(ref rootLoc, ref footPos);
                 i++;
             }
         }
@@ -158,30 +156,31 @@ namespace FacialStuff
 
         public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, bool portrait, float factor = 1f)
         {
-            if (!this.PawnBodyDrawers.NullOrEmpty())
+            if (!this.pawnBodyDrawers.NullOrEmpty())
             {
                 int i = 0;
-                int count = this.PawnBodyDrawers.Count;
+                int count = this.pawnBodyDrawers.Count;
                 while (i < count)
                 {
-                    this.PawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, factor);
+                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, factor);
                     i++;
                 }
             }
         }
 
-        public void DrawHands(Quaternion bodyQuat, Vector3 rootLoc, [CanBeNull] Thing carriedThing = null, bool flip = false, float factor = 1f)
+        public void DrawHands(Quaternion bodyQuat, Vector3 rootLoc, [CanBeNull] Thing carriedThing = null,
+            bool flip = false)
         {
-            if (this.PawnBodyDrawers.NullOrEmpty())
+            if (this.pawnBodyDrawers.NullOrEmpty())
             {
                 return;
             }
 
             int i = 0;
-            int count = this.PawnBodyDrawers.Count;
+            int count = this.pawnBodyDrawers.Count;
             while (i < count)
             {
-                this.PawnBodyDrawers[i].DrawHands(bodyQuat, rootLoc, carriedThing, flip, factor);
+                this.pawnBodyDrawers[i].DrawHands(bodyQuat, rootLoc, carriedThing, flip);
                 i++;
             }
         }
@@ -190,27 +189,27 @@ namespace FacialStuff
         {
             if (this.Props.bodyDrawers.Any())
             {
-                this.PawnBodyDrawers = new List<PawnBodyDrawer>();
+                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
                 for (int i = 0; i < this.Props.bodyDrawers.Count; i++)
                 {
                     PawnBodyDrawer thingComp =
                     (PawnBodyDrawer)Activator.CreateInstance(this.Props.bodyDrawers[i].GetType());
                     thingComp.CompAnimator = this;
-                    thingComp.ThePawn = this.ThePawn;
-                    this.PawnBodyDrawers.Add(thingComp);
+                    thingComp.pawn = this.pawn;
+                    this.pawnBodyDrawers.Add(thingComp);
                     thingComp.Initialize();
                 }
             }
             else
             {
-                this.PawnBodyDrawers = new List<PawnBodyDrawer>();
-                bool isQuaduped = this.ThePawn.GetCompAnim().BodyAnim.quadruped;
+                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
+                bool isQuaduped = this.pawn.GetCompAnim().BodyAnim.quadruped;
                 PawnBodyDrawer thingComp = isQuaduped
                     ? (PawnBodyDrawer)Activator.CreateInstance(typeof(QuadrupedDrawer))
                     : (PawnBodyDrawer)Activator.CreateInstance(typeof(HumanBipedDrawer));
                 thingComp.CompAnimator = this;
-                thingComp.ThePawn = this.ThePawn;
-                this.PawnBodyDrawers.Add(thingComp);
+                thingComp.pawn = this.pawn;
+                this.pawnBodyDrawers.Add(thingComp);
                 thingComp.Initialize();
             }
         }
@@ -233,7 +232,7 @@ namespace FacialStuff
             base.PostDraw();
 
             // Children & Pregnancy || Werewolves transformed
-            if (this.ThePawn.Map == null || !this.ThePawn.Spawned || this.ThePawn.Dead || this.ThePawn.GetCompAnim().Deactivated)
+            if (this.pawn.Map == null || !this.pawn.Spawned || this.pawn.Dead || this.pawn.GetCompAnim().Deactivated)
             {
                 return;
             }
@@ -261,18 +260,18 @@ namespace FacialStuff
             {
                 this.Vector3Tweens[i] = new Vector3Tween();
             }
-            this.BodyAnimator = new BodyAnimator(this.ThePawn, this);
-            this.ThePawn.CheckForAddedOrMissingParts();
-            this.PawnBodyGraphic = new PawnBodyGraphic(this);
+            this.BodyAnimator = new BodyAnimator(this.pawn, this);
+            this.pawn.CheckForAddedOrMissingParts();
+            this.pawnBodyGraphic = new PawnBodyGraphic(this);
 
             string bodyType = "Undefined";
 
-            if (this.ThePawn.story?.bodyType != null)
+            if (this.pawn.story?.bodyType != null)
             {
-                bodyType = this.ThePawn.story.bodyType.ToString();
+                bodyType = this.pawn.story.bodyType.ToString();
             }
 
-            string defaultName = "BodyAnimDef_" + this.ThePawn.def.defName + "_" + bodyType;
+            string defaultName = "BodyAnimDef_" + this.pawn.def.defName + "_" + bodyType;
             List<string> names = new()
             {
                 defaultName,
@@ -308,16 +307,16 @@ namespace FacialStuff
                 this._initialized = true;
             }
 
-            if (this.PawnBodyDrawers.NullOrEmpty())
+            if (this.pawnBodyDrawers.NullOrEmpty())
             {
                 return;
             }
 
             int i = 0;
-            int count = this.PawnBodyDrawers.Count;
+            int count = this.pawnBodyDrawers.Count;
             while (i < count)
             {
-                this.PawnBodyDrawers[i].Tick();
+                this.pawnBodyDrawers[i].Tick();
                 i++;
             }
         }
@@ -329,7 +328,7 @@ namespace FacialStuff
             {
                 this._cachedSkinMatsBodyBase.Clear();
                 this._cachedSkinMatsBodyBaseHash = num;
-                PawnGraphicSet graphics = this.ThePawn.Drawer.renderer.graphics;
+                PawnGraphicSet graphics = this.pawn.Drawer.renderer.graphics;
                 if (bodyCondition == RotDrawMode.Fresh)
                 {
                     this._cachedSkinMatsBodyBase.Add(graphics.nakedGraphic.MatAt(facing));
@@ -379,6 +378,8 @@ namespace FacialStuff
 
         public float LastAimAngle = 143f;
 
+        public bool pawnsMissingAHand;
+
         //  public float lastWeaponAngle = 53f;
         public readonly Vector3[] LastPosition = new Vector3[(int)TweenThing.Max];
 
@@ -387,7 +388,8 @@ namespace FacialStuff
 
         public Vector3 LastEqPos = Vector3.zero;
         public float DrawOffsetY;
-
+        private float bodysizeScaling = 0f;
+        private Mesh pawnBodyMesh;
         public void CheckMovement()
         {
 /*
@@ -405,9 +407,36 @@ namespace FacialStuff
             }
             // pawn started pathing
 
-            this.MovedPercent = PawnMovedPercent(ThePawn);
+            this.MovedPercent = PawnMovedPercent(pawn);
 
         }
+
+        public float GetBodysizeScaling(out Mesh pawnBodyMesh)
+        {
+            if (bodysizeScaling == 0f || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                float bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
+                    }
+                }
+
+                bodysizeScaling = 0.8f * bodySize;
+                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling);
+            }
+            pawnBodyMesh = this.pawnBodyMesh;
+            return bodysizeScaling;
+        }
+
+
         private float PawnMovedPercent(Pawn pawn)
         {
             this.IsMoving = false;
@@ -517,6 +546,9 @@ namespace FacialStuff
         }
 
         public bool IsMoving { get; private set; }
+        public Quaternion SecondHandQuat;
+        public Quaternion FirstHandQuat;
+
         internal bool MeshFlipped;
         internal float LastWeaponAngle;
         internal readonly int[] LastPosUpdate = new int[(int)TweenThing.Max];

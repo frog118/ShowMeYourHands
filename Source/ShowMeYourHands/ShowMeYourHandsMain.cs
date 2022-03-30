@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 
@@ -117,7 +118,7 @@ public static class ShowMeYourHandsMain
             LogMessage(
                 $"OversizedWeapon loaded, will compensate positioning. Cached offsets for {allWeapons.Count} weapons");
         }
-
+        /*
         CompProperties compProperties = new() { compClass = typeof(HandDrawer) };
         foreach (ThingDef thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                  where race.race?.Humanlike == true
@@ -125,7 +126,7 @@ public static class ShowMeYourHandsMain
         {
             thingDef.comps?.Add(compProperties);
         }
-
+        */
         HandDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Hand");
 
         IEnumerable<HediffDef> partsHediffs =
@@ -158,6 +159,43 @@ public static class ShowMeYourHandsMain
         harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
         original = typeof(Pawn_RotationTracker).GetMethod("Face");
         harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
+
+        // not reliable
+        /*
+        harmony.Patch(
+                         AccessTools.Method(typeof(PawnRenderer), nameof(PawnRenderer.DrawEquipmentAiming)),
+                         new HarmonyMethod(typeof(DrawEquipmentAiming_Patch), nameof(DrawEquipmentAiming_Patch.DrawEquipmentAiming_Prefix)),
+                         new HarmonyMethod(typeof(DrawEquipmentAiming_Patch), nameof(DrawEquipmentAiming_Patch.DrawEquipmentAiming_Postfix)),
+                         null);
+        */
+        // FS Hands on Weapons
+        /*
+        harmony.Patch(
+                         AccessTools.Method(typeof(PawnSkinColors), "GetSkinDataIndexOfMelanin"),
+                         new HarmonyMethod(
+                                           typeof(PawnSkinColors_FS),
+                                           nameof(PawnSkinColors_FS.GetSkinDataIndexOfMelanin_Prefix)),
+                         null);
+
+        harmony.Patch(
+                         AccessTools.Method(typeof(PawnSkinColors), nameof(PawnSkinColors.GetSkinColor)),
+                         new HarmonyMethod(typeof(PawnSkinColors_FS), nameof(PawnSkinColors_FS.GetSkinColor_Prefix)),
+                         null);
+
+        harmony.Patch(
+                         AccessTools.Method(typeof(PawnSkinColors), nameof(PawnSkinColors.RandomMelanin)),
+                         new HarmonyMethod(typeof(PawnSkinColors_FS), nameof(PawnSkinColors_FS.RandomMelanin_Prefix)),
+                         null);
+
+        harmony.Patch(
+                         AccessTools.Method(typeof(PawnSkinColors),
+                                            nameof(PawnSkinColors.GetMelaninCommonalityFactor)),
+                         new HarmonyMethod(
+                                           typeof(PawnSkinColors_FS),
+                                           nameof(PawnSkinColors_FS.GetMelaninCommonalityFactor_Prefix)),
+                         null);
+        */
+
     }
 
     public static void LogMessage(string message, bool forced = false, bool warning = false)

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
-using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 using WHands;
@@ -49,7 +48,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
         ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.First));
 
-        foreach (Patch patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
+        foreach (HarmonyLib.Patch patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
         {
             ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, -1, null, new[] { patch.owner }));
         }
@@ -61,7 +60,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         if (patches.Prefixes.Count > 0)
         {
             ShowMeYourHandsMain.LogMessage($"{patches.Prefixes.Count} current active prefixes");
-            foreach (Patch patch in patches.Prefixes.OrderByDescending(patch => patch.priority))
+            foreach (HarmonyLib.Patch patch in patches.Prefixes.OrderByDescending(patch => patch.priority))
             {
                 if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
                 {
@@ -83,7 +82,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         }
 
         ShowMeYourHandsMain.LogMessage($"{patches.Transpilers.Count} current active transpilers");
-        foreach (Patch patch in patches.Transpilers.OrderByDescending(patch => patch.priority))
+        foreach (HarmonyLib.Patch patch in patches.Transpilers.OrderByDescending(patch => patch.priority))
         {
             if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
             {
@@ -97,21 +96,6 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                     false, true);
             }
         }
-        // FS Hands on Weapons
-        ShowMeYourHandsMain.harmony.Patch(
-            AccessTools.Method(typeof(PawnRenderer), nameof(PawnRenderer.DrawEquipmentAiming)),
-            new HarmonyMethod(typeof(Class1), nameof(Class1.DrawEquipmentAiming_Prefix)),
-            null,
-            new HarmonyMethod(typeof(Class1),
-                nameof(Class1.DrawEquipmentAiming_Transpiler)));
-        ShowMeYourHandsMain.harmony.Patch(
-            AccessTools.Method(typeof(PawnRenderer), "DrawCarriedThing",
-                new[] { typeof(Vector3) }),
-            // new HarmonyMethod(typeof(HarmonyPatchesFS), nameof(HarmonyPatchesFS.RenderPawnAt)),
-            null,
-            null,
-            new HarmonyMethod(typeof(Class18), nameof(Class18.DrawCarriedThing_Transpiler))
-        );
 
 
     }

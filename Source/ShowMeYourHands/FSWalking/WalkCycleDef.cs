@@ -18,7 +18,6 @@ namespace RimWorld
     {
         #region Public Fields
 
-        public List<DefHyperlink> descriptionHyperlinks = new();
         [NotNull]
         public string WalkCycleType;
 

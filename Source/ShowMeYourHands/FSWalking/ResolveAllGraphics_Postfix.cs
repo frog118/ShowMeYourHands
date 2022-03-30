@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FacialStuff;
+﻿using FacialStuff;
 using HarmonyLib;
 using Verse;
 
@@ -20,7 +15,7 @@ namespace ShowMeYourHands.FSWalking
                 return;
             }
 
-            pawn.GetCompAnim()?.PawnBodyGraphic?.Initialize();
+            pawn.GetCompAnim()?.pawnBodyGraphic?.Initialize();
 
 
             pawn.GetComp<CompBodyAnimator>()?.ClearCache();

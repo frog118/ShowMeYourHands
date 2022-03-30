@@ -1,7 +1,5 @@
 ﻿// ReSharper disable StyleCop.SA1401
 
-using System;
-using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -50,7 +48,7 @@ namespace FacialStuff.GraphicsFS
         public PawnBodyGraphic(CompBodyAnimator compAni)
         {
             this.CompAni = compAni;
-            this._pawn = compAni.ThePawn;
+            this._pawn = compAni.pawn;
 
             this.Initialize();
         }
@@ -123,7 +121,7 @@ namespace FacialStuff.GraphicsFS
             Color rightFootShadowColor = rightFootColor * this._shadowColor;
             Color leftFootShadowColor = leftFootColor * this._shadowColor;
 
-            float factor = this._pawn.GetBodysizeScaling();
+            float factor = CompAni.GetBodysizeScaling(out _);
 
             Vector2 drawSize = new(factor, factor);
 
@@ -215,7 +213,7 @@ namespace FacialStuff.GraphicsFS
             Color rightFootColorShadow = rightFootColor * this._shadowColor;
             Color leftFootColorShadow = leftFootColor * this._shadowColor;
 
-            float factor = this._pawn.GetBodysizeScaling();
+            float factor = this.CompAni.GetBodysizeScaling(out _);
 
             Vector2 drawSize = new(factor, factor);
             this.FrontPawGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
@@ -308,7 +306,7 @@ namespace FacialStuff.GraphicsFS
 
             Color leftHandColorShadow = leftHandColor * this._shadowColor;
             Color rightHandColorShadow = rightHandColor * this._shadowColor;
-            float factor = this._pawn.GetBodysizeScaling();
+            float factor = this.CompAni.GetBodysizeScaling(out _);
 
             Vector2 drawSize = new(factor, factor);
             this.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(

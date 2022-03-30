@@ -436,7 +436,18 @@ internal class ShowMeYourHandsMod : Mod
                 listing_Standard.Label("SMYH.settings".Translate());
                 Text.Font = GameFont.Small;
                 listing_Standard.Gap();
-                if (Prefs.UIScale != 1f)
+
+                    //  fs
+                    listing_Standard.CheckboxLabeled("usehands.label".Translate(), ref Settings.UseHands,
+                        "usehands.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("usefeet.label".Translate(), ref Settings.UseFeet,
+                        "usefeet.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("usepaws.label".Translate(), ref Settings.UsePaws,
+                        "usepaws.tooltip".Translate());
+
+                    // fs end
+
+                    if (Prefs.UIScale != 1f)
                 {
                     GUI.color = Color.yellow;
                     listing_Standard.Label(

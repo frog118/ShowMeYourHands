@@ -171,29 +171,6 @@ namespace FacialStuff
                     (pawn.mindState.duty != null && pawn.mindState.duty.def.alwaysShowWeapon));
         }
 
-        public static float GetBodysizeScaling(this Pawn pawn)
-        {
-            if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-            {
-                float bodySize = 1f;
-                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-                {
-                    if (pawn.RaceProps != null)
-                    {
-                        bodySize = pawn.RaceProps.baseBodySize;
-                    }
-
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                    {
-                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                    }
-                }
-
-                pawnBodySizes[pawn] = 0.8f * bodySize;
-            }
-
-            return pawnBodySizes[pawn];
-        }
 
         public static bool CheckForAddedOrMissingParts(this Pawn pawn)
         {

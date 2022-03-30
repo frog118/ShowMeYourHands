@@ -10,15 +10,15 @@ namespace FacialStuff
         public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, float factor = 1f)
         {
 
-            if (this.ThePawn.kindDef.lifeStages.Any())
+            if (this.pawn.kindDef.lifeStages.Any())
             {
-                Vector2 maxSize = this.ThePawn.kindDef.lifeStages.Last().bodyGraphicData.drawSize;
-                Vector2 sizePaws = this.ThePawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
+                Vector2 maxSize = this.pawn.kindDef.lifeStages.Last().bodyGraphicData.drawSize;
+                Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
                 factor = sizePaws.x / maxSize.x;
             }
             if (this.CompAnimator.IsMoving)
             {
-                drawQuat *= Quaternion.AngleAxis(-ThePawn.Drawer.renderer.BodyAngle(), Vector3.up);
+                drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
             }
 
             // Fix the position, maybe needs new code in GetJointPositions()?
@@ -41,10 +41,10 @@ namespace FacialStuff
             base.DrawFeet(drawQuat, rearPawLoc, factor);
         }
 
-        public Rot4 BodyFacing => this.CompAnimator.ThePawn.Rotation;
+        public Rot4 BodyFacing => this.CompAnimator.pawn.Rotation;
 
         public override void DrawHands(Quaternion bodyQuat, Vector3 drawPos, Thing carriedThing = null,
-            bool flip = false, float factor = 1f)
+            bool flip = false)
         {
             // base.DrawHands(bodyQuat, drawPos, portrait, carrying, drawSide);
         }
@@ -119,23 +119,23 @@ namespace FacialStuff
                 switch (rot.AsInt)
                 {
                     default:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic?.FrontPawGraphicRight
+                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicRight
                             ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic?.FrontPawGraphicLeft
+                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
                             ?.MatAt(rot));
                         break;
 
                     case 1:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic?.FrontPawGraphicRight
+                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicRight
                             ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic
+                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
                             ?.FrontPawGraphicLeftShadow?.MatAt(rot));
                         break;
 
                     case 3:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic
+                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
                             ?.FrontPawGraphicRightShadow?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.PawnBodyGraphic?.FrontPawGraphicLeft
+                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
                             ?.MatAt(rot));
                         break;
                 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 using WHands;
@@ -14,7 +16,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 {
     private static bool alreadyRun;
 
-    private static List<ThingDef> doneWeapons = new List<ThingDef>();
+    private static List<ThingDef> doneWeapons = new();
 
     [HarmonyPostfix]
     public static void MainMenuOnGUI()
@@ -28,16 +30,16 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
         UpdateHandDefinitions();
 
-        var original = typeof(PawnRenderer).GetMethod("DrawEquipmentAiming");
-        var patches = Harmony.GetPatchInfo(original);
-        var prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
+        MethodInfo original = typeof(PawnRenderer).GetMethod("DrawEquipmentAiming");
+        Patches patches = Harmony.GetPatchInfo(original);
+        MethodInfo prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
         if (patches is null)
         {
             ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.High));
             return;
         }
 
-        var modifyingPatches = new List<string>
+        List<string> modifyingPatches = new()
         {
             "com.ogliss.rimworld.mod.VanillaWeaponsExpandedLaser",
             "com.github.automatic1111.gunplay",
@@ -47,7 +49,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
         ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.First));
 
-        foreach (var patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
+        foreach (Patch patch in patches.Prefixes.Where(patch => modifyingPatches.Contains(patch.owner)))
         {
             ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, -1, null, new[] { patch.owner }));
         }
@@ -59,7 +61,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         if (patches.Prefixes.Count > 0)
         {
             ShowMeYourHandsMain.LogMessage($"{patches.Prefixes.Count} current active prefixes");
-            foreach (var patch in patches.Prefixes.OrderByDescending(patch => patch.priority))
+            foreach (Patch patch in patches.Prefixes.OrderByDescending(patch => patch.priority))
             {
                 if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
                 {
@@ -81,7 +83,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         }
 
         ShowMeYourHandsMain.LogMessage($"{patches.Transpilers.Count} current active transpilers");
-        foreach (var patch in patches.Transpilers.OrderByDescending(patch => patch.priority))
+        foreach (Patch patch in patches.Transpilers.OrderByDescending(patch => patch.priority))
         {
             if (ShowMeYourHandsMain.knownPatches.Contains(patch.owner))
             {
@@ -95,12 +97,29 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                     false, true);
             }
         }
+        // FS Hands on Weapons
+        ShowMeYourHandsMain.harmony.Patch(
+            AccessTools.Method(typeof(PawnRenderer), nameof(PawnRenderer.DrawEquipmentAiming)),
+            new HarmonyMethod(typeof(Class1), nameof(Class1.DrawEquipmentAiming_Prefix)),
+            null,
+            new HarmonyMethod(typeof(Class1),
+                nameof(Class1.DrawEquipmentAiming_Transpiler)));
+        ShowMeYourHandsMain.harmony.Patch(
+            AccessTools.Method(typeof(PawnRenderer), "DrawCarriedThing",
+                new[] { typeof(Vector3) }),
+            // new HarmonyMethod(typeof(HarmonyPatchesFS), nameof(HarmonyPatchesFS.RenderPawnAt)),
+            null,
+            null,
+            new HarmonyMethod(typeof(Class18), nameof(Class18.DrawCarriedThing_Transpiler))
+        );
+
+
     }
 
     public static void UpdateHandDefinitions()
     {
         doneWeapons = new List<ThingDef>();
-        var currentStage = "LoadFromSettings";
+        string currentStage = "LoadFromSettings";
 
         try
         {
@@ -121,7 +140,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
     public static void FigureOutSpecific(ThingDef weapon)
     {
-        var compProps = weapon.GetCompProperties<WhandCompProps>();
+        WhandCompProps compProps = weapon.GetCompProperties<WhandCompProps>();
         if (compProps == null)
         {
             compProps = new WhandCompProps
@@ -134,7 +153,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
             }
             else
             {
-                compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                compProps.SecHand = IsWeaponLong(weapon, out Vector3 mainHand, out Vector3 secHand)
                     ? secHand
                     : Vector3.zero;
                 compProps.MainHand = mainHand;
@@ -150,7 +169,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
             }
             else
             {
-                compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                compProps.SecHand = IsWeaponLong(weapon, out Vector3 mainHand, out Vector3 secHand)
                     ? secHand
                     : Vector3.zero;
                 compProps.MainHand = mainHand;
@@ -160,7 +179,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
     private static void FigureOutTheRest()
     {
-        foreach (var weapon in from weapon in DefDatabase<ThingDef>.AllDefsListForReading
+        foreach (ThingDef weapon in from weapon in DefDatabase<ThingDef>.AllDefsListForReading
                  where weapon.IsWeapon && !weapon.destroyOnDrop &&
                        !doneWeapons.Contains(weapon)
                  select weapon)
@@ -171,7 +190,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                 continue;
             }
 
-            var compProps = weapon.GetCompProperties<WhandCompProps>();
+            WhandCompProps compProps = weapon.GetCompProperties<WhandCompProps>();
             if (compProps == null)
             {
                 compProps = new WhandCompProps
@@ -184,7 +203,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                 }
                 else
                 {
-                    compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                    compProps.SecHand = IsWeaponLong(weapon, out Vector3 mainHand, out Vector3 secHand)
                         ? secHand
                         : Vector3.zero;
                     compProps.MainHand = mainHand;
@@ -200,7 +219,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                 }
                 else
                 {
-                    compProps.SecHand = IsWeaponLong(weapon, out var mainHand, out var secHand)
+                    compProps.SecHand = IsWeaponLong(weapon, out Vector3 mainHand, out Vector3 secHand)
                         ? secHand
                         : Vector3.zero;
                     compProps.MainHand = mainHand;
@@ -218,15 +237,15 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
             return;
         }
 
-        foreach (var keyValuePair in ShowMeYourHandsMod.instance?.Settings?.ManualMainHandPositions)
+        foreach (KeyValuePair<string, SaveableVector3> keyValuePair in ShowMeYourHandsMod.instance?.Settings?.ManualMainHandPositions)
         {
-            var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(keyValuePair.Key);
+            ThingDef weapon = DefDatabase<ThingDef>.GetNamedSilentFail(keyValuePair.Key);
             if (weapon == null)
             {
                 continue;
             }
 
-            var compProps = weapon.GetCompProperties<WhandCompProps>();
+            WhandCompProps compProps = weapon.GetCompProperties<WhandCompProps>();
             if (compProps == null)
             {
                 compProps = new WhandCompProps
@@ -259,34 +278,34 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
     public static void LoadFromDefs(ThingDef specificDef = null)
     {
-        var defs = DefDatabase<ClutterHandsTDef>.AllDefsListForReading;
+        List<ClutterHandsTDef> defs = DefDatabase<ClutterHandsTDef>.AllDefsListForReading;
         if (specificDef == null)
         {
             ShowMeYourHandsMod.DefinedByDef = new HashSet<string>();
         }
 
-        foreach (var handsTDef in defs)
+        foreach (ClutterHandsTDef handsTDef in defs)
         {
             if (handsTDef.WeaponCompLoader.Count <= 0)
             {
                 return;
             }
 
-            foreach (var weaponSets in handsTDef.WeaponCompLoader)
+            foreach (ClutterHandsTDef.CompTargets weaponSets in handsTDef.WeaponCompLoader)
             {
                 if (weaponSets.ThingTargets.Count <= 0)
                 {
                     continue;
                 }
 
-                foreach (var weaponDefName in weaponSets.ThingTargets)
+                foreach (string weaponDefName in weaponSets.ThingTargets)
                 {
                     if (specificDef != null && weaponDefName != specificDef.defName)
                     {
                         continue;
                     }
 
-                    var weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
+                    ThingDef weapon = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
                     if (weapon == null)
                     {
                         continue;
@@ -297,7 +316,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                         continue;
                     }
 
-                    var compProps = weapon.GetCompProperties<WhandCompProps>();
+                    WhandCompProps compProps = weapon.GetCompProperties<WhandCompProps>();
                     if (compProps == null)
                     {
                         compProps = new WhandCompProps
@@ -329,36 +348,36 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 
     private static bool IsWeaponLong(ThingDef weapon, out Vector3 mainHand, out Vector3 secHand)
     {
-        var texture = weapon.graphicData.Graphic.MatSingle.mainTexture;
+        Texture texture = weapon.graphicData.Graphic.MatSingle.mainTexture;
 
         // This is not allowed
         //var icon = (Texture2D) texture;
 
         // This is
-        var renderTexture = RenderTexture.GetTemporary(
+        RenderTexture renderTexture = RenderTexture.GetTemporary(
             texture.width,
             texture.height,
             0,
             RenderTextureFormat.Default,
             RenderTextureReadWrite.Linear);
         Graphics.Blit(texture, renderTexture);
-        var previous = RenderTexture.active;
+        RenderTexture previous = RenderTexture.active;
         RenderTexture.active = renderTexture;
-        var icon = new Texture2D(texture.width, texture.height);
+        Texture2D icon = new(texture.width, texture.height);
         icon.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         icon.Apply();
         RenderTexture.active = previous;
         RenderTexture.ReleaseTemporary(renderTexture);
 
 
-        var pixels = icon.GetPixels32();
-        var width = icon.width;
-        var startPixel = width;
-        var endPixel = 0;
+        Color32[] pixels = icon.GetPixels32();
+        int width = icon.width;
+        int startPixel = width;
+        int endPixel = 0;
 
-        for (var i = 0; i < icon.height; i++)
+        for (int i = 0; i < icon.height; i++)
         {
-            for (var j = 0; j < startPixel; j++)
+            for (int j = 0; j < startPixel; j++)
             {
                 if (pixels[j + (i * width)].a < 5)
                 {
@@ -369,7 +388,7 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                 break;
             }
 
-            for (var j = width - 1; j >= endPixel; j--)
+            for (int j = width - 1; j >= endPixel; j--)
             {
                 if (pixels[j + (i * width)].a < 5)
                 {
@@ -382,14 +401,14 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         }
 
 
-        var percentWidth = (endPixel - startPixel) / (float)width;
-        var percentStart = 0f;
+        float percentWidth = (endPixel - startPixel) / (float)width;
+        float percentStart = 0f;
         if (startPixel != 0)
         {
             percentStart = startPixel / (float)width;
         }
 
-        var percentEnd = 0f;
+        float percentEnd = 0f;
         if (width - endPixel != 0)
         {
             percentEnd = (width - endPixel) / (float)width;

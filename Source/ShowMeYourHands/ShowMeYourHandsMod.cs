@@ -19,13 +19,13 @@ internal class ShowMeYourHandsMod : Mod
     /// </summary>
     public static ShowMeYourHandsMod instance;
 
-    private static readonly Vector2 buttonSize = new Vector2(120f, 25f);
+    private static readonly Vector2 buttonSize = new(120f, 25f);
 
-    private static readonly Vector2 weaponSize = new Vector2(200f, 200f);
+    private static readonly Vector2 weaponSize = new(200f, 200f);
 
-    private static readonly Vector2 iconSize = new Vector2(24f, 24f);
+    private static readonly Vector2 iconSize = new(24f, 24f);
 
-    private static readonly Vector2 handSize = new Vector2(43f, 43f);
+    private static readonly Vector2 handSize = new(43f, 43f);
 
     private static readonly int buttonSpacer = 200;
 
@@ -57,9 +57,9 @@ internal class ShowMeYourHandsMod : Mod
 
     private static Graphic handTex;
 
-    private static Dictionary<string, int> totalWeaponsByMod = new Dictionary<string, int>();
+    private static Dictionary<string, int> totalWeaponsByMod = new();
 
-    private static Dictionary<string, int> fixedWeaponsByMod = new Dictionary<string, int>();
+    private static Dictionary<string, int> fixedWeaponsByMod = new();
 
     public static HashSet<string> DefinedByDef;
 
@@ -166,7 +166,7 @@ internal class ShowMeYourHandsMod : Mod
     {
         base.DoSettingsWindowContents(rect);
 
-        var rect2 = rect.ContractedBy(1);
+        Rect rect2 = rect.ContractedBy(1);
         leftSideWidth = rect2.ContractedBy(10).width / 5 * 2;
 
         listing_Standard = new Listing_Standard();
@@ -193,13 +193,13 @@ internal class ShowMeYourHandsMod : Mod
 
     public static bool IsShield(ThingDef weapon)
     {
-        var isShield = false;
+        bool isShield = false;
         if (weapon.weaponTags == null)
         {
             return false;
         }
 
-        foreach (var tag in weapon.weaponTags)
+        foreach (string tag in weapon.weaponTags)
         {
             switch (tag)
             {
@@ -231,7 +231,7 @@ internal class ShowMeYourHandsMod : Mod
 
     private static void DrawButton(Action action, string text, Vector2 pos)
     {
-        var rect = new Rect(pos.x, pos.y, buttonSize.x, buttonSize.y);
+        Rect rect = new(pos.x, pos.y, buttonSize.x, buttonSize.y);
         if (!Widgets.ButtonText(rect, text, true, false, Color.white))
         {
             return;
@@ -245,9 +245,9 @@ internal class ShowMeYourHandsMod : Mod
     {
         totalWeaponsByMod = new Dictionary<string, int>();
         fixedWeaponsByMod = new Dictionary<string, int>();
-        foreach (var currentWeapon in AllWeapons)
+        foreach (ThingDef currentWeapon in AllWeapons)
         {
-            var weaponModName = currentWeapon.modContentPack?.Name;
+            string weaponModName = currentWeapon.modContentPack?.Name;
             if (string.IsNullOrEmpty(weaponModName))
             {
                 weaponModName = "SMYH.unknown".Translate();
@@ -286,7 +286,7 @@ internal class ShowMeYourHandsMod : Mod
             return false;
         }
 
-        var texture = thing.graphicData?.Graphic?.MatSingle?.mainTexture;
+        Texture texture = thing.graphicData?.Graphic?.MatSingle?.mainTexture;
         if (thing.graphicData?.graphicClass == typeof(Graphic_Random))
         {
             texture = ((Graphic_Random)thing.graphicData.Graphic)?.FirstSubgraphic().MatSingle.mainTexture;
@@ -303,24 +303,24 @@ internal class ShowMeYourHandsMod : Mod
             return false;
         }
 
-        var rectOuter = rect.ExpandedBy(5);
-        var rectLine = rect.ExpandedBy(2);
+        Rect rectOuter = rect.ExpandedBy(5);
+        Rect rectLine = rect.ExpandedBy(2);
         Widgets.DrawBoxSolid(rectOuter, Color.grey);
         Widgets.DrawBoxSolid(rectLine, new ColorInt(42, 43, 44).ToColor);
         const int handPositionFactor = 200;
-        var weaponMiddle = weaponSize.x / 2;
+        float weaponMiddle = weaponSize.x / 2;
 
-        var mainHandCoords = new Vector2(
+        Vector2 mainHandCoords = new(
             weaponMiddle + (mainHandPosition.x * handPositionFactor) - (handSize.x / 2),
             weaponMiddle - (mainHandPosition.z * handPositionFactor) - (handSize.y / 2));
-        var offHandCoords = new Vector2(
+        Vector2 offHandCoords = new(
             weaponMiddle + (offHandPosition.x * handPositionFactor) - (handSize.x / 2),
             weaponMiddle - (offHandPosition.z * handPositionFactor) - (handSize.y / 2));
 
-        var mainHandRect = new Rect(rect.x + mainHandCoords.x, rect.y + mainHandCoords.y,
+        Rect mainHandRect = new(rect.x + mainHandCoords.x, rect.y + mainHandCoords.y,
             handSize.x,
             handSize.y);
-        var offHandRect = new Rect(rect.x + offHandCoords.x, rect.y + offHandCoords.y,
+        Rect offHandRect = new(rect.x + offHandCoords.x, rect.y + offHandCoords.y,
             handSize.x,
             handSize.y);
 
@@ -365,7 +365,7 @@ internal class ShowMeYourHandsMod : Mod
             return;
         }
 
-        var matrix = GUI.matrix;
+        Matrix4x4 matrix = GUI.matrix;
         GUIUtility.RotateAroundPivot(angle, rect.center);
         GUI.DrawTexture(rect, texture);
         GUI.matrix = matrix;
@@ -378,7 +378,7 @@ internal class ShowMeYourHandsMod : Mod
             return;
         }
 
-        var texture2D = thing.graphicData.Graphic.MatSingle.mainTexture;
+        Texture texture2D = thing.graphicData.Graphic.MatSingle.mainTexture;
         if (thing.graphicData.graphicClass == typeof(Graphic_Random))
         {
             texture2D = ((Graphic_Random)thing.graphicData.Graphic).FirstSubgraphic().MatSingle.mainTexture;
@@ -392,7 +392,7 @@ internal class ShowMeYourHandsMod : Mod
 
         if (texture2D.width != texture2D.height)
         {
-            var ratio = (float)texture2D.width / texture2D.height;
+            float ratio = (float)texture2D.width / texture2D.height;
 
             if (ratio < 1)
             {
@@ -411,17 +411,17 @@ internal class ShowMeYourHandsMod : Mod
 
     private void DrawOptions(Rect rect)
     {
-        var optionsOuterContainer = rect.ContractedBy(10);
+        Rect optionsOuterContainer = rect.ContractedBy(10);
         optionsOuterContainer.x += leftSideWidth + columnSpacer;
         optionsOuterContainer.width -= leftSideWidth + columnSpacer;
         Widgets.DrawBoxSolid(optionsOuterContainer, Color.grey);
-        var optionsInnerContainer = optionsOuterContainer.ContractedBy(1);
+        Rect optionsInnerContainer = optionsOuterContainer.ContractedBy(1);
         Widgets.DrawBoxSolid(optionsInnerContainer, new ColorInt(42, 43, 44).ToColor);
-        var frameRect = optionsInnerContainer.ContractedBy(10);
+        Rect frameRect = optionsInnerContainer.ContractedBy(10);
         frameRect.x = leftSideWidth + columnSpacer + 20;
         frameRect.y += 15;
         frameRect.height -= 15;
-        var contentRect = frameRect;
+        Rect contentRect = frameRect;
         contentRect.x = 0;
         contentRect.y = 0;
 
@@ -449,12 +449,12 @@ internal class ShowMeYourHandsMod : Mod
 
                 if (instance.Settings.ManualMainHandPositions?.Count > 0)
                 {
-                    var copyPoint = listing_Standard.Label("SMYH.copy.label".Translate(), -1F,
+                    Rect copyPoint = listing_Standard.Label("SMYH.copy.label".Translate(), -1F,
                         "SMYH.copy.tooltip".Translate());
                     DrawButton(() => { CopyChangedWeapons(); }, "SMYH.copy.button".Translate(),
                         new Vector2(copyPoint.position.x + buttonSpacer, copyPoint.position.y));
                     listing_Standard.Gap();
-                    var labelPoint = listing_Standard.Label("SMYH.resetall.label".Translate(), -1F,
+                    Rect labelPoint = listing_Standard.Label("SMYH.resetall.label".Translate(), -1F,
                         "SMYH.resetall.tooltip".Translate());
                     DrawButton(() =>
                         {
@@ -478,7 +478,7 @@ internal class ShowMeYourHandsMod : Mod
                                     "SMYH.resetselected.confirm".Translate(selectedSubDef),
                                     delegate
                                     {
-                                        foreach (var weaponDef in from ThingDef weapon in AllWeapons
+                                        foreach (ThingDef weaponDef in from ThingDef weapon in AllWeapons
                                                  where
                                                      weapon.modContentPack == null &&
                                                      selectedSubDef == "SMYH.unknown".Translate() ||
@@ -538,10 +538,10 @@ internal class ShowMeYourHandsMod : Mod
                 listing_Standard.Gap();
                 listing_Standard.End();
 
-                var tabFrameRect = frameRect;
+                Rect tabFrameRect = frameRect;
                 tabFrameRect.y += 375;
                 tabFrameRect.height -= 375;
-                var tabContentRect = tabFrameRect;
+                Rect tabContentRect = tabFrameRect;
                 tabContentRect.x = 0;
                 tabContentRect.y = 0;
                 if (totalWeaponsByMod.Count == 0)
@@ -552,15 +552,15 @@ internal class ShowMeYourHandsMod : Mod
                 tabContentRect.height = (totalWeaponsByMod.Count * 25f) + 15;
                 Widgets.BeginScrollView(tabFrameRect, ref summaryScrollPosition, tabContentRect);
                 listing_Standard.Begin(tabContentRect);
-                foreach (var keyValuePair in totalWeaponsByMod)
+                foreach (KeyValuePair<string, int> keyValuePair in totalWeaponsByMod)
                 {
-                    var fixedWeapons = 0;
+                    int fixedWeapons = 0;
                     if (fixedWeaponsByMod.ContainsKey(keyValuePair.Key))
                     {
                         fixedWeapons = fixedWeaponsByMod[keyValuePair.Key];
                     }
 
-                    var percent = fixedWeapons / (decimal)keyValuePair.Value * 100;
+                    decimal percent = fixedWeapons / (decimal)keyValuePair.Value * 100;
 
                     GUI.color = GetColorFromPercent(percent);
 
@@ -584,7 +584,7 @@ internal class ShowMeYourHandsMod : Mod
 
             default:
             {
-                var currentDef = DefDatabase<ThingDef>.GetNamedSilentFail(SelectedDef);
+                ThingDef currentDef = DefDatabase<ThingDef>.GetNamedSilentFail(SelectedDef);
                 listing_Standard.Begin(frameRect);
                 if (currentDef == null)
                 {
@@ -593,7 +593,7 @@ internal class ShowMeYourHandsMod : Mod
                     break;
                 }
 
-                var compProperties = currentDef.GetCompProperties<WhandCompProps>();
+                WhandCompProps compProperties = currentDef.GetCompProperties<WhandCompProps>();
                 if (compProperties == null)
                 {
                     listing_Standard.Label("SMYH.error.hands".Translate(SelectedDef));
@@ -602,11 +602,11 @@ internal class ShowMeYourHandsMod : Mod
                 }
 
                 Text.Font = GameFont.Medium;
-                var labelPoint = listing_Standard.Label(currentDef.label.CapitalizeFirst(), -1F,
+                Rect labelPoint = listing_Standard.Label(currentDef.label.CapitalizeFirst(), -1F,
                     currentDef.defName);
                 Text.Font = GameFont.Small;
-                var modName = currentDef.modContentPack?.Name;
-                var modId = currentDef.modContentPack?.PackageId;
+                string modName = currentDef.modContentPack?.Name;
+                string modId = currentDef.modContentPack?.PackageId;
                 if (currentDef.modContentPack != null)
                 {
                     listing_Standard.Label($"{modName}", -1F, modId);
@@ -616,7 +616,7 @@ internal class ShowMeYourHandsMod : Mod
                     listing_Standard.Gap();
                 }
 
-                var description = currentDef.description;
+                string description = currentDef.description;
                 if (!string.IsNullOrEmpty(description))
                 {
                     if (description.Length > 250)
@@ -629,7 +629,7 @@ internal class ShowMeYourHandsMod : Mod
 
                 listing_Standard.Gap(150);
 
-                var weaponRect = new Rect(labelPoint.x + 270, labelPoint.y + 5, weaponSize.x,
+                Rect weaponRect = new(labelPoint.x + 270, labelPoint.y + 5, weaponSize.x,
                     weaponSize.y);
 
                 if (currentMainHand == Vector3.zero)
@@ -657,7 +657,7 @@ internal class ShowMeYourHandsMod : Mod
                 currentMainHand.x = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                     currentMainHand.x, -0.5f, 0.5f, false,
                     currentMainHand.x.ToString(), null, null, 0.001f);
-                var lastMainLabel = listing_Standard.Label("SMYH.mainhandvertical.label".Translate());
+                Rect lastMainLabel = listing_Standard.Label("SMYH.mainhandvertical.label".Translate());
                 currentMainHand.z = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                     currentMainHand.z, -0.5f, 0.5f, false,
                     currentMainHand.z.ToString(), null, null, 0.001f);
@@ -742,7 +742,7 @@ internal class ShowMeYourHandsMod : Mod
             return;
         }
 
-        var stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new();
         stringBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         stringBuilder.AppendLine("<Defs>");
         stringBuilder.AppendLine("  <WHands.ClutterHandsTDef>");
@@ -754,10 +754,10 @@ internal class ShowMeYourHandsMod : Mod
         stringBuilder.AppendLine("      <label>Weapon hand settings</label>");
         stringBuilder.AppendLine("      <thingClass>Thing</thingClass>");
         stringBuilder.AppendLine("      <WeaponCompLoader>");
-        var handPositionsToIterate = instance.Settings.ManualMainHandPositions;
+        Dictionary<string, SaveableVector3> handPositionsToIterate = instance.Settings.ManualMainHandPositions;
         if (onlySelected)
         {
-            var weaponsDefsToSelectFrom = (from ThingDef weapon in AllWeapons
+            List<string> weaponsDefsToSelectFrom = (from ThingDef weapon in AllWeapons
                 where weapon.modContentPack == null &&
                       selectedSubDef == "SMYH.unknown".Translate() ||
                       weapon.modContentPack?.Name == selectedSubDef
@@ -768,13 +768,13 @@ internal class ShowMeYourHandsMod : Mod
                 select position);
         }
 
-        foreach (var settingsManualMainHandPosition in handPositionsToIterate)
+        foreach (KeyValuePair<string, SaveableVector3> settingsManualMainHandPosition in handPositionsToIterate)
         {
             stringBuilder.AppendLine("          <li>");
             stringBuilder.AppendLine($"              <MainHand>{settingsManualMainHandPosition.Value}</MainHand>");
             if (instance.Settings.ManualOffHandPositions.ContainsKey(settingsManualMainHandPosition.Key))
             {
-                var secHand = instance.Settings.ManualOffHandPositions[settingsManualMainHandPosition.Key];
+                SaveableVector3 secHand = instance.Settings.ManualOffHandPositions[settingsManualMainHandPosition.Key];
                 if (secHand.ToVector3() != Vector3.zero)
                 {
                     stringBuilder.AppendLine($"              <SecHand>{secHand}</SecHand>");
@@ -798,20 +798,20 @@ internal class ShowMeYourHandsMod : Mod
 
     private void DrawTabsList(Rect rect)
     {
-        var scrollContainer = rect.ContractedBy(10);
+        Rect scrollContainer = rect.ContractedBy(10);
         scrollContainer.width = leftSideWidth;
         Widgets.DrawBoxSolid(scrollContainer, Color.grey);
-        var innerContainer = scrollContainer.ContractedBy(1);
+        Rect innerContainer = scrollContainer.ContractedBy(1);
         Widgets.DrawBoxSolid(innerContainer, new ColorInt(42, 43, 44).ToColor);
-        var tabFrameRect = innerContainer.ContractedBy(5);
+        Rect tabFrameRect = innerContainer.ContractedBy(5);
         tabFrameRect.y += 15;
         tabFrameRect.height -= 15;
-        var tabContentRect = tabFrameRect;
+        Rect tabContentRect = tabFrameRect;
         tabContentRect.x = 0;
         tabContentRect.y = 0;
         tabContentRect.width -= 20;
-        var weaponsToShow = AllWeapons;
-        var listAddition = 24;
+        List<ThingDef> weaponsToShow = AllWeapons;
+        int listAddition = 24;
         if (!string.IsNullOrEmpty(selectedSubDef))
         {
             weaponsToShow = (from ThingDef weapon in AllWeapons
@@ -834,9 +834,9 @@ internal class ShowMeYourHandsMod : Mod
 
         listing_Standard.ListItemSelectable(null, Color.yellow, out _);
         selectedHasManualDefs = new List<string>();
-        foreach (var thingDef in weaponsToShow)
+        foreach (ThingDef thingDef in weaponsToShow)
         {
-            var toolTip = "SMYH.weaponrow.red";
+            string toolTip = "SMYH.weaponrow.red";
             if (!DefinedByDef.Contains(thingDef.defName) &&
                 !instance.Settings.ManualMainHandPositions.ContainsKey(thingDef.defName))
             {
@@ -858,7 +858,7 @@ internal class ShowMeYourHandsMod : Mod
             }
 
             if (listing_Standard.ListItemSelectable(thingDef.label.CapitalizeFirst(), Color.yellow,
-                    out var position,
+                    out Vector2 position,
                     SelectedDef == thingDef.defName, false, toolTip.Translate()))
             {
                 SelectedDef = SelectedDef == thingDef.defName ? null : thingDef.defName;

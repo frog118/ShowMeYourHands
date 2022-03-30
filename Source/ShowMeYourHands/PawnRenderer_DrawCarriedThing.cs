@@ -9,7 +9,7 @@ public static class PawnRenderer_DrawCarriedThing
 {
     public static void Postfix(Vector3 drawLoc, Pawn ___pawn)
     {
-        var carriedThing = ___pawn.carryTracker?.CarriedThing;
+        Thing carriedThing = ___pawn.carryTracker?.CarriedThing;
         if (carriedThing == null)
         {
             return;
@@ -20,15 +20,15 @@ public static class PawnRenderer_DrawCarriedThing
             return;
         }
 
-        var handComp = ___pawn.GetComp<HandDrawer>();
+        HandDrawer handComp = ___pawn.GetComp<HandDrawer>();
         if (handComp == null)
         {
             return;
         }
 
-        var vector = drawLoc;
-        var behind = false;
-        var flip = false;
+        Vector3 vector = drawLoc;
+        bool behind = false;
+        bool flip = false;
         if (___pawn.CurJob == null ||
             !___pawn.jobs.curDriver.ModifyCarriedThingDrawPos(ref vector, ref behind, ref flip))
         {

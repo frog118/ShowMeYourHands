@@ -8,13 +8,13 @@ namespace ShowMeYourHands;
 /// </summary>
 internal class ShowMeYourHandsModSettings : ModSettings
 {
-    public Dictionary<string, SaveableVector3> ManualMainHandPositions = new Dictionary<string, SaveableVector3>();
+    public Dictionary<string, SaveableVector3> ManualMainHandPositions = new();
 
     private List<string> manualMainHandPositionsKeys;
 
     private List<SaveableVector3> manualMainHandPositionsValues;
 
-    public Dictionary<string, SaveableVector3> ManualOffHandPositions = new Dictionary<string, SaveableVector3>();
+    public Dictionary<string, SaveableVector3> ManualOffHandPositions = new();
 
     private List<string> manualOffHandPositionsKeys;
 
@@ -27,6 +27,10 @@ internal class ShowMeYourHandsModSettings : ModSettings
     public bool ShowOtherTmes;
     public bool ShowWhenCarry;
     public bool VerboseLogging;
+
+    public bool UseHands = true;
+    public bool UseFeet = true;
+    public bool UsePaws = true;
 
     public override void ExposeData()
     {

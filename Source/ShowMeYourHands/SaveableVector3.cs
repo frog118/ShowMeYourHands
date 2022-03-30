@@ -40,11 +40,11 @@ internal class SaveableVector3
     {
         Str = Str.TrimStart('(');
         Str = Str.TrimEnd(')');
-        var array = Str.Split(',');
-        var invariantCulture = CultureInfo.InvariantCulture;
-        var x = Convert.ToSingle(array[0], invariantCulture);
-        var y = Convert.ToSingle(array[1], invariantCulture);
-        var z = Convert.ToSingle(array[2], invariantCulture);
+        string[] array = Str.Split(',');
+        CultureInfo invariantCulture = CultureInfo.InvariantCulture;
+        float x = Convert.ToSingle(array[0], invariantCulture);
+        float y = Convert.ToSingle(array[1], invariantCulture);
+        float z = Convert.ToSingle(array[2], invariantCulture);
         return new SaveableVector3(x, y, z);
     }
 

@@ -9,9 +9,9 @@ public static class ListingExtension
     public static bool ListItemSelectable(this Listing lister, string header, Color hoverColor, out Vector2 position,
         bool selected = false, bool visualize = false, string toolTip = null)
     {
-        var anchor = Text.Anchor;
-        var color = GUI.color;
-        var rect = lister.GetRect(24f);
+        TextAnchor anchor = Text.Anchor;
+        Color color = GUI.color;
+        Rect rect = lister.GetRect(24f);
         position = rect.position;
         if (selected)
         {

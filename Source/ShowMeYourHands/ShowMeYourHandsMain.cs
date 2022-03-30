@@ -12,13 +12,12 @@ namespace ShowMeYourHands;
 [StaticConstructorOnStartup]
 public static class ShowMeYourHandsMain
 {
-    public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations =
-        new Dictionary<Thing, Tuple<Vector3, float>>();
+    public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations = new();
 
-    public static readonly Dictionary<ThingDef, Vector3> southOffsets = new Dictionary<ThingDef, Vector3>();
-    public static readonly Dictionary<ThingDef, Vector3> northOffsets = new Dictionary<ThingDef, Vector3>();
-    public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new Dictionary<ThingDef, Vector3>();
-    public static readonly Dictionary<ThingDef, Vector3> westOffsets = new Dictionary<ThingDef, Vector3>();
+    public static readonly Dictionary<ThingDef, Vector3> southOffsets = new();
+    public static readonly Dictionary<ThingDef, Vector3> northOffsets = new();
+    public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new();
+    public static readonly Dictionary<ThingDef, Vector3> westOffsets = new();
 
     public static readonly List<ThingDef> IsColorable;
 
@@ -40,7 +39,7 @@ public static class ShowMeYourHandsMain
 
     public static readonly Dictionary<HediffDef, Color> HediffColors;
 
-    public static readonly List<string> knownPatches = new List<string>
+    public static readonly List<string> knownPatches = new()
     {
         // This mod
         "Mlie.ShowMeYourHands",
@@ -95,7 +94,7 @@ public static class ShowMeYourHandsMain
         BabysAndChildrenLoaded = ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null;
         if (BabysAndChildrenLoaded)
         {
-            var type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
+            Type type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
             if (type != null)
             {
                 GetBodySizeScaling = type.GetMethod("GetBodySizeScaling");
@@ -109,8 +108,8 @@ public static class ShowMeYourHandsMain
 
         if (OversizedWeaponLoaded || EnableOversizedLoaded)
         {
-            var allWeapons = DefDatabase<ThingDef>.AllDefsListForReading.Where(def => def.IsWeapon).ToList();
-            foreach (var weapon in allWeapons)
+            List<ThingDef> allWeapons = DefDatabase<ThingDef>.AllDefsListForReading.Where(def => def.IsWeapon).ToList();
+            foreach (ThingDef weapon in allWeapons)
             {
                 saveWeaponOffsets(weapon);
             }
@@ -119,8 +118,8 @@ public static class ShowMeYourHandsMain
                 $"OversizedWeapon loaded, will compensate positioning. Cached offsets for {allWeapons.Count} weapons");
         }
 
-        var compProperties = new CompProperties { compClass = typeof(HandDrawer) };
-        foreach (var thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
+        CompProperties compProperties = new() { compClass = typeof(HandDrawer) };
+        foreach (ThingDef thingDef in from race in DefDatabase<ThingDef>.AllDefsListForReading
                  where race.race?.Humanlike == true
                  select race)
         {
@@ -129,13 +128,13 @@ public static class ShowMeYourHandsMain
 
         HandDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Hand");
 
-        var partsHediffs =
+        IEnumerable<HediffDef> partsHediffs =
             DefDatabase<HediffDef>.AllDefsListForReading.Where(def =>
                 def.hediffClass == typeof(Hediff_AddedPart) && def.spawnThingOnRemoved != null);
         HediffColors = new Dictionary<HediffDef, Color>();
-        foreach (var partsHediff in partsHediffs)
+        foreach (HediffDef partsHediff in partsHediffs)
         {
-            var techLevel = partsHediff.spawnThingOnRemoved.techLevel;
+            TechLevel techLevel = partsHediff.spawnThingOnRemoved.techLevel;
             HediffColors[partsHediff] = GetColorFromTechLevel(techLevel);
         }
 
@@ -155,7 +154,7 @@ public static class ShowMeYourHandsMain
 
         LogMessage(
             "RIMMSqol loaded, will remove their destructive Prefixes for the rotation-methods");
-        var original = typeof(Pawn_RotationTracker).GetMethod("FaceCell");
+        MethodInfo original = typeof(Pawn_RotationTracker).GetMethod("FaceCell");
         harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
         original = typeof(Pawn_RotationTracker).GetMethod("Face");
         harmony.Unpatch(original, HarmonyPatchType.Prefix, "RIMMSqol");
@@ -202,17 +201,17 @@ public static class ShowMeYourHandsMain
     {
         if (OversizedWeaponLoaded)
         {
-            var thingComp =
+            CompProperties thingComp =
                 weapon.comps.FirstOrDefault(y => y.GetType().ToString().Contains("CompOversizedWeapon"));
             if (thingComp == null)
             {
                 return;
             }
 
-            var oversizedType = thingComp.GetType();
-            var fields = oversizedType.GetFields().Where(info => info.Name.Contains("Offset"));
+            Type oversizedType = thingComp.GetType();
+            IEnumerable<FieldInfo> fields = oversizedType.GetFields().Where(info => info.Name.Contains("Offset"));
 
-            foreach (var fieldInfo in fields)
+            foreach (FieldInfo fieldInfo in fields)
             {
                 switch (fieldInfo.Name)
                 {
@@ -252,9 +251,9 @@ public static class ShowMeYourHandsMain
             return;
         }
 
-        var graphicData = weapon.graphicData;
+        GraphicData graphicData = weapon.graphicData;
 
-        var baseOffset = graphicData.drawOffset;
+        Vector3 baseOffset = graphicData.drawOffset;
 
         northOffsets[weapon] = graphicData.drawOffsetNorth ?? baseOffset;
         southOffsets[weapon] = graphicData.drawOffsetSouth ?? baseOffset;

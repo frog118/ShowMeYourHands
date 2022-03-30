@@ -9,7 +9,7 @@ public static class YayoAdaptedMain
 {
     static YayoAdaptedMain()
     {
-        var harmony = new Harmony("Mlie.ShowMeYourHands.YayoAdaptedCompatibility");
+        Harmony harmony = new("Mlie.ShowMeYourHands.YayoAdaptedCompatibility");
         harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 }

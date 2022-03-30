@@ -27,8 +27,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="yayoAni">
-      <HintPath>..\..\..\..\..\..\workshop\content\294100\2575938407\Assemblies\yayoAni.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>D:\SteamLibrary\steamapps\workshop\content\294100\2575938407\Assemblies\yayoAni.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
     </Reference>
   </ItemGroup>
 </Project>

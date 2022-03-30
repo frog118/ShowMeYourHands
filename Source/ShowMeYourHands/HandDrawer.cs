@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
+using FacialStuff;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using static System.Byte;
@@ -15,10 +18,9 @@ public class HandDrawer : ThingComp
     private static Dictionary<Thing, Color> colorDictionary;
 
 
-    public static readonly Dictionary<Pawn, Graphic> mainHandGraphics = new Dictionary<Pawn, Graphic>();
-    public static readonly Dictionary<Pawn, Graphic> offHandGraphics = new Dictionary<Pawn, Graphic>();
-    public static readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
-    public static readonly Dictionary<Pawn, bool> pawnsMissingAHand = new Dictionary<Pawn, bool>();
+    public static readonly Dictionary<Pawn, Graphic> mainHandGraphics = new();
+    public static readonly Dictionary<Pawn, Graphic> offHandGraphics = new();
+    public static readonly Dictionary<Pawn, bool> pawnsMissingAHand = new();
 
     private Color handColor;
     private Mesh handMesh;
@@ -40,7 +42,7 @@ public class HandDrawer : ThingComp
                 return Color.white;
             }
 
-            handColor = getHandColor(pawn, out var hasGloves, out var secondColor);
+            handColor = getHandColor(pawn, out bool hasGloves, out Color secondColor);
             if (!mainHandGraphics.ContainsKey(pawn) || mainHandGraphics[pawn].color != handColor)
             {
                 if (hasGloves)
@@ -93,7 +95,7 @@ public class HandDrawer : ThingComp
 
     public void ReadXML()
     {
-        var whandCompProps = (WhandCompProps)props;
+        WhandCompProps whandCompProps = (WhandCompProps)props;
         if (whandCompProps.MainHand != Vector3.zero)
         {
             MainHand = whandCompProps.MainHand;
@@ -131,8 +133,8 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        var mainhandWeapon = pawn.equipment.Primary;
-        var compProperties = mainhandWeapon.def.GetCompProperties<WhandCompProps>();
+        ThingWithComps mainhandWeapon = pawn.equipment.Primary;
+        WhandCompProps compProperties = mainhandWeapon.def.GetCompProperties<WhandCompProps>();
         if (compProperties != null)
         {
             MainHand = compProperties.MainHand;
@@ -150,7 +152,7 @@ public class HandDrawer : ThingComp
             offhandWeapon = (from weapon in pawn.equipment.AllEquipmentListForReading
                 where weapon != mainhandWeapon
                 select weapon).First();
-            var offhandComp = offhandWeapon?.def.GetCompProperties<WhandCompProps>();
+            WhandCompProps offhandComp = offhandWeapon?.def.GetCompProperties<WhandCompProps>();
             if (offhandComp != null)
             {
                 OffHand = offhandComp.MainHand;
@@ -159,11 +161,11 @@ public class HandDrawer : ThingComp
 
         if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false, focusTarg.IsValid: true } stance_Busy)
         {
-            var a = stance_Busy.focusTarg.HasThing
+            Vector3 a = stance_Busy.focusTarg.HasThing
                 ? stance_Busy.focusTarg.Thing.DrawPos
                 : stance_Busy.focusTarg.Cell.ToVector3Shifted();
 
-            var num = 0f;
+            float num = 0f;
             if ((a - pawn.DrawPos).MagnitudeHorizontalSquared() > 0.001f)
             {
                 num = (a - pawn.DrawPos).AngleFlat();
@@ -173,9 +175,9 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        var baseType = pawn.Drawer.renderer.GetType();
-        var methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
-        var result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
+        Type baseType = pawn.Drawer.renderer.GetType();
+        MethodInfo methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
+        object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
         if (result == null || !(bool)result)
         {
             return;
@@ -209,46 +211,30 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-        {
-            var bodySize = 1f;
-            if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-            {
-                if (pawn.RaceProps != null)
-                {
-                    bodySize = pawn.RaceProps.baseBodySize;
-                }
 
-                if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                {
-                    bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                }
-            }
+        Color unused = HandColor;
+        float pawnBodySize = pawn.GetBodysizeScaling();
 
-            pawnBodySizes[pawn] = 0.8f * bodySize;
-        }
-
-        var unused = HandColor;
         if (handMesh == null)
         {
-            handMesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
+            handMesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySize);
         }
 
-        var mainHandTex = mainHandGraphics[pawn];
-        var offHandTex = offHandGraphics[pawn];
+        Graphic mainHandTex = mainHandGraphics[pawn];
+        Graphic offHandTex = offHandGraphics[pawn];
 
         if (mainHandTex == null || offHandTex == null)
         {
             return;
         }
 
-        var mainSingle = mainHandTex.MatSingle;
-        var offSingle = offHandTex.MatSingle;
-        var heightOffset = new Vector3(0, 0, 0.7f * pawnBodySizes[pawn] / 2);
-        var sideOffset = new Vector3(0.2f, 0, 0);
-        var layerOffset = new Vector3(0, 0.0001f, 0);
+        Material mainSingle = mainHandTex.MatSingle;
+        Material offSingle = offHandTex.MatSingle;
+        Vector3 heightOffset = new(0, 0, 0.7f * pawnBodySize / 2);
+        Vector3 sideOffset = new(0.2f, 0, 0);
+        Vector3 layerOffset = new(0, 0.0001f, 0);
 
-        var basePosition = pawn.DrawPos - heightOffset;
+        Vector3 basePosition = pawn.DrawPos - heightOffset;
         if (pawn.Rotation == Rot4.North)
         {
             Graphics.DrawMesh(handMesh,
@@ -298,29 +284,13 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-        {
-            var bodySize = 1f;
-            if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-            {
-                if (pawn.RaceProps != null)
-                {
-                    bodySize = pawn.RaceProps.baseBodySize;
-                }
+        float pawnBodySize = pawn.GetBodysizeScaling();
 
-                if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                {
-                    bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                }
-            }
-
-            pawnBodySizes[pawn] = 0.8f * bodySize;
-        }
-
-        var unused = HandColor;
-        var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn]);
-        var mainHandTex = mainHandGraphics[pawn];
-        var offHandTex = offHandGraphics[pawn];
+        
+        Color unused = HandColor;
+        Mesh mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySize);
+        Graphic mainHandTex = mainHandGraphics[pawn];
+        Graphic offHandTex = offHandGraphics[pawn];
 
 
         if (mainHandTex == null || offHandTex == null)
@@ -329,10 +299,10 @@ public class HandDrawer : ThingComp
         }
 
         LastDrawn = GenTicks.TicksAbs;
-        var matSingle = mainHandTex.MatSingle;
-        var offSingle = offHandTex.MatSingle;
-        var height = new Vector3(0, 0, 0.1f);
-        var width = new Vector3(-0.2f, 0, 0);
+        Material matSingle = mainHandTex.MatSingle;
+        Material offSingle = offHandTex.MatSingle;
+        Vector3 height = new(0, 0, 0.1f);
+        Vector3 width = new(-0.2f, 0, 0);
         if (pawn.Rotation == Rot4.West)
         {
             height.z *= -1;
@@ -353,7 +323,7 @@ public class HandDrawer : ThingComp
     private void DrawHands(Thing mainHandWeapon, float aimAngle, Thing offHandWeapon = null, bool idle = false,
         bool aiming = false)
     {
-        var flipped = false;
+        bool flipped = false;
         if (!(parent is Pawn pawn))
         {
             return;
@@ -371,14 +341,14 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        var mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
-        var mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
-        var offhandWeaponLocation = Vector3.zero;
-        var offHandAngle = mainHandAngle;
-        var mainMeleeExtra = 0f;
-        var offMeleeExtra = 0f;
-        var mainMelee = false;
-        var offMelee = false;
+        Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
+        float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+        Vector3 offhandWeaponLocation = Vector3.zero;
+        float offHandAngle = mainHandAngle;
+        float mainMeleeExtra = 0f;
+        float offMeleeExtra = 0f;
+        bool mainMelee = false;
+        bool offMelee = false;
         if (offHandWeapon != null)
         {
             if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
@@ -472,15 +442,15 @@ public class HandDrawer : ThingComp
         mainHandAngle %= 360f;
         offHandAngle %= 360f;
 
-        var unused = HandColor;
+        Color unused = HandColor;
 
         if (!mainHandGraphics.ContainsKey(pawn) || !offHandGraphics.ContainsKey(pawn))
         {
             return;
         }
 
-        var mainHandTex = mainHandGraphics[pawn];
-        var offHandTex = offHandGraphics[pawn];
+        Graphic mainHandTex = mainHandGraphics[pawn];
+        Graphic offHandTex = offHandGraphics[pawn];
 
 
         if (mainHandTex == null || offHandTex == null)
@@ -488,9 +458,9 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        var matSingle = mainHandTex.MatSingle;
-        var offSingle = offHandTex.MatSingle;
-        var drawSize = 1f;
+        Material matSingle = mainHandTex.MatSingle;
+        Material offSingle = offHandTex.MatSingle;
+        float drawSize = 1f;
         LastDrawn = GenTicks.TicksAbs;
 
         if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
@@ -499,32 +469,15 @@ public class HandDrawer : ThingComp
             drawSize = mainHandWeapon.def.graphicData.drawSize.x;
         }
 
-        if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-        {
-            var bodySize = 1f;
-            if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-            {
-                if (pawn.RaceProps != null)
-                {
-                    bodySize = pawn.RaceProps.baseBodySize;
-                }
+        float pawnBodySize = pawn.GetBodysizeScaling();
 
-                if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                {
-                    bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                }
-            }
-
-            pawnBodySizes[pawn] = 0.8f * bodySize;
-        }
-
-        var mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySizes[pawn], flipped);
+        Mesh mesh = MeshMakerPlanes.NewPlaneMesh(pawnBodySize, flipped);
 
         if (MainHand != Vector3.zero)
         {
-            var x = MainHand.x * drawSize;
-            var z = MainHand.z * drawSize;
-            var y = MainHand.y < 0 ? -0.0001f : 0.0001f;
+            float x = MainHand.x * drawSize;
+            float z = MainHand.z * drawSize;
+            float y = MainHand.y < 0 ? -0.0001f : 0.0001f;
 
             if (flipped)
             {
@@ -548,9 +501,9 @@ public class HandDrawer : ThingComp
             return;
         }
 
-        var x2 = OffHand.x * drawSize;
-        var z2 = OffHand.z * drawSize;
-        var y2 = OffHand.y < 0 ? -0.0001f : 0.0001f;
+        float x2 = OffHand.x * drawSize;
+        float z2 = OffHand.z * drawSize;
+        float y2 = OffHand.y < 0 ? -0.0001f : 0.0001f;
 
 
         if (offHandWeapon != null)
@@ -613,19 +566,19 @@ public class HandDrawer : ThingComp
         switch (pawn.Rotation.AsInt)
         {
             case 0:
-                return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out var northValue)
+                return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out Vector3 northValue)
                     ? northValue
                     : Vector3.zero;
             case 1:
-                return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out var eastValue)
+                return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out Vector3 eastValue)
                     ? eastValue
                     : Vector3.zero;
             case 2:
-                return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out var southValue)
+                return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out Vector3 southValue)
                     ? southValue
                     : Vector3.zero;
             case 3:
-                return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out var westValue)
+                return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out Vector3 westValue)
                     ? westValue
                     : Vector3.zero;
             default:
@@ -675,9 +628,9 @@ public class HandDrawer : ThingComp
                 return pawn.story.SkinColor;
             }
 
-            var mainColor = (Color)default;
+            Color mainColor = (Color)default;
 
-            foreach (var hediffAddedPart in addedHands)
+            foreach (Hediff_AddedPart hediffAddedPart in addedHands)
             {
                 if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
                 {
@@ -706,17 +659,17 @@ public class HandDrawer : ThingComp
             return mainColor;
         }
 
-        var handApparel = from apparel in pawn.apparel.WornApparel
+        IEnumerable<Apparel> handApparel = from apparel in pawn.apparel.WornApparel
             where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
             select apparel;
 
         //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
 
         Thing outerApparel = null;
-        var highestDrawOrder = 0;
-        foreach (var thing in handApparel)
+        int highestDrawOrder = 0;
+        foreach (Apparel thing in handApparel)
         {
-            var thingOutmostLayer =
+            int thingOutmostLayer =
                 thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
             if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
             {
@@ -740,7 +693,7 @@ public class HandDrawer : ThingComp
 
         if (ShowMeYourHandsMain.IsColorable.Contains(outerApparel.def))
         {
-            var comp = outerApparel.TryGetComp<CompColorable>();
+            CompColorable comp = outerApparel.TryGetComp<CompColorable>();
             if (comp.Active)
             {
                 return comp.Color;
@@ -767,16 +720,16 @@ public class HandDrawer : ThingComp
 
     private Color32 AverageColorFromTexture(Texture2D texture)
     {
-        var renderTexture = RenderTexture.GetTemporary(
+        RenderTexture renderTexture = RenderTexture.GetTemporary(
             texture.width,
             texture.height,
             0,
             RenderTextureFormat.Default,
             RenderTextureReadWrite.Linear);
         Graphics.Blit(texture, renderTexture);
-        var previous = RenderTexture.active;
+        RenderTexture previous = RenderTexture.active;
         RenderTexture.active = renderTexture;
-        var tex = new Texture2D(texture.width, texture.height);
+        Texture2D tex = new(texture.width, texture.height);
         tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         tex.Apply();
         RenderTexture.active = previous;
@@ -786,8 +739,8 @@ public class HandDrawer : ThingComp
 
     private Color32 AverageColorFromColors(Color32[] colors)
     {
-        var shadeDictionary = new Dictionary<Color32, int>();
-        foreach (var texColor in colors)
+        Dictionary<Color32, int> shadeDictionary = new();
+        foreach (Color32 texColor in colors)
         {
             if (texColor.a < 50)
             {
@@ -795,7 +748,7 @@ public class HandDrawer : ThingComp
                 continue;
             }
 
-            var currentRgb = new Rgb { B = texColor.b, G = texColor.b, R = texColor.r };
+            Rgb currentRgb = new() { B = texColor.b, G = texColor.b, R = texColor.r };
 
             if (currentRgb.Compare(new Rgb { B = 0, G = 0, R = 0 }, new Cie1976Comparison()) < 2)
             {
@@ -810,8 +763,8 @@ public class HandDrawer : ThingComp
             }
 
 
-            var added = false;
-            foreach (var rgb in shadeDictionary.Keys.Where(rgb =>
+            bool added = false;
+            foreach (Color32 rgb in shadeDictionary.Keys.Where(rgb =>
                          currentRgb.Compare(new Rgb { B = rgb.b, G = rgb.b, R = rgb.r }, new Cie1976Comparison()) < 2))
             {
                 shadeDictionary[rgb]++;
@@ -830,7 +783,7 @@ public class HandDrawer : ThingComp
             return new Color32(0, 0, 0, MaxValue);
         }
 
-        var greatestValue = shadeDictionary.Aggregate((rgb, max) => rgb.Value > max.Value ? rgb : max).Key;
+        Color32 greatestValue = shadeDictionary.Aggregate((rgb, max) => rgb.Value > max.Value ? rgb : max).Key;
         greatestValue.a = MaxValue;
         return greatestValue;
     }
@@ -847,4 +800,38 @@ public class HandDrawer : ThingComp
 
         DrawHands();
     }
+
+    public static void CheckAndDrawHands(Thing carriedThing, Vector3 thingVector3, bool flip, Pawn pawn, bool thingBehind)
+    {
+        if (pawn.RaceProps.Animal)
+        {
+            carriedThing.DrawAt(thingVector3, flip);
+            return;
+        }
+
+        if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))
+        {
+            carriedThing.DrawAt(thingVector3, flip);
+            return;
+        }
+
+        bool showHands = compAnim.Props.bipedWithHands && ShowMeYourHandsMod.instance.Settings.UseHands;
+        if (!showHands)
+        {
+            carriedThing.DrawAt(thingVector3, flip);
+            return;
+        }
+
+        // Modify the drawPos to appear behind a pawn if facing North, in case vanilla didn't
+        if (!thingBehind && pawn.Rotation == Rot4.North)
+        {
+            thingVector3.y -= Offsets.YOffset_CarriedThing * 2;
+        }
+
+        thingVector3.y += compAnim.DrawOffsetY;
+        float factor = pawn.GetBodysizeScaling();
+
+        compAnim.DrawHands(Quaternion.identity, thingVector3, carriedThing, flip, factor);
+    }
+
 }

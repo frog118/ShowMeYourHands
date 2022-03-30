@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using HarmonyLib;
 using Verse;
 
 namespace ShowMeYourHands;
@@ -8,9 +9,9 @@ public static class YayoAnimationMain
 {
     static YayoAnimationMain()
     {
-        var harmony = new Harmony("Mlie.ShowMeYourHands.YayoAnimationCompatibility");
-        var original = AccessTools.Method("yayoAni.patch_DrawEquipmentAiming:Prefix");
-        var prefix =
+        Harmony harmony = new("Mlie.ShowMeYourHands.YayoAnimationCompatibility");
+        MethodInfo original = AccessTools.Method("yayoAni.patch_DrawEquipmentAiming:Prefix");
+        MethodInfo prefix =
             typeof(PawnRenderer_DrawEquipmentAiming_DrawEquipmentAimingOverride).GetMethod("SaveWeaponLocation");
         harmony.Patch(original, new HarmonyMethod(prefix));
     }

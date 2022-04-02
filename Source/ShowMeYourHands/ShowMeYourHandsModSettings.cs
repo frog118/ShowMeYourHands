@@ -28,6 +28,7 @@ internal class ShowMeYourHandsModSettings : ModSettings
     public bool ShowWhenCarry;
     public bool VerboseLogging;
 
+    // Hands and feet added as an extra option. Can be removed/included
     public bool UseHands = true;
     public bool UseFeet = true;
     public bool UsePaws = true;

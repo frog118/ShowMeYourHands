@@ -31,6 +31,7 @@ namespace FacialStuff
             // todo: use BodyDef instead, target for kickstarting?
             this.AnimalPawnCompsBodyDefImport();
             this.AnimalPawnCompsImportFromAnimationTargetDefs();
+            SetMainButtons();
             // BuildWalkCycles();
 
             // foreach (BodyAnimDef def in DefDatabase<BodyAnimDef>.AllDefsListForReading)
@@ -51,7 +52,15 @@ namespace FacialStuff
         #endregion Public Constructors
 
         #region Public Methods
-        protected UnityEngine.Animator animator;
+
+        public static void SetMainButtons()
+        {
+            MainButtonDef button = DefDatabase<MainButtonDef>.GetNamedSilentFail("WalkAnimator");
+            //   MainButtonDef button2 = DefDatabase<MainButtonDef>.GetNamedSilentFail("PoseAnimator");
+            if (button != null)
+            {
+                button.buttonVisible = Prefs.DevMode;
+            }        }
 
 
         public static void BuildWalkCycles([CanBeNull] WalkCycleDef defToRebuild = null)

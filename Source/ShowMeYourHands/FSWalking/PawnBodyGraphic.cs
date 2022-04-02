@@ -8,8 +8,7 @@ namespace FacialStuff.GraphicsFS
     public class PawnBodyGraphic
     {
         #region Public Fields
-        public const string PathHumanlike = "Things/Pawn/Humanlike/";
-        public const string PathAnimals = "Things/Pawn/Animal/";
+        private readonly Pawn _pawn;
 
         public readonly CompBodyAnimator CompAni;
         public Graphic FootGraphicLeft;
@@ -35,9 +34,6 @@ namespace FacialStuff.GraphicsFS
 
         #region Private Fields
 
-        private const string STR_Foot = "_Foot";
-        private const string STR_Hand = "_Hand";
-        private readonly Pawn _pawn;
 
         private readonly Color _shadowColor = new(0.54f, 0.56f, 0.6f);
 
@@ -76,16 +72,11 @@ namespace FacialStuff.GraphicsFS
 
         private void InitializeGraphicsFeet()
         {
-            string texNameFoot;
-            if (this._pawn.RaceProps.Humanlike)
-            {
-                texNameFoot = PathHumanlike + "Feet/" + this.CompAni.Props.handType + STR_Foot;
-            }
-            else
-            {
-                texNameFoot = PathAnimals + "Paws/" + this.CompAni.Props.handType + STR_Foot;
-            }
-            Color skinColor;
+            string texNameFoot = CompAni.TexNameFoot();
+            Color skinColor = CompAni.FootColor;
+
+            /*
+            // no story, either animal or not humanoid biped
             if (this._pawn.story == null)
             {
                 PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
@@ -96,7 +87,7 @@ namespace FacialStuff.GraphicsFS
             {
                 skinColor = this._pawn.story.SkinColor;
             }
-
+            */
             Color rightColorFoot = Color.red;
             Color leftColorFoot = Color.blue;
 
@@ -121,9 +112,8 @@ namespace FacialStuff.GraphicsFS
             Color rightFootShadowColor = rightFootColor * this._shadowColor;
             Color leftFootShadowColor = leftFootColor * this._shadowColor;
 
-            float factor = CompAni.GetBodysizeScaling(out _);
 
-            Vector2 drawSize = new(factor, factor);
+            Vector2 drawSize = new(1f,1f);
 
             this.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
@@ -175,7 +165,7 @@ namespace FacialStuff.GraphicsFS
                 return;
 
             }
-            string texNameFoot = PathAnimals + "Paws/" + this.CompAni.Props.handType + STR_Foot;
+            string texNameFoot = PawnExtensions.PathAnimals + "Paws/" + this.CompAni.Props.handType + PawnExtensions.STR_Foot;
 
             Color skinColor;
             if (this._pawn.story != null)
@@ -213,9 +203,8 @@ namespace FacialStuff.GraphicsFS
             Color rightFootColorShadow = rightFootColor * this._shadowColor;
             Color leftFootColorShadow = leftFootColor * this._shadowColor;
 
-            float factor = this.CompAni.GetBodysizeScaling(out _);
 
-            Vector2 drawSize = new(factor, factor);
+            Vector2 drawSize = new(1f, 1f);
             this.FrontPawGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
                 ShaderDatabase.CutoutSkin,
@@ -266,24 +255,12 @@ namespace FacialStuff.GraphicsFS
                 return;
             }
 
-            string texNameHand;
-            Color skinColor;
-            // Mechanoid
-            if (this._pawn.story == null)
-            {
-                PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
-
-                skinColor = curKindLifeStage.bodyGraphicData.color;
-                texNameHand = PathAnimals + "Paws/" + this.CompAni.Props.handType + STR_Hand;
-            }
-            else
-            {
-                skinColor = this._pawn.story.SkinColor;
-                texNameHand = PathHumanlike + "Hands/" + this.CompAni.Props.handType + STR_Hand;
-            }
+            string texNameHand = this.CompAni.TexNameHand();
 
             Color rightColorHand = Color.cyan;
             Color leftColorHand = Color.magenta;
+            
+            Color skinColor = CompAni.HandColor;
 
             Color rightHandColor = skinColor;
             Color leftHandColor = skinColor;
@@ -306,9 +283,8 @@ namespace FacialStuff.GraphicsFS
 
             Color leftHandColorShadow = leftHandColor * this._shadowColor;
             Color rightHandColorShadow = rightHandColor * this._shadowColor;
-            float factor = this.CompAni.GetBodysizeScaling(out _);
 
-            Vector2 drawSize = new(factor, factor);
+            Vector2 drawSize = new(1f, 1f);
             this.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
                 ShaderDatabase.CutoutSkin,
@@ -352,6 +328,7 @@ namespace FacialStuff.GraphicsFS
                 leftColorHand,
                 skinColor);
         }
+
 
         #endregion Private Methods
     }

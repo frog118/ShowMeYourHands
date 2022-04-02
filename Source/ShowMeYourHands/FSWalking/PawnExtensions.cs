@@ -10,7 +10,12 @@ namespace FacialStuff
 {
     public static class PawnExtensions
     {
-        public static readonly Dictionary<Pawn, float> pawnBodySizes = new();
+        public static readonly Dictionary<Pawn, float> pawnBodySizes = new Dictionary<Pawn, float>();
+        public const string PathHumanlike = "Things/Pawn/Humanlike/";
+        public const string PathAnimals = "Things/Pawn/Animal/";
+        public const string STR_Foot = "_Foot";
+        public const string STR_Hand = "_Hand";
+
 
         private static void CheckBodyForAddedParts(Hediff hediff, CompBodyAnimator anim, BodyPartRecord leftHand, BodyPartRecord leftArm,
                                       BodyPartRecord rightHand, BodyPartRecord rightArm, BodyPartRecord leftFoot, BodyPartRecord leftLeg, BodyPartRecord rightFoot, BodyPartRecord rightLeg)

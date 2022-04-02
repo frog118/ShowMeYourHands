@@ -1,5 +1,6 @@
 ﻿using RimWorld;
 using System.Linq;
+using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 
@@ -10,12 +11,7 @@ namespace FacialStuff
         public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, float factor = 1f)
         {
 
-            if (this.pawn.kindDef.lifeStages.Any())
-            {
-                Vector2 maxSize = this.pawn.kindDef.lifeStages.Last().bodyGraphicData.drawSize;
-                Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
-                factor = sizePaws.x / maxSize.x;
-            }
+
             if (this.CompAnimator.IsMoving)
             {
                 drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
@@ -86,6 +82,8 @@ namespace FacialStuff
             float offsetJoint = 0;
 
             WalkCycleDef cycle = this.CompAnimator.WalkCycle;
+
+
             if (cycle != null && CompAnimator.IsMoving)
             {
                 offsetJoint = cycle.ShoulderOffsetHorizontalX.Evaluate(this.CompAnimator.MovedPercent);
@@ -148,12 +146,12 @@ namespace FacialStuff
                 if (this.CompAnimator.BodyStat.FootLeft != PartStatus.Missing)
                 {
                     Vector3 position = ground + (jointPositions.LeftJoint + leftFootAnim) * factor;
-                    GenDraw.DrawMeshNowOrLater(
+                    Graphics.DrawMesh(
                         footMeshLeft,
                         position,
                         drawQuat * Quaternion.AngleAxis(footAngleLeft, Vector3.up),
                         matLeft,
-                        false);
+                        0);
                 }
             }
 
@@ -162,12 +160,12 @@ namespace FacialStuff
                 if (this.CompAnimator.BodyStat.FootRight != PartStatus.Missing)
                 {
                     Vector3 position = ground + (jointPositions.RightJoint + rightFootAnim) * factor;
-                    GenDraw.DrawMeshNowOrLater(
+                    Graphics.DrawMesh(
                         footMeshRight,
                         position,
                         drawQuat * Quaternion.AngleAxis(footAngleRight, Vector3.up),
                         matRight,
-                        false);
+                        0);
                 }
             }
             /*

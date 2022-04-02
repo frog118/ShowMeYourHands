@@ -37,6 +37,7 @@ public static class ShowMeYourHandsMain
     public static bool YayoAdoptedLoaded;
 
     public static readonly BodyPartDef HandDef;
+    public static readonly BodyPartDef FootDef;
 
     public static readonly Dictionary<HediffDef, Color> HediffColors;
 
@@ -128,6 +129,7 @@ public static class ShowMeYourHandsMain
         }
         */
         HandDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Hand");
+        FootDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Foot");
 
         IEnumerable<HediffDef> partsHediffs =
             DefDatabase<HediffDef>.AllDefsListForReading.Where(def =>

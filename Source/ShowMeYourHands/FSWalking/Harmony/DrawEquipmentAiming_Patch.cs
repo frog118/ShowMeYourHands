@@ -92,8 +92,19 @@ internal static class DrawEquipmentAiming_Patch
             return;
         }
 
-        var mainHandWeapon = pawn.equipment.Primary;
-        var compProperties = mainHandWeapon.def.GetCompProperties<WhandCompProps>();
+        ThingWithComps mainHandWeapon = pawn.equipment.Primary;
+        if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+        {
+            if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+            {
+                Log.ErrorOnce(
+                    $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                    mainHandWeapon.def.GetHashCode());
+            }
+
+            return;
+        }
+        WhandCompProps compProperties = mainHandWeapon.def.GetCompProperties<WhandCompProps>();
         if (compProperties != null)
         {
             MainHand = compProperties.MainHand;
@@ -111,7 +122,7 @@ internal static class DrawEquipmentAiming_Patch
             offHandWeapon = (from weapon in pawn.equipment.AllEquipmentListForReading
                 where weapon != mainHandWeapon
                 select weapon).First();
-            var offhandComp = offHandWeapon?.def.GetCompProperties<WhandCompProps>();
+            WhandCompProps offhandComp = offHandWeapon?.def.GetCompProperties<WhandCompProps>();
             if (offhandComp != null)
             {
                 OffHand = offhandComp.MainHand;
@@ -148,14 +159,14 @@ internal static class DrawEquipmentAiming_Patch
             return;
         }
 
-        var mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
-        var mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
-        var offhandWeaponLocation = Vector3.zero;
-        var offHandAngle = mainHandAngle;
-        var mainMeleeExtra = 0f;
-        var offMeleeExtra = 0f;
-        var mainMelee = false;
-        var offMelee = false;
+        Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
+        float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+        Vector3 offhandWeaponLocation = Vector3.zero;
+        float offHandAngle = mainHandAngle;
+        float mainMeleeExtra = 0f;
+        float offMeleeExtra = 0f;
+        bool mainMelee = false;
+        bool offMelee = false;
 
         if (offHandWeapon != null)
         {
@@ -267,7 +278,7 @@ internal static class DrawEquipmentAiming_Patch
 
         if (!pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
         {
-            var bodySize = 1f;
+            float bodySize = 1f;
             if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
             {
                 if (pawn.RaceProps != null)
@@ -291,9 +302,9 @@ internal static class DrawEquipmentAiming_Patch
 
         if (MainHand != Vector3.zero)
         {
-            var x = MainHand.x * drawSize;
-            var z = MainHand.z * drawSize;
-            var y = MainHand.y < 0 ? -0.0001f : 0.001f;
+            float x = MainHand.x * drawSize;
+            float z = MainHand.z * drawSize;
+            float y = MainHand.y < 0 ? -0.0001f : 0.001f;
 
             if (flipped)
             {
@@ -313,9 +324,9 @@ internal static class DrawEquipmentAiming_Patch
 
         if (OffHand != Vector3.zero)
         {
-            var x2 = OffHand.x * drawSize;
-            var z2 = OffHand.z * drawSize;
-            var y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
+            float x2 = OffHand.x * drawSize;
+            float z2 = OffHand.z * drawSize;
+            float y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
 
 
             if (offHandWeapon != null)

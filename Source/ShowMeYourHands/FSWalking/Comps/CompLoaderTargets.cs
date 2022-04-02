@@ -16,17 +16,17 @@ namespace FacialStuff
     public class CompLoaderTargets
     {
         #region Public Fields
-
+        [NotNull] public List<string> thingTargets = new();
+        /*
         public Vector3 firstHandPosition = Vector3.zero;
         public Vector3 secondHandPosition = Vector3.zero;
 
-        [NotNull] public List<string> thingTargets = new();
 
         public float? attackAngleOffset;
 
         public Vector3 weaponPositionOffset = Vector3.zero;
         public Vector3 aimedWeaponPositionOffset;
-
+        */
         // Animals
         public string handType;
 

@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FacialStuff.Animator;
+using FacialStuff.AnimatorWindows;
 using FacialStuff.Tweener;
 using RimWorld;
+using ShowMeYourHands;
 using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
@@ -48,12 +51,17 @@ namespace FacialStuff
 
         public override void ApplyBodyWobble(ref Vector3 rootLoc, ref Vector3 footPos)
         {
+            if (this.CompAnimator.BodyAnim != null)
+            {
+                this.CompAnimator.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
+            }
             if (this.CompAnimator.IsMoving)
             {
                 WalkCycleDef walkCycle = this.CompAnimator.WalkCycle;
                 if (walkCycle != null)
                 {
-                    float bam = this.CompAnimator.BodyOffsetZ;
+                    float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
+                    float bam = this.CompAnimator.BodyOffsetZ*bodysizeScaling;
 
                     rootLoc.z += bam;
                     this.SetBodyAngle(this.CompAnimator.MovedPercent);
@@ -64,29 +72,10 @@ namespace FacialStuff
             base.ApplyBodyWobble(ref rootLoc, ref footPos);
 
             // Adds the leg length to the rootloc and relocates the feet to keep the pawn in center, e.g. for shields
-            if (this.CompAnimator.BodyAnim != null)
-            {
-                float legModifier = this.CompAnimator.BodyAnim.extraLegLength;
-                float posModB = legModifier * 0.75f;
-                float posModF = -legModifier * 0.25f;
-                Vector3 vector3 = new(0, 0, posModB);
-                Vector3 vector4 = new(0, 0, posModF);
-
-                // No rotation when moving
-                if (!this.CompAnimator.IsMoving)
-                {
-                    vector3 = vector3.RotatedBy(CompAnimator.BodyAngle);
-                    vector4 = vector4.RotatedBy(CompAnimator.BodyAngle);
-                }
-                if (!this.CompAnimator.IsRider)
-                {
-                }
-                rootLoc += vector3;
-                footPos += vector4;
-
-            }
 
         }
+
+
 
         public void ApplyEquipmentWobble(ref Vector3 rootLoc)
         {
@@ -104,15 +93,6 @@ namespace FacialStuff
 
             return;
             // cannot move root pos so the stuff below not working
-            // Adds the leg length to the rootloc and relocates the feet to keep the pawn in center, e.g. for shields
-            if (this.CompAnimator.BodyAnim != null)
-            {
-                float legModifier = this.CompAnimator.BodyAnim.extraLegLength;
-                float posModB = legModifier * 0.85f;
-                Vector3 vector3 = new(0, 0, posModB);
-
-                rootLoc += vector3;
-            }
         }
 
 
@@ -179,7 +159,7 @@ namespace FacialStuff
             Material baseMat = ((!portrait && pawn.IsInvisible()) ? InvisibilityMatPool.GetInvisibleMat(original) : original);
             return pawn.Drawer.renderer.graphics.flasher.GetDamagedMat(baseMat);
         }
-
+        // Deactivated
         public override void DrawPawnBody(Vector3 rootLoc, float angle, Rot4 facing, RotDrawMode bodyDrawType, PawnRenderFlags flags, out Mesh bodyMesh)
         {
             // renderBody is AFAIK only used for beds, so ignore it and undress
@@ -251,10 +231,16 @@ namespace FacialStuff
                     }
                 }
             }
+            var unused = this.CompAnimator.FootColor;
+
+            if (pawn.GetPosture() == PawnPosture.Standing) // keep the feet straight while standing, ignore the bodyQuat
+            {
+                drawQuat = Quaternion.AngleAxis(0f, Vector3.up);
+            }
 
             if (this.CompAnimator.IsMoving)
             {
-                drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
+                // drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
             }
 
             Rot4 rot = this.CompAnimator.pawn.Rotation;
@@ -287,7 +273,7 @@ namespace FacialStuff
                                         ref offsetJoint,
                                         cycle.FootPositionX,
                                         cycle.FootPositionZ,
-                                        cycle.FootAngle, factor);
+                                        cycle.FootAngle);
 
             }
 
@@ -304,28 +290,28 @@ namespace FacialStuff
             else 
             */
             {
-                Material rightFoot = this.CompAnimator.pawnBodyGraphic?.FootGraphicRight?.MatAt(rot);
-                Material leftFoot = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeft?.MatAt(rot);
-                Material leftShadow = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeftShadow?.MatAt(rot);
-                Material rightShadow = this.CompAnimator.pawnBodyGraphic?.FootGraphicRightShadow?.MatAt(rot);
+                Material rightFootMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicRight?.MatAt(rot);
+                Material leftFootMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeft?.MatAt(rot);
+                Material leftShadowMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeftShadow?.MatAt(rot);
+                Material rightShadowMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicRightShadow?.MatAt(rot);
 
                 switch (rot.AsInt)
                 {
                     default:
-                        matRight = this.Flasher.GetDamagedMat(rightFoot);
-                        matLeft = this.Flasher.GetDamagedMat(leftFoot);
+                        matRight = this.Flasher.GetDamagedMat(rightFootMat);
+                        matLeft = this.Flasher.GetDamagedMat(leftFootMat);
                         break;
 
                     case 1:
-                        matRight = this.Flasher.GetDamagedMat(rightFoot);
+                        matRight = this.Flasher.GetDamagedMat(rightFootMat);
 
-                        matLeft = this.Flasher.GetDamagedMat(leftShadow);
+                        matLeft = this.Flasher.GetDamagedMat(leftShadowMat);
                         break;
 
                     case 3:
 
-                        matRight = this.Flasher.GetDamagedMat(rightShadow);
-                        matLeft = this.Flasher.GetDamagedMat(leftFoot);
+                        matRight = this.Flasher.GetDamagedMat(rightShadowMat);
+                        matLeft = this.Flasher.GetDamagedMat(leftFootMat);
                         break;
                 }
             }
@@ -339,7 +325,7 @@ namespace FacialStuff
             leftFootCycle = drawQuat * leftFootCycle;
             rightFootCycle = drawQuat * rightFootCycle;
             Vector3 ground = rootLoc + drawQuat * new Vector3(0, 0, OffsetGroundZ) * factor;
-
+            
             if (drawLeft)
             {
                 // TweenThing leftFoot = TweenThing.FootLeft;
@@ -350,12 +336,12 @@ namespace FacialStuff
                     // tweener.PartPositions[(int)leftFoot] = position;
                     // tweener.PreThingPosCalculation(leftFoot, spring: SpringTightness.Stff);
 
-                    GenDraw.DrawMeshNowOrLater(
+                    Graphics.DrawMesh(
                                                footMeshLeft,
                                                position, // tweener.TweenedPartsPos[(int)leftFoot],
                                                drawQuat * Quaternion.AngleAxis(footAngleLeft, Vector3.up),
                                                matLeft,
-                                               false);
+                                               0);
                 }
             }
 
@@ -369,12 +355,12 @@ namespace FacialStuff
 
                 // tweener.PartPositions[(int)rightFoot] = position;
                 //     tweener.PreThingPosCalculation(rightFoot, spring: SpringTightness.Stff);
-                GenDraw.DrawMeshNowOrLater(
+                Graphics.DrawMesh(
                                            footMeshRight,
                                            position, // tweener.TweenedPartsPos[(int)rightFoot],
                                            drawQuat * Quaternion.AngleAxis(footAngleRight, Vector3.up),
                                            matRight,
-                                           false);
+                                           0);
 
                 // }
             }
@@ -431,46 +417,69 @@ namespace FacialStuff
             }
 
 
+            if (!PawnExtensions.pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                var bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
+                    }
+                }
+
+                PawnExtensions.pawnBodySizes[pawn] = 0.8f * bodySize;
+            }
+
+
             if (!this.CompAnimator.Props.bipedWithHands)
             {
                 return;
             }
 
-            var eq = pawn?.equipment?.Primary;
+            ThingWithComps eq = pawn?.equipment?.Primary;
             if (eq != null && !pawn.CurJob.def.neverShowWeapon)
             {
-                var baseType = pawn.Drawer.renderer.GetType();
-                var methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
-                var result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
+                Type baseType = pawn.Drawer.renderer.GetType();
+                MethodInfo methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);
+                object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
                     DrawEquipmentAiming_Patch.DrawEquipmentAiming_Postfix(eq, drawPos, pawn.Rotation == Rot4.West ? 217f : 143f, pawn);
                 }
-
-
             }
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
-            float factor = CompAnimator.GetBodysizeScaling(out _);
+            float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
 
             BodyAnimDef body = this.CompAnimator.BodyAnim;
 
-            if (carrying)
+            if (carrying && !CompAnimator.IsMoving) // pawn could be eating
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
+
 
                 Vector3 handVector = drawPos;
 
                 // Arms too far away from body
-                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * factor)
+                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling)
                 {
                     float step = 0.025f;
                     handVector = Vector3.MoveTowards(handVector, this.pawn.DrawPos, step);
                 }
 
-                carriedThing.DrawAt(drawPos, flip);
-                //handVector.y = drawPos.y;
-                //handVector = drawPos;
+                // carriedThing.DrawAt(drawPos, flip);
+                handVector.y = drawPos.y;
+                if (pawn.Rotation == Rot4.North) // put the hands behind the pawn
+                {
+                    handVector.y -= Offsets.YOffset_Behind;
+                }
+                drawPos = handVector;
             }
 
 
@@ -499,7 +508,7 @@ namespace FacialStuff
 
                 // Children's arms are way too long
                 this.DoWalkCycleOffsets(
-                                        body.armLength * (factor < 1f ? factor * 0.75f : 1f),
+                                        body.armLength,
                                         ref rightHand,
                                         ref leftHand,
                                         ref shoulderAngle,
@@ -510,14 +519,10 @@ namespace FacialStuff
                                         offsetJoint);
             }
 
-            if (poseCycle != null)
-            {
-                this.DoPoseCycleOffsets(ref rightHand,
-                                        ref shoulderAngle,
-                                        ref handSwingAngle, poseCycle);
-            }
 
            // this.DoAttackAnimationHandOffsets(ref handSwingAngle, ref rightHand, false);
+
+           var unused = this.CompAnimator.HandColor;
 
             this.GetBipedMesh(out Mesh handMeshRight, out Mesh handMeshLeft);
 
@@ -564,7 +569,7 @@ namespace FacialStuff
                     shoulperPos.LeftJoint = bodyQuat * shoulperPos.LeftJoint;
                     leftHand = bodyQuat * leftHand.RotatedBy(-handSwingAngle[0] - shoulderAngle[0]);
 
-                    position = drawPos + (shoulperPos.LeftJoint + leftHand) * factor;
+                    position = drawPos + (shoulperPos.LeftJoint + leftHand) * bodysizeScaling;
                     quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0], Vector3.up);
                 }
 
@@ -593,7 +598,7 @@ namespace FacialStuff
                     shoulperPos.RightJoint = bodyQuat * shoulperPos.RightJoint;
                     rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle[1]);
 
-                    position = drawPos + (shoulperPos.RightJoint + rightHand) * factor;
+                    position = drawPos + (shoulperPos.RightJoint + rightHand) * bodysizeScaling;
                     quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1], Vector3.up);
                 }
 
@@ -749,8 +754,8 @@ namespace FacialStuff
                 animator.IsPosing(out this._animatedPercent);
             }
             */
-            // var curve = bodyFacing.IsHorizontal ? this.walkCycle.BodyOffsetZ : this.walkCycle.BodyOffsetVerticalZ;
-           // bool pawnInEditor = HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.thePawn == this.ThePawn;
+           // var curve = bodyFacing.IsHorizontal ? this.walkCycle.BodyOffsetZ : this.walkCycle.BodyOffsetVerticalZ;
+           //bool pawnInEditor = HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn;
             if (!Find.TickManager.Paused)
             {
                 bool pawnInEditor = false;
@@ -766,79 +771,6 @@ namespace FacialStuff
 
         #region Protected Methods
 
-        protected void DoWalkCycleOffsets(ref Vector3 rightFoot,
-                                          ref Vector3 leftFoot,
-                                          ref float footAngleRight,
-                                          ref float footAngleLeft,
-                                          ref float offsetJoint,
-                                          SimpleCurve offsetX,
-                                          SimpleCurve offsetZ,
-                                          SimpleCurve angle, float factor = 1f)
-        {
-            rightFoot = Vector3.zero;
-            leftFoot = Vector3.zero;
-            footAngleRight = 0;
-            footAngleLeft = 0;
-            if (!this.CompAnimator.IsMoving)
-            {
-                return;
-            }
-
-            float percent = this.CompAnimator.MovedPercent;
-
-            float flot = percent;
-            if (flot <= 0.5f)
-            {
-                flot += 0.5f;
-            }
-            else
-            {
-                flot -= 0.5f;
-            }
-
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
-            if (rot.IsHorizontal)
-            {
-                rightFoot.x = offsetX.Evaluate(percent);
-                leftFoot.x = offsetX.Evaluate(flot);
-
-                footAngleRight = angle.Evaluate(percent);
-                footAngleLeft = angle.Evaluate(flot);
-                rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
-
-                rightFoot.x += offsetJoint;
-                leftFoot.x += offsetJoint;
-
-                if (rot == Rot4.West)
-                {
-                    rightFoot.x *= -1f;
-                    leftFoot.x *= -1f;
-                    footAngleLeft *= -1f;
-                    footAngleRight *= -1f;
-                    offsetJoint *= -1;
-                }
-            }
-            else
-            {
-                rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
-                offsetJoint = 0;
-            }
-
-            // smaller steps for smaller pawns
-            if (factor < 1f)
-            {
-                SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
-                float mod = curve.Evaluate(factor);
-                rightFoot.x *= mod;
-                rightFoot.z *= mod;
-                leftFoot.x *= mod;
-                leftFoot.z *= mod;
-            }
-
-        }
-
         protected void GetBipedMesh(out Mesh meshRight, out Mesh meshLeft)
         {
             Rot4 rot = this.CompAnimator.pawn.Rotation;
@@ -846,18 +778,18 @@ namespace FacialStuff
             switch (rot.AsInt)
             {
                 default:
-                    meshRight = MeshPool.plane10;
-                    meshLeft = MeshPool.plane10Flip;
+                    meshRight = this.CompAnimator.pawnBodyMesh;// MeshPool.plane10;
+                    meshLeft = this.CompAnimator.pawnBodyMeshFlipped; // MeshPool.plane10Flip;
                     break;
 
                 case 1:
-                    meshRight = MeshPool.plane10;
-                    meshLeft = MeshPool.plane10;
+                    meshRight = this.CompAnimator.pawnBodyMesh;
+                    meshLeft = this.CompAnimator.pawnBodyMesh;
                     break;
 
                 case 3:
-                    meshRight = MeshPool.plane10Flip;
-                    meshLeft = MeshPool.plane10Flip;
+                    meshRight = CompAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
+                    meshLeft = CompAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
                     break;
             }
         }
@@ -882,6 +814,7 @@ namespace FacialStuff
             {
                 return;
             }
+            float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
 
             Rot4 rot = this.CompAnimator.pawn.Rotation;
 
@@ -894,7 +827,7 @@ namespace FacialStuff
             float z2;
 
             // Offsets for hands from the pawn center
-            z = z2 = -armLength;
+            z = z2 = - armLength;
 
             if (rot.IsHorizontal)
             {
@@ -955,40 +888,10 @@ namespace FacialStuff
                 shoulderAngle[0] = shoulderAngle[1] = 0f;
             }
 
-            rightHand = new Vector3(x, y, z);
-            leftHand = new Vector3(x2, y2, z2);
+            rightHand = new Vector3(x, y, z)* bodysizeScaling;
+            leftHand = new Vector3(x2, y2, z2)* bodysizeScaling;
         }
 
-        private void DoPoseCycleOffsets(ref Vector3 rightHand,
-                                        ref List<float> shoulderAngle,
-                                        ref List<float> handSwingAngle, PoseCycleDef pose)
-        {
-           // if (!HarmonyPatchesFS.AnimatorIsOpen())
-            {
-                return;
-            }
-
-            SimpleCurve cycleHandsSwingAngle = pose.HandsSwingAngle;
-            SimpleCurve rHandX = pose.HandPositionX;
-            SimpleCurve rHandZ = pose.HandPositionZ;
-
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
-            float z;
-
-            float percent = this._animatedPercent;
-            PoseCycleDef poseCycle = this.CompAnimator.PoseCycle;
-            float lookie = rot == Rot4.West ? -1f : 1f;
-
-            shoulderAngle[1] = lookie * poseCycle?.shoulderAngle ?? 0f;
-
-            handSwingAngle[1] = (rot == Rot4.West ? -1 : 1) * cycleHandsSwingAngle.Evaluate(percent);
-
-            // Basic values if pawn is carrying stuff
-            float x = rHandX.Evaluate(percent) * lookie;
-            z = rHandZ.Evaluate(percent);
-
-            rightHand += new Vector3(x, 0, z);
-        }
 
         private void DrawTweenedHand(Vector3 position, Mesh handsMesh, Material material, Quaternion quat, TweenThing tweenThing, bool noTween)
         {
@@ -1001,14 +904,12 @@ namespace FacialStuff
             {
                 return;
             }
-            /*
-            if (!HarmonyPatchesFS.AnimatorIsOpen() &&
-                Find.TickManager.TicksGame == this.CompAnimator.LastPosUpdate[(int)tweenThing] ||
-                HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.thePawn != this.ThePawn)
+            
+            if (Find.TickManager.TicksGame == this.CompAnimator.LastPosUpdate[(int)tweenThing])
             {
                 position = this.CompAnimator.LastPosition[(int)tweenThing];
             }
-            else */
+            else
             {
                 Pawn_PathFollower pawnPathFollower = this.pawn.pather;
                 if (pawnPathFollower != null && pawnPathFollower.MovedRecently(5))
@@ -1063,11 +964,11 @@ namespace FacialStuff
 
             //  tweener.PreThingPosCalculation(tweenThing, noTween);
 
-            GenDraw.DrawMeshNowOrLater(
+            Graphics.DrawMesh(
                                        handsMesh, position,
                                        quat,
                                        material,
-                                       false);
+                                       0);
         }
 
         public bool ShouldBeIgnored()

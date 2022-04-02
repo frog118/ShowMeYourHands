@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using HarmonyLib;
-using ShowMeYourHands.FSWalking;
 using Verse;
 
 namespace ShowMeYourHands;

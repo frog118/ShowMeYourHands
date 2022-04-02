@@ -1,15 +1,11 @@
 ﻿using FacialStuff;
-using FacialStuff.Animator;
-using FacialStuff.Tweener;
-using HarmonyLib;
-using RimWorld;
 using UnityEngine;
 using Verse;
 using yayoAni;
 
-namespace ShowMeYourHands.FSWalking;
+namespace ShowMeYourHands;
 
-class RenderPawnAt_Patch
+public static class RenderPawnAt_Patch
 {
     static pawnDrawData pdd;
 

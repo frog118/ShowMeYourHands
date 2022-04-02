@@ -285,7 +285,7 @@ namespace FacialStuff
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
-                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling)
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.5f)
                 {
                     float step = 0.025f;
                     footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
@@ -576,6 +576,9 @@ namespace FacialStuff
             bool drawLeft = matLeft != null && this.CompAnimator.BodyStat.HandLeft != PartStatus.Missing;
             bool drawRight = matRight != null && this.CompAnimator.BodyStat.HandRight != PartStatus.Missing;
 
+            float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f; 
+
+
             if (drawLeft)
             {
                 Quaternion quat;
@@ -593,7 +596,7 @@ namespace FacialStuff
                     leftHand = bodyQuat * leftHand.RotatedBy(-handSwingAngle[0] - shoulderAngle[0]);
 
                     position = drawPos + (shoulperPos.LeftJoint + leftHand) * bodysizeScaling;
-                    quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0], Vector3.up);
+                    quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0] - shoulderAngle[0] -shouldRotate, Vector3.up);
                 }
 
                 TweenThing handLeft = TweenThing.HandLeft;
@@ -622,7 +625,7 @@ namespace FacialStuff
                     rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle[1]);
 
                     position = drawPos + (shoulperPos.RightJoint + rightHand) * bodysizeScaling;
-                    quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1], Vector3.up);
+                    quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1] +shoulderAngle[1] +shouldRotate, Vector3.up);
                 }
 
 

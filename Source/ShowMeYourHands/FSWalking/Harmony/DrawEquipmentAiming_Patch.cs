@@ -160,7 +160,7 @@ internal static class DrawEquipmentAiming_Patch
         }
 
         Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
-        float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+        float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2 -90f;
         Vector3 offhandWeaponLocation = Vector3.zero;
         float offHandAngle = mainHandAngle;
         float mainMeleeExtra = 0f;

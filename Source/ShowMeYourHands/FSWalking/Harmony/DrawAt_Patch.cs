@@ -16,7 +16,7 @@ class DrawAt_Patch
     {
         Pawn pawn = __instance.renderer.graphics.pawn;
         //CompFace compFace = pawn.GetCompFace();
-        CompBodyAnimator compAnim = pawn.GetCompAnim();
+        CompBodyAnimator compAnim = pawn.GetCompBodyAnimator();
 
         loc.x += compAnim?.BodyAnim?.offCenterX ?? 0f;
         __state = loc;
@@ -29,47 +29,33 @@ class DrawAt_Patch
     {
         Pawn pawn = ___pawn;
 
-        // looks weird with yayos animations, hands ands feet turned off for now
-        if (pawn.GetPosture() != PawnPosture.Standing)
-        {
-            return;
-        }
+        
 
         //CompFace compFace = pawn.GetCompFace();
-        if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))
+        if (!pawn.GetCompBodyAnimator(out CompBodyAnimator compAnim))
         {
             return;
         };
 
-        float angle = __instance.renderer.BodyAngle();
+        float bodyAngle = __instance.renderer.BodyAngle();
+        // adding the pdd angle offset. could be a bug, but looks ok
+        float handAngle = bodyAngle - compAnim.Offset_Angle;
 
-        Quaternion bodyQuat = Quaternion.AngleAxis(angle, Vector3.up);
+        bool isStanding = pawn.GetPosture() == PawnPosture.Standing;
 
-        Building_Bed building_Bed = pawn.CurrentBed();
 
-        bool showBody = true;
-        if (building_Bed != null && pawn.RaceProps.Humanlike)
+
+        // add the offset to the hand as its tied to the body
+        loc += compAnim.Offset_Pos;
+
+        //keep the feet on the ground and steady. rotation and pos offset only in bed
+        if (!isStanding)
         {
-            showBody = building_Bed.def.building.bed_showSleeperBody;
+            __state += compAnim.Offset_Pos;
         }
-        Vector3 bodyPos = (Vector3)AccessTools.Method(typeof(PawnRenderer), "GetBodyPos").Invoke(__instance.renderer, new object[] { loc, showBody });
+        Quaternion footQuat = Quaternion.AngleAxis(isStanding ? 0f : handAngle, Vector3.up);
 
-        // hands and feet look weird with no body. skip it.
-        if (!showBody)
-        {
-           // return;
-
-           var f = loc.y;
-           loc = bodyPos;
-            loc.y = f;
-
-           /*
-            var fixingSleeperVector = new Vector3(0, 0, -0.4f).RotatedBy(angle);
-            __state += fixingSleeperVector;
-            drawLoc+=fixingSleeperVector;
-            */
-        }
-
+        Quaternion handQuat = Quaternion.AngleAxis(handAngle, Vector3.up);
 
         // do the tweening now
         if (compAnim.Props.bipedWithHands)
@@ -111,11 +97,11 @@ class DrawAt_Patch
         // feet shouldn't rotate while standing. 
         if (ShowMeYourHandsMod.instance.Settings.UseFeet)
         {
-            compAnim?.DrawFeet(bodyQuat, __state, false);
+            compAnim?.DrawFeet(footQuat, __state, loc);
         }
         if (ShowMeYourHandsMod.instance.Settings.UseHands && pawn.carryTracker?.CarriedThing == null)
         {
-            compAnim?.DrawHands(bodyQuat, loc);
+            compAnim?.DrawHands(handQuat, loc);
         }
 #pragma warning restore CS0162
     }

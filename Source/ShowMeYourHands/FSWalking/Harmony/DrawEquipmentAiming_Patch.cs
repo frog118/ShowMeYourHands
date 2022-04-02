@@ -62,7 +62,7 @@ internal static class DrawEquipmentAiming_Patch
     {
         WhandCompProps extensions = eq.def.GetCompProperties<WhandCompProps>();
 
-        if ((___pawn == null) || (extensions == null) || (!___pawn.GetCompAnim(out CompBodyAnimator animator)) )
+        if ((___pawn == null) || (extensions == null) || (!___pawn.GetCompBodyAnimator(out CompBodyAnimator animator)) )
         {
             return;
         }

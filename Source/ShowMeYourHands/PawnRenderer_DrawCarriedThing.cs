@@ -22,7 +22,7 @@ public static class PawnRenderer_DrawCarriedThing
         }
 
 
-        if (!___pawn.GetCompAnim(out CompBodyAnimator anim))
+        if (!___pawn.GetCompBodyAnimator(out CompBodyAnimator anim))
         {
             return;
 

@@ -440,7 +440,7 @@ namespace FacialStuff.AnimatorWindows
                 MainTabWindow_BaseAnimator.pawn = Find.AnyPlayerHomeMap.PlayerPawnsForStoryteller.FirstOrDefault(x => x.HasCompAnimator());
             }
 
-            MainTabWindow_BaseAnimator.pawn?.GetCompAnim(out this.CompAnim);
+            MainTabWindow_BaseAnimator.pawn?.GetCompBodyAnimator(out this.CompAnim);
         }
 
         protected static void ReIndexKeyframes()

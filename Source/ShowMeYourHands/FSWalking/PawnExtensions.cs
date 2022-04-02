@@ -25,27 +25,50 @@ namespace FacialStuff
                 return;
             }
 
+            if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
+            {
+                return;
+            }
+
             if (anim.Props.bipedWithHands)
             {
                 if (hediff.Part.parts.Contains(leftHand) || hediff.Part.parts.Contains(leftArm))
                 {
                     anim.BodyStat.HandLeft = PartStatus.Artificial;
+                    if (ShowMeYourHandsMain.HediffColors.ContainsKey(hediff.def))
+                    {
+                        anim.leftHandColor = ShowMeYourHandsMain.HediffColors[hediff.def];
+                    }
                 }
+
+
 
                 if (hediff.Part.parts.Contains(rightHand) || hediff.Part.parts.Contains(rightArm))
                 {
                     anim.BodyStat.HandRight = PartStatus.Artificial;
+                    if (ShowMeYourHandsMain.HediffColors.ContainsKey(hediff.def))
+                    {
+                        anim.rightHandColor = ShowMeYourHandsMain.HediffColors[hediff.def];
+                    }
                 }
             }
 
             if (hediff.Part.parts.Contains(leftFoot) || hediff.Part.parts.Contains(leftLeg))
             {
                 anim.BodyStat.FootLeft = PartStatus.Artificial;
+                if (ShowMeYourHandsMain.HediffColors.ContainsKey(hediff.def))
+                {
+                    anim.leftFootColor = ShowMeYourHandsMain.HediffColors[hediff.def];
+                }
             }
 
             if (hediff.Part.parts.Contains(rightFoot) || hediff.Part.parts.Contains(rightLeg))
             {
                 anim.BodyStat.FootRight = PartStatus.Artificial;
+                if (ShowMeYourHandsMain.HediffColors.ContainsKey(hediff.def))
+                {
+                    anim.rightFootColor = ShowMeYourHandsMain.HediffColors[hediff.def];
+                }
             }
         }
 
@@ -201,9 +224,7 @@ namespace FacialStuff
                 return false;
             }
 
-
-
-            if (pawn.GetCompAnim(out CompBodyAnimator anim))
+            if (pawn.GetCompBodyAnimator(out CompBodyAnimator anim))
             {
                 anim.BodyStat.HandLeft = PartStatus.Natural;
                 anim.BodyStat.HandRight = PartStatus.Natural;
@@ -252,12 +273,12 @@ namespace FacialStuff
         }
 
         [CanBeNull]
-        public static CompBodyAnimator GetCompAnim([NotNull] this Pawn pawn)
+        public static CompBodyAnimator GetCompBodyAnimator([NotNull] this Pawn pawn)
         {
             return pawn.GetComp<CompBodyAnimator>();
         }
 
-        public static bool GetCompAnim([NotNull] this Pawn pawn, [NotNull] out CompBodyAnimator compAnim)
+        public static bool GetCompBodyAnimator([NotNull] this Pawn pawn, [NotNull] out CompBodyAnimator compAnim)
         {
             compAnim = pawn.GetComp<CompBodyAnimator>();
             return compAnim != null;

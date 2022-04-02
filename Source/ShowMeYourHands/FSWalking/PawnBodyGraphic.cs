@@ -73,9 +73,9 @@ namespace FacialStuff.GraphicsFS
         private void InitializeGraphicsFeet()
         {
             string texNameFoot = CompAni.TexNameFoot();
-            Color skinColor = CompAni.FootColor;
+            Color skinColor;// = CompAni.FootColor;
 
-            /*
+            
             // no story, either animal or not humanoid biped
             if (this._pawn.story == null)
             {
@@ -87,7 +87,7 @@ namespace FacialStuff.GraphicsFS
             {
                 skinColor = this._pawn.story.SkinColor;
             }
-            */
+            
             Color rightColorFoot = Color.red;
             Color leftColorFoot = Color.blue;
 
@@ -114,7 +114,7 @@ namespace FacialStuff.GraphicsFS
 
 
             Vector2 drawSize = new(1f,1f);
-
+       
             this.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
                 ShaderDatabase.CutoutSkin,

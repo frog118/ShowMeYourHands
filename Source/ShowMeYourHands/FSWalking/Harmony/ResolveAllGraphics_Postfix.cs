@@ -15,7 +15,7 @@ namespace ShowMeYourHands.FSWalking
                 return;
             }
 
-            pawn.GetCompAnim()?.pawnBodyGraphic?.Initialize();
+            pawn.GetCompBodyAnimator()?.pawnBodyGraphic?.Initialize();
 
 
             pawn.GetComp<CompBodyAnimator>()?.ClearCache();

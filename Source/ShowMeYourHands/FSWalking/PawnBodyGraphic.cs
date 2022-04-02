@@ -91,26 +91,26 @@ namespace FacialStuff.GraphicsFS
             Color rightColorFoot = Color.red;
             Color leftColorFoot = Color.blue;
 
-            Color rightFootColor = skinColor;
-            Color leftFootColor = skinColor;
+            this.CompAni.rightFootColor = skinColor;
+            this.CompAni.leftFootColor = skinColor;
             Color metal = new(0.51f, 0.61f, 0.66f);
 
             switch (this.CompAni.BodyStat.FootRight)
             {
                 case PartStatus.Artificial:
-                    rightFootColor = metal;
+                    this.CompAni.rightFootColor = metal;
                     break;
             }
 
             switch (this.CompAni.BodyStat.FootLeft)
             {
                 case PartStatus.Artificial:
-                    leftFootColor = metal;
+                    this.CompAni.leftFootColor = metal;
                     break;
             }
 
-            Color rightFootShadowColor = rightFootColor * this._shadowColor;
-            Color leftFootShadowColor = leftFootColor * this._shadowColor;
+            Color rightFootShadowColor = this.CompAni.rightFootColor * this._shadowColor;
+            Color leftFootShadowColor = this.CompAni.leftFootColor * this._shadowColor;
 
 
             Vector2 drawSize = new(1f,1f);
@@ -119,14 +119,14 @@ namespace FacialStuff.GraphicsFS
                 texNameFoot,
                 ShaderDatabase.CutoutSkin,
                 drawSize,
-                rightFootColor,
+                this.CompAni.rightFootColor,
                 skinColor);
 
             this.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
                 ShaderDatabase.CutoutSkin,
                 drawSize,
-                leftFootColor,
+                this.CompAni.leftFootColor,
                 skinColor);
 
             this.FootGraphicRightShadow = GraphicDatabase.Get<Graphic_Multi>(
@@ -259,44 +259,56 @@ namespace FacialStuff.GraphicsFS
 
             Color rightColorHand = Color.cyan;
             Color leftColorHand = Color.magenta;
-            
-            Color skinColor = CompAni.HandColor;
 
-            Color rightHandColor = skinColor;
-            Color leftHandColor = skinColor;
+            Color skinColor; // = CompAni.pawn.story.SkinColor;
+
+            if (this._pawn.story == null)
+            {
+                PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
+
+                skinColor = curKindLifeStage.bodyGraphicData.color;
+            }
+            else
+            {
+                skinColor = this._pawn.story.SkinColor;
+            }
+
+
+            this.CompAni.rightHandColor = skinColor;
+            this.CompAni.leftHandColor = skinColor;
 
             Color metal = new(0.51f, 0.61f, 0.66f);
 
             switch (this.CompAni.BodyStat.HandRight)
             {
                 case PartStatus.Artificial:
-                    rightHandColor = metal;
+                    this.CompAni.rightHandColor = metal;
                     break;
             }
 
             switch (this.CompAni.BodyStat.HandLeft)
             {
                 case PartStatus.Artificial:
-                    leftHandColor = metal;
+                    this.CompAni.leftHandColor = metal;
                     break;
             }
 
-            Color leftHandColorShadow = leftHandColor * this._shadowColor;
-            Color rightHandColorShadow = rightHandColor * this._shadowColor;
+            Color leftHandColorShadow = this.CompAni.leftHandColor * this._shadowColor;
+            Color rightHandColorShadow = this.CompAni.rightHandColor * this._shadowColor;
 
             Vector2 drawSize = new(1f, 1f);
             this.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
                 ShaderDatabase.CutoutSkin,
                 drawSize,
-                rightHandColor,
+                this.CompAni.rightHandColor,
                 skinColor);
 
             this.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
                 ShaderDatabase.CutoutSkin,
                 drawSize,
-                leftHandColor,
+                this.CompAni.leftHandColor,
                 skinColor);
 
             this.HandGraphicRightShadow = GraphicDatabase.Get<Graphic_Multi>(

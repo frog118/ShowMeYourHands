@@ -25,10 +25,17 @@ namespace FacialStuff
         #region Public Fields
 
         private static Dictionary<Thing, Color> colorDictionary;
+        private readonly Color _shadowColor = new(0.54f, 0.56f, 0.6f);
 
+        public Color rightHandColor = default ;
+        public Color leftHandColor = default;
+        public Color rightFootColor = default;
+        public Color leftFootColor = default;
 
         public bool Deactivated;
         public bool IgnoreRenderer;
+
+        private Rot4? _currentRotationOverride = null;
 
         [CanBeNull] public BodyAnimDef BodyAnim;
 
@@ -188,7 +195,7 @@ namespace FacialStuff
 
 
 
-        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, bool portrait, float factor = 1f)
+        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
             if (!this.pawnBodyDrawers.NullOrEmpty())
             {
@@ -196,7 +203,7 @@ namespace FacialStuff
                 int count = this.pawnBodyDrawers.Count;
                 while (i < count)
                 {
-                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, factor);
+                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc, factor);
                     i++;
                 }
             }
@@ -237,7 +244,7 @@ namespace FacialStuff
             else
             {
                 this.pawnBodyDrawers = new List<PawnBodyDrawer>();
-                bool isQuaduped = this.pawn.GetCompAnim().BodyAnim.quadruped;
+                bool isQuaduped = BodyAnim.quadruped;
                 PawnBodyDrawer thingComp = isQuaduped
                     ? (PawnBodyDrawer)Activator.CreateInstance(typeof(QuadrupedDrawer))
                     : (PawnBodyDrawer)Activator.CreateInstance(typeof(HumanBipedDrawer));
@@ -439,6 +446,8 @@ namespace FacialStuff
                         Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
                         bodySize = sizePaws.x / maxSize.x;
                     }
+
+                    bodysizeScaling = bodySize;
                 }
                 else if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
                 {
@@ -577,133 +586,116 @@ namespace FacialStuff
         {
             get
             {
-                if (GenTicks.TicksAbs % 100 != 0 && handColor != default)
+                if (GenTicks.TicksAbs % 100 != 0 && rightHandColor != default)
                 {
-                    return handColor;
+                    return rightHandColor;
                 }
 
-                if (pawn == null || !pawn.GetCompAnim(out CompBodyAnimator anim))
+                if (pawn == null || !pawn.GetCompBodyAnimator(out CompBodyAnimator anim))
                 {
                     return Color.white;
                 }
                 string texNameHand = TexNameHand();
 
-                handColor = getHandColor(pawn, out bool hasGloves, out Color secondColor);
-                if (anim?.pawnBodyGraphic?.HandGraphicRight == null || anim.pawnBodyGraphic.HandGraphicRight.color != handColor)
+                getHandColor(pawn, out bool hasGloves);
+                if (anim?.pawnBodyGraphic?.HandGraphicRight == null || anim.pawnBodyGraphic.HandGraphicRight.color != rightHandColor)
                 {
                     if (hasGloves)
                     {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.Cutout, //"HandClean"
+                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.Cutout, //"HandClean"
                             new Vector2(1f, 1f),
-                            handColor, handColor);
+                            rightHandColor, rightHandColor);
                     }
                     else
                     {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.CutoutSkin,
+                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.CutoutSkin,
                             new Vector2(1f, 1f),
-                            handColor, handColor);
+                            rightHandColor, rightHandColor);
                     }
                 }
 
-                if (anim.pawnBodyGraphic.HandGraphicLeft != null && anim.pawnBodyGraphic.HandGraphicLeft.color == handColor)
-                {
-                    return handColor;
-                }
 
                 if (hasGloves)
                 {
-                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand,
+                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
                         ShaderDatabase.Cutout,
                         new Vector2(1f, 1f),
-                        handColor, handColor);
+                        leftHandColor, leftHandColor);
                 }
                 else
                 {
-                    if (secondColor != default)
-                    {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand,
-                            ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            secondColor, secondColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            handColor, handColor);
-                    }
+                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
+                        ShaderDatabase.CutoutSkin,
+                        new Vector2(1f, 1f),
+                        leftHandColor, leftHandColor);
                 }
 
-                return handColor;
+                return rightHandColor;
             }
-            set => handColor = value;
+            set => rightHandColor = value;
         }
 
         public Color FootColor
         {
             get
             {
-                if (GenTicks.TicksAbs % 100 != 0 && footColor != default)
+                if (GenTicks.TicksAbs % 100 != 0 && rightFootColor != default)
                 {
-                    return footColor;
+                    return rightFootColor;
                 }
 
-                if (pawn == null || !pawn.GetCompAnim(out CompBodyAnimator anim))
+                if (pawn == null || !pawn.GetCompBodyAnimator(out CompBodyAnimator anim))
                 {
                     return Color.white;
                 }
                 string texNameFoot = TexNameFoot();
 
-                footColor = getFeetColor(pawn, out bool hasShoes, out Color secondColor);
-                if (anim?.pawnBodyGraphic?.FootGraphicRight == null || anim.pawnBodyGraphic.FootGraphicRight.color != footColor)
+                getFeetColor(pawn, out bool hasShoes);
+
+
+                if (anim?.pawnBodyGraphic?.FootGraphicRight == null || anim.pawnBodyGraphic.FootGraphicRight.color != rightFootColor)
                 {
                     if (hasShoes)
                     {
                         // ToDo TEXTURES!!!!
                         anim.pawnBodyGraphic.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.Cutout,
                             new Vector2(1f, 1f),
-                            footColor, footColor);
+                            rightFootColor, rightFootColor);
                     }
                     else
                     {
                         anim.pawnBodyGraphic.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.CutoutSkin,
                             new Vector2(1f, 1f),
-                            footColor, footColor);
+                            rightFootColor, rightFootColor);
                     }
                 }
 
-                if (anim.pawnBodyGraphic.FootGraphicLeft != null && anim.pawnBodyGraphic.FootGraphicLeft.color == footColor)
-                {
-                    return footColor;
-                }
                 
                 if (hasShoes)
                 {
                     anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot,
                         ShaderDatabase.Cutout,
                         new Vector2(1f, 1f),
-                        footColor, footColor);
+                        leftFootColor, leftFootColor);
                 }
                 else
                 {
-                    if (secondColor != default)
-                    {
-                        anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot,
-                            ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            secondColor, secondColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.Cutout,
-                            new Vector2(1f, 1f),
-                            footColor, footColor);
-                    }
+
+                    anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot,
+                        ShaderDatabase.Cutout,
+                        new Vector2(1f, 1f),
+                        leftFootColor, leftFootColor);
                 }
 
-                return footColor;
+                return rightFootColor;
             }
-            set => footColor = value;
+            set => rightFootColor = value;
+        }
+
+        public Rot4 CurrentRotation
+        {
+            get => _currentRotationOverride ?? pawn.Rotation;
+            set => _currentRotationOverride = value;
         }
 
 
@@ -714,41 +706,22 @@ namespace FacialStuff
         internal float LastWeaponAngle;
         internal readonly int[] LastPosUpdate = new int[(int)TweenThing.Max];
         internal int LastAngleTick;
-        private Color handColor;
-        private Color footColor;
-        private bool pawnsMissingAFoot;
 
-        private Color getHandColor(Pawn pawn, out bool hasGloves, out Color secondColor)
+        public float Offset_Angle = 0f;
+        public Vector3 Offset_Pos = Vector3.zero;
+
+        private void getHandColor(Pawn pawn, out bool hasGloves)
         {
             hasGloves = false;
-            secondColor = default;
-            List<Hediff_AddedPart> addedHands = null;
-
+            leftHandColor = rightHandColor = pawn.story.SkinColor;
             if (pawn.story == null) // mechanoid or animal
             {
                 PawnKindLifeStage curKindLifeStage = pawn.ageTracker.CurKindLifeStage;
 
-                return curKindLifeStage.bodyGraphicData.color;
+                leftHandColor = rightHandColor = curKindLifeStage.bodyGraphicData.color;
+                return;
             }
 
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts ||
-                ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-            {
-                addedHands = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
-                    .Where(x => x.Part.def == ShowMeYourHandsMain.HandDef ||
-                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.HandDef)).ToList();
-            }
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts && pawn.health is { hediffSet: { } })
-            {
-                /*
-
-                pawn.GetCompAnim(out CompBodyAnimator anim);
-                pawnsMissingAHand = pawn.health
-                        .hediffSet
-                        .GetNotMissingParts().Count(record => record.def == ShowMeYourHandsMain.HandDef) +
-                    addedHands?.Count < 2;*/
-            }
 
             if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
                     where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
@@ -756,43 +729,11 @@ namespace FacialStuff
             {
                 if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
                 {
-                    return pawn.story.SkinColor;
+                    return;
                 }
 
-                if (addedHands == null || !addedHands.Any())
-                {
-                    return pawn.story.SkinColor;
-                }
+                pawn.CheckForAddedOrMissingParts();
 
-                Color mainColor = (Color)default;
-
-                foreach (Hediff_AddedPart hediffAddedPart in addedHands)
-                {
-                    if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
-                    {
-                        continue;
-                    }
-
-                    if (mainColor == default)
-                    {
-                        mainColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                        continue;
-                    }
-
-                    secondColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                }
-
-                if (mainColor == default)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (secondColor == default)
-                {
-                    secondColor = pawn.story.SkinColor;
-                }
-
-                return mainColor;
             }
 
             IEnumerable<Apparel> handApparel = from apparel in pawn.apparel.WornApparel
@@ -818,7 +759,7 @@ namespace FacialStuff
 
             if (outerApparel == null)
             {
-                return pawn.story.SkinColor;
+                return;
             }
 
             hasGloves = true;
@@ -832,13 +773,14 @@ namespace FacialStuff
                 CompColorable comp = outerApparel.TryGetComp<CompColorable>();
                 if (comp.Active)
                 {
-                    return comp.Color;
+                    leftHandColor = rightHandColor = comp.Color;
                 }
             }
 
             if (colorDictionary.ContainsKey(outerApparel))
             {
-                return colorDictionary[outerApparel];
+                    leftHandColor = rightHandColor = colorDictionary[outerApparel];
+                    return;
             }
 
             if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
@@ -850,44 +792,21 @@ namespace FacialStuff
                 colorDictionary[outerApparel] =
                     AverageColorFromTexture((Texture2D)outerApparel.Graphic.MatSingle.mainTexture);
             }
-
-            return colorDictionary[outerApparel];
+            leftHandColor = rightHandColor = colorDictionary[outerApparel];
         }
 
-        private Color getFeetColor(Pawn pawn, out bool hasShoes, out Color secondColor)
+        private void getFeetColor(Pawn pawn, out bool hasShoes)
         {
             hasShoes = false;
-            secondColor = default;
-            List<Hediff_AddedPart> addedFeet = null;
-
             if (pawn.story == null) // mechanoid or animal
             {
                 PawnKindLifeStage curKindLifeStage = pawn.ageTracker.CurKindLifeStage;
 
-                return curKindLifeStage.bodyGraphicData.color;
+                leftFootColor = rightFootColor = curKindLifeStage.bodyGraphicData.color;
+                return;
             }
+            leftFootColor = rightFootColor = pawn.story.SkinColor;
 
-
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts ||
-                ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-            {
-                addedFeet = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
-                    .Where(x => x.Part.def == ShowMeYourHandsMain.FootDef ||
-                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.FootDef)).ToList();
-            }
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts && pawn.health is { hediffSet: { } })
-            {
-                /*
-                pawn.GetCompAnim(out CompBodyAnimator anim);
-
-                pawnsMissingAFoot = pawn.health
-                        .hediffSet
-                        .GetNotMissingParts().Count(record => record.def == ShowMeYourHandsMain.FootDef) +
-                    addedFeet?.Count < 2;
-                */
-            }
 
             if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
                                                                            where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Feet")
@@ -895,73 +814,37 @@ namespace FacialStuff
             {
                 if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
                 {
-                    return pawn.story.SkinColor;
+                    return;
                 }
 
-                if (addedFeet == null || !addedFeet.Any())
-                {
-                    return pawn.story.SkinColor;
-                }
+                pawn.CheckForAddedOrMissingParts();
 
-                Color mainColor = (Color)default;
-
-                foreach (Hediff_AddedPart hediffAddedPart in addedFeet)
-                {
-                    if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
-                    {
-                        continue;
-                    }
-
-                    if (mainColor == default)
-                    {
-                        mainColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                        continue;
-                    }
-
-                    secondColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                }
-
-                if (mainColor == default)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (secondColor == default)
-                {
-                    secondColor = pawn.story.SkinColor;
-                }
-
-                return mainColor;
             }
 
-            IEnumerable<Apparel> footApparel = from apparel in pawn.apparel.WornApparel
+            IEnumerable<Apparel> handApparel = from apparel in pawn.apparel.WornApparel
                                                where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Feet")
                                                select apparel;
 
-            //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", footApparel)}");
+            //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
 
             Thing outerApparel = null;
             int highestDrawOrder = 0;
-            if (!footApparel.Any())
+            foreach (Apparel thing in handApparel)
             {
-                return pawn.story.SkinColor;
-            }
-                foreach (Apparel thing in footApparel)
+                int thingOutmostLayer =
+                    thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
+                if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
                 {
-                    int thingOutmostLayer =
-                        thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
-                    if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
-                    {
-                        continue;
-                    }
-
-                    highestDrawOrder = thingOutmostLayer;
-                    outerApparel = thing;
+                    continue;
                 }
+
+                highestDrawOrder = thingOutmostLayer;
+                outerApparel = thing;
+            }
 
             if (outerApparel == null)
             {
-                return pawn.story.SkinColor;
+                return;
             }
 
             hasShoes = true;
@@ -975,13 +858,14 @@ namespace FacialStuff
                 CompColorable comp = outerApparel.TryGetComp<CompColorable>();
                 if (comp.Active)
                 {
-                    return comp.Color;
+                    leftFootColor = rightFootColor = comp.Color;
                 }
             }
 
             if (colorDictionary.ContainsKey(outerApparel))
             {
-                return colorDictionary[outerApparel];
+                leftFootColor = rightFootColor = colorDictionary[outerApparel];
+                return;
             }
 
             if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
@@ -993,8 +877,7 @@ namespace FacialStuff
                 colorDictionary[outerApparel] =
                     AverageColorFromTexture((Texture2D)outerApparel.Graphic.MatSingle.mainTexture);
             }
-
-            return colorDictionary[outerApparel];
+            leftFootColor = rightFootColor = colorDictionary[outerApparel];
         }
 
 

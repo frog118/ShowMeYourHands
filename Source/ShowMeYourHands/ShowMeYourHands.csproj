@@ -10,11 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="FSWalking\Class18.cs" />
+    <Compile Remove="FSWalking\Harmony\Class1.cs" />
     <Compile Remove="FSWalking\SimpleCurve_Extension.cs" />
     <Compile Remove="HandDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FSWalking\Class18.cs" />
+    <None Include="FSWalking\Harmony\Class1.cs" />
     <None Include="FSWalking\SimpleCurve_Extension.cs" />
     <None Include="HandDrawer.cs" />
   </ItemGroup>

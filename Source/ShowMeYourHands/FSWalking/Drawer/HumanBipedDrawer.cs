@@ -490,7 +490,7 @@ namespace FacialStuff
                 Vector3 handVector = drawPos;
 
                 // Arms too far away from body
-                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling)
+                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.5f)
                 {
                     float step = 0.025f;
                     handVector = Vector3.MoveTowards(handVector, this.pawn.DrawPos, step);
@@ -588,6 +588,7 @@ namespace FacialStuff
                 {
                     position = this.CompAnimator.SecondHandPosition;
                     quat = this.CompAnimator.SecondHandQuat;
+                    quat *= Quaternion.AngleAxis(90f, Vector3.up);
                     noTween = true;
                 }
                 else
@@ -616,10 +617,14 @@ namespace FacialStuff
                 if (this.CompAnimator.FirstHandPosition != Vector3.zero)
                 {
                     quat = this.CompAnimator.FirstHandQuat;
+                    quat *= Quaternion.AngleAxis(-90f, Vector3.up);
                     position = this.CompAnimator.FirstHandPosition;
                     noTween = true;
-                }
-                else
+
+
+
+            }
+            else
                 {
                     shoulperPos.RightJoint = bodyQuat * shoulperPos.RightJoint;
                     rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle[1]);
@@ -789,8 +794,8 @@ namespace FacialStuff
                 this.SelectWalkcycle(pawnInEditor);
                 this.SelectPosecycle();
 
-                this.CompAnimator.FirstHandPosition = Vector3.zero;
-                this.CompAnimator.SecondHandPosition = Vector3.zero;
+               // this.CompAnimator.FirstHandPosition = Vector3.zero;
+                //this.CompAnimator.SecondHandPosition = Vector3.zero;
             }
         }
 

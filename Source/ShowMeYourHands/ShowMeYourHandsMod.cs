@@ -25,7 +25,7 @@ internal class ShowMeYourHandsMod : Mod
 
     private static readonly Vector2 iconSize = new(24f, 24f);
 
-    private static readonly Vector2 handSize = new(43f, 43f);
+    private static readonly Vector2 handSize = new(54f, 54f);
 
     private static readonly int buttonSpacer = 200;
 
@@ -149,7 +149,7 @@ internal class ShowMeYourHandsMod : Mod
             if (handTex == null)
             {
                 handTex = GraphicDatabase.Get<Graphic_Multi>("HandIcon", ShaderDatabase.CutoutSkin,
-                    new Vector2(1f, 1f),
+                    new Vector2(1.25f, 1.25f),
                     PawnSkinColors.GetSkinColor(0.5f), PawnSkinColors.GetSkinColor(0.5f));
             }
 
@@ -317,7 +317,7 @@ internal class ShowMeYourHandsMod : Mod
             weaponMiddle + (offHandPosition.x * handPositionFactor) - (handSize.x / 2),
             weaponMiddle - (offHandPosition.z * handPositionFactor) - (handSize.y / 2));
 
-        Rect mainHandRect = new(rect.x + mainHandCoords.x, rect.y + mainHandCoords.y,
+        Rect mainHandRect = new(rect.x + mainHandCoords.x, (rect.y + mainHandCoords.y),
             handSize.x,
             handSize.y);
         Rect offHandRect = new(rect.x + offHandCoords.x, rect.y + offHandCoords.y,

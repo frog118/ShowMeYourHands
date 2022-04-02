@@ -205,7 +205,7 @@ namespace FacialStuff
         }
 
 
-        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, float factor = 1f)
+        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
             if (this.ShouldBeIgnored())
             {
@@ -215,7 +215,7 @@ namespace FacialStuff
             Job curJob = this.pawn.CurJob;
             if (curJob != null)
             {
-                if (curJob.def == JobDefOf.Ingest && !this.pawn.Rotation.IsHorizontal)
+                if (curJob.def == JobDefOf.Ingest && !this.CurrentRotation.IsHorizontal)
                 {
                     if (curJob.targetB.IsValid)
                     {
@@ -243,7 +243,7 @@ namespace FacialStuff
                 // drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
             }
 
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
 
             // Basic values
             BodyAnimDef body = this.CompAnimator.BodyAnim;
@@ -275,6 +275,29 @@ namespace FacialStuff
                                         cycle.FootPositionZ,
                                         cycle.FootAngle);
 
+            }
+
+            // pawn jumping too hight,move the feet
+            if (!CompAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
+            {
+                float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
+
+                Vector3 footVector = rootLoc;
+
+                // Arms too far away from body
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling)
+                {
+                    float step = 0.025f;
+                    footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
+                }
+
+                // carriedThing.DrawAt(drawPos, flip);
+                footVector.y = rootLoc.y;
+                if (this.CompAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
+                {
+                    footVector.y -= Offsets.YOffset_Behind;
+                }
+                rootLoc = footVector;
             }
 
             this.GetBipedMesh(out Mesh footMeshRight, out Mesh footMeshLeft);
@@ -450,7 +473,7 @@ namespace FacialStuff
                 object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
-                    DrawEquipmentAiming_Patch.DrawEquipmentAiming_Postfix(eq, drawPos, pawn.Rotation == Rot4.West ? 217f : 143f, pawn);
+                    DrawEquipmentAiming_Patch.DrawEquipmentAiming_Postfix(eq, drawPos, CurrentRotation == Rot4.West ? 217f : 143f, pawn);
                 }
             }
             // return if hands already drawn on carrything
@@ -475,7 +498,7 @@ namespace FacialStuff
 
                 // carriedThing.DrawAt(drawPos, flip);
                 handVector.y = drawPos.y;
-                if (pawn.Rotation == Rot4.North) // put the hands behind the pawn
+                if (CurrentRotation == Rot4.North) // put the hands behind the pawn
                 {
                     handVector.y -= Offsets.YOffset_Behind;
                 }
@@ -483,7 +506,7 @@ namespace FacialStuff
             }
 
 
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
 
             if (body == null)
             {
@@ -652,14 +675,14 @@ namespace FacialStuff
             if (walkCycle != null)
             {
                 float angle;
-                if (this.CompAnimator.pawn.Rotation.IsHorizontal)
+                if (this.CompAnimator.CurrentRotation.IsHorizontal)
                 {
-                    angle = (this.CompAnimator.pawn.Rotation == Rot4.West ? -1 : 1)
+                    angle = (this.CompAnimator.CurrentRotation == Rot4.West ? -1 : 1)
                           * walkCycle.BodyAngle.Evaluate(movedPercent);
                 }
                 else
                 {
-                    angle = (this.CompAnimator.pawn.Rotation == Rot4.South ? -1 : 1)
+                    angle = (this.CompAnimator.CurrentRotation == Rot4.South ? -1 : 1)
                           * walkCycle.BodyAngleVertical.Evaluate(movedPercent);
                 }
 
@@ -668,6 +691,7 @@ namespace FacialStuff
         }
 
         public Job lastJob;
+        private Rot4 CurrentRotation;
 
         public virtual void SelectWalkcycle(bool pawnInEditor)
         {
@@ -773,7 +797,7 @@ namespace FacialStuff
 
         protected void GetBipedMesh(out Mesh meshRight, out Mesh meshLeft)
         {
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
 
             switch (rot.AsInt)
             {
@@ -816,7 +840,7 @@ namespace FacialStuff
             }
             float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
 
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
 
             // Basic values if pawn is carrying stuff
             float x = 0;

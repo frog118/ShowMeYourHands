@@ -65,7 +65,7 @@ namespace FacialStuff
         {
             // Just for the Aliens
         }
-        public virtual void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, float factor = 1f)
+        public virtual void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
         }
 

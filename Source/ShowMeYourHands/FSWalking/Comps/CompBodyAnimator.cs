@@ -188,7 +188,7 @@ namespace FacialStuff
 
 
 
-        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, bool portrait, float factor = 1f)
+        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
             if (!this.pawnBodyDrawers.NullOrEmpty())
             {
@@ -196,7 +196,7 @@ namespace FacialStuff
                 int count = this.pawnBodyDrawers.Count;
                 while (i < count)
                 {
-                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, factor);
+                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc, factor);
                     i++;
                 }
             }
@@ -439,6 +439,8 @@ namespace FacialStuff
                         Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
                         bodySize = sizePaws.x / maxSize.x;
                     }
+
+                    bodysizeScaling = bodySize;
                 }
                 else if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
                 {
@@ -593,13 +595,13 @@ namespace FacialStuff
                 {
                     if (hasGloves)
                     {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.Cutout, //"HandClean"
+                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.Cutout, //"HandClean"
                             new Vector2(1f, 1f),
                             handColor, handColor);
                     }
                     else
                     {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.CutoutSkin,
+                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.CutoutSkin,
                             new Vector2(1f, 1f),
                             handColor, handColor);
                     }
@@ -612,7 +614,7 @@ namespace FacialStuff
 
                 if (hasGloves)
                 {
-                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand,
+                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
                         ShaderDatabase.Cutout,
                         new Vector2(1f, 1f),
                         handColor, handColor);
@@ -621,14 +623,14 @@ namespace FacialStuff
                 {
                     if (secondColor != default)
                     {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand,
+                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
                             ShaderDatabase.CutoutSkin,
                             new Vector2(1f, 1f),
                             secondColor, secondColor);
                     }
                     else
                     {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Single>(texNameHand, ShaderDatabase.CutoutSkin,
+                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.CutoutSkin,
                             new Vector2(1f, 1f),
                             handColor, handColor);
                     }
@@ -717,7 +719,15 @@ namespace FacialStuff
         private Color handColor;
         private Color footColor;
         private bool pawnsMissingAFoot;
+        private Rot4? _currentRotationOverride = null;
+        public float Offset_Angle = 0f;
+        public Vector3 Offset_Pos = new();
 
+        public Rot4 CurrentRotation
+        {
+            get => _currentRotationOverride ?? pawn.Rotation;
+            set => _currentRotationOverride = value;
+        }
         private Color getHandColor(Pawn pawn, out bool hasGloves, out Color secondColor)
         {
             hasGloves = false;

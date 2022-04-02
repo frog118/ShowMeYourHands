@@ -8,7 +8,8 @@ namespace FacialStuff
 {
     public class QuadrupedDrawer : HumanBipedDrawer
     {
-        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, float factor = 1f)
+
+        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
 
 
@@ -18,26 +19,26 @@ namespace FacialStuff
             }
 
             // Fix the position, maybe needs new code in GetJointPositions()?
-            if (!this.BodyFacing.IsHorizontal)
+            Rot4 _compAnimatorCurrentRotation = this.CompAnimator.CurrentRotation;
+            if (!_compAnimatorCurrentRotation.IsHorizontal)
             {
                 //       rootLoc.y -=  Offsets.YOffset_Behind;
             }
-            rootLoc.y += this.BodyFacing == Rot4.South ? -Offsets.YOffset_HandsFeetOver : 0;
+            rootLoc.y += _compAnimatorCurrentRotation == Rot4.South ? -Offsets.YOffset_HandsFeetOver : 0;
 
             Vector3 frontPawLoc = rootLoc;
             Vector3 rearPawLoc = rootLoc;
 
-            if (!this.BodyFacing.IsHorizontal)
+            if (!_compAnimatorCurrentRotation.IsHorizontal)
             {
-                frontPawLoc.y += (this.BodyFacing == Rot4.North ? Offsets.YOffset_Behind : -Offsets.YOffset_Behind);
+                frontPawLoc.y += (_compAnimatorCurrentRotation == Rot4.North ? Offsets.YOffset_Behind : -Offsets.YOffset_Behind);
             }
 
             this.DrawFrontPaws(drawQuat, frontPawLoc, factor);
 
-            base.DrawFeet(drawQuat, rearPawLoc, factor);
+            base.DrawFeet(drawQuat, rearPawLoc, bodyLoc, factor);
         }
 
-        public Rot4 BodyFacing => this.CompAnimator.pawn.Rotation;
 
         public override void DrawHands(Quaternion bodyQuat, Vector3 drawPos, Thing carriedThing = null,
             bool flip = false)
@@ -56,7 +57,7 @@ namespace FacialStuff
             // Basic values
             BodyAnimDef body = this.CompAnimator.BodyAnim;
 
-            Rot4 rot = this.BodyFacing;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
             if (body == null)
             {
                 return;

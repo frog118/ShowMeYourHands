@@ -73,9 +73,8 @@ namespace FacialStuff.GraphicsFS
         private void InitializeGraphicsFeet()
         {
             string texNameFoot = CompAni.TexNameFoot();
-            Color skinColor = CompAni.FootColor;
-
-            /*
+            
+            Color skinColor;// = CompAni.FootColor;
             // no story, either animal or not humanoid biped
             if (this._pawn.story == null)
             {
@@ -87,7 +86,7 @@ namespace FacialStuff.GraphicsFS
             {
                 skinColor = this._pawn.story.SkinColor;
             }
-            */
+            
             Color rightColorFoot = Color.red;
             Color leftColorFoot = Color.blue;
 
@@ -259,9 +258,19 @@ namespace FacialStuff.GraphicsFS
 
             Color rightColorHand = Color.cyan;
             Color leftColorHand = Color.magenta;
-            
-            Color skinColor = CompAni.HandColor;
 
+            Color skinColor;// = CompAni.FootColor;
+            // no story, either animal or not humanoid biped
+            if (this._pawn.story == null)
+            {
+                PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
+
+                skinColor = curKindLifeStage.bodyGraphicData.color;
+            }
+            else
+            {
+                skinColor = this._pawn.story.SkinColor;
+            }
             Color rightHandColor = skinColor;
             Color leftHandColor = skinColor;
 

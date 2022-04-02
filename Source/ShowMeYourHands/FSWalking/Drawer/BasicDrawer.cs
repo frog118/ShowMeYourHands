@@ -29,7 +29,7 @@ namespace FacialStuff
 
         protected virtual Mesh GetPawnMesh(bool wantsBody)
         {
-            return MeshPool.humanlikeBodySet?.MeshAt(this.CompAnimator.pawn.Rotation);
+            return MeshPool.humanlikeBodySet?.MeshAt(this.CompAnimator.CurrentRotation);
         }
 
         #endregion Public Methods
@@ -40,7 +40,7 @@ namespace FacialStuff
                                                 float jointWidth,
                                                 bool carrying = false, bool armed = false)
         {
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
             JointLister joints = new()
             {
                 jointType = jointType
@@ -142,7 +142,7 @@ namespace FacialStuff
                 flot -= 0.5f;
             }
 
-            Rot4 rot = this.CompAnimator.pawn.Rotation;
+            Rot4 rot = this.CompAnimator.CurrentRotation;
             if (rot.IsHorizontal)
             {
                 rightFoot.x = offsetX.Evaluate(percent);

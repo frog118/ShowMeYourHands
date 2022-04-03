@@ -127,69 +127,6 @@ namespace FacialStuff
             }
         }
 
-        /// <summary>
-        /// Pose cycles, currently disabled; needs more work
-        /// </summary>
-        /// <param name="defToRebuild"></param>
-        public static void BuildPoseCycles([CanBeNull] PoseCycleDef defToRebuild = null)
-        {
-            List<PoseCycleDef> cycles = new();
-            if (defToRebuild != null)
-            {
-                cycles.Add(defToRebuild);
-            }
-            else
-            {
-                cycles = DefDatabase<PoseCycleDef>.AllDefsListForReading;
-            }
-
-            if (cycles != null)
-            {
-                for (int index = 0; index < cycles.Count; index++)
-                {
-                    PoseCycleDef cycle = cycles[index];
-                    if (cycle != null)
-                    {
-                        cycle.BodyAngle = new SimpleCurve();
-                        cycle.BodyAngleVertical = new SimpleCurve();
-                        cycle.BodyOffsetZ = new SimpleCurve();
-                        cycle.FootAngle = new SimpleCurve();
-                        cycle.FootPositionX = new SimpleCurve();
-                        cycle.FootPositionZ = new SimpleCurve();
-                        cycle.HandPositionX = new SimpleCurve();
-                        cycle.HandPositionZ = new SimpleCurve();
-                        cycle.HandsSwingAngle = new SimpleCurve();
-                        cycle.HandsSwingPosVertical = new SimpleCurve();
-                        cycle.ShoulderOffsetHorizontalX = new SimpleCurve();
-                        cycle.HipOffsetHorizontalX = new SimpleCurve();
-
-                        // Quadrupeds
-                        cycle.FrontPawAngle = new SimpleCurve();
-                        cycle.FrontPawPositionX = new SimpleCurve();
-                        cycle.FrontPawPositionZ = new SimpleCurve();
-
-                        // cycle.FrontPawPositionVerticalZ = new SimpleCurve();
-                        if (cycle.keyframes.NullOrEmpty())
-                        {
-                            cycle.keyframes = new List<PawnKeyframe>();
-                            for (int i = 0; i < 9; i++)
-                            {
-                                cycle.keyframes.Add(new PawnKeyframe(i));
-                            }
-                        }
-
-                        // Log.Message(cycle.defName + " has " + cycle.animation.Count);
-                        if (cycle.keyframes != null)
-                        {
-                            foreach (PawnKeyframe key in cycle.keyframes)
-                            {
-                                BuildAnimationKeys(key, cycle);
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         #endregion Public Methods
 
@@ -293,117 +230,6 @@ namespace FacialStuff
             }
         }
 
-        private static void BuildAnimationKeys(PawnKeyframe key, PoseCycleDef cycle)
-        {
-            List<PawnKeyframe> keyframes = cycle.keyframes;
-
-            List<PawnKeyframe> autoKeys = keyframes.Where(x => x.Status != KeyStatus.Manual).ToList();
-
-            List<PawnKeyframe> manualKeys = keyframes.Where(x => x.Status == KeyStatus.Manual).ToList();
-
-            float autoFrames = (float)key.KeyIndex / (autoKeys.Count - 1);
-
-            float frameAt;
-
-            // Distribute manual keys
-            if (!manualKeys.NullOrEmpty())
-            {
-                frameAt = (float)key.KeyIndex / (autoKeys.Count - 1);
-                Log.Message("frameAt " + frameAt);
-                float divider = (float)1 / (autoKeys.Count - 1);
-                Log.Message("divider " + divider);
-                float? shift = manualKeys.Find(x => x.KeyIndex == key.KeyIndex)?.Shift;
-                if (shift.HasValue)
-                {
-                    Log.Message("Shift " + shift);
-                    frameAt += divider * shift.Value;
-                    Log.Message("new frameAt " + frameAt);
-                }
-            }
-            else
-            {
-                frameAt = (float)key.KeyIndex / (keyframes.Count - 1);
-            }
-
-            Dictionary<SimpleCurve, float?> dict = new()
-            {
-                {
-                    cycle.ShoulderOffsetHorizontalX,
-                    key.ShoulderOffsetHorizontalX
-                },
-                {
-                    cycle.HipOffsetHorizontalX,
-                    key.HipOffsetHorizontalX
-                },
-                {
-                    cycle.BodyAngle,
-                    key.BodyAngle
-                },
-                {
-                    cycle.BodyAngleVertical,
-                    key.BodyAngleVertical
-                },
-                {
-                    cycle.BodyOffsetZ,
-                    key.BodyOffsetZ
-                },
-                {
-                    cycle.FootAngle,
-                    key.FootAngle
-                },
-                {
-                    cycle.FootPositionX,
-                    key.FootPositionX
-                },
-                {
-                    cycle.FootPositionZ,
-                    key.FootPositionZ
-                },
-                {
-                    cycle.HandPositionX,
-                    key.HandPositionX
-                },
-                {
-                    cycle.HandPositionZ,
-                    key.HandPositionZ
-                },
-                {
-                    cycle.HandsSwingAngle,
-                    key.HandsSwingAngle
-                },
-                {
-                    cycle.HandsSwingPosVertical,
-                    key.HandsSwingAngle
-                },
-                {
-                    cycle.FrontPawAngle,
-                    key.FrontPawAngle
-                },
-                {
-                    cycle.FrontPawPositionX,
-                    key.FrontPawPositionX
-                },
-                {
-                    cycle.FrontPawPositionZ,
-                    key.FrontPawPositionZ
-                }
-
-                // { cycle.BodyOffsetVerticalZ, key.BodyOffsetVerticalZ },
-
-                // { cycle.FootPositionVerticalZ, key.FootPositionVerticalZ },
-
-                // { cycle.HandsSwingPosVertical, key.HandsSwingPosVertical },
-                // {
-                // cycle.FrontPawPositionVerticalZ,
-                // key.FrontPawPositionVerticalZ
-                // }
-            };
-
-            foreach (KeyValuePair<SimpleCurve, float?> pair in dict)
-            {
-                UpdateCurve(key, pair.Value, pair.Key, frameAt);
-            }
-        }
 
 
         private static void UpdateCurve(PawnKeyframe key, float? curvePoint, SimpleCurve simpleCurve, float frameAt)
@@ -423,10 +249,6 @@ namespace FacialStuff
             }
         }
 
-        private static bool HandCheck()
-        {
-            return ModsConfig.ActiveModsInLoadOrder.Any(mod => mod.Name == "Clutter Laser Rifle");
-        }
 
 
 

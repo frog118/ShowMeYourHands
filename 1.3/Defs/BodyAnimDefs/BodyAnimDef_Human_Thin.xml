@@ -7,6 +7,7 @@
     <bipedWithHands>True</bipedWithHands>
     <armLength>0.525</armLength>
     <extraLegLength>0.175</extraLegLength>
+    <extremitySize>0.85</extremitySize>
     <hipOffsets>
       <li>
         <x>0.125</x>
@@ -75,8 +76,6 @@
       </li>
     </walkCycles>
     <WalkCycleType>Biped</WalkCycleType>
-    <poseCycles />
-    <PoseCycleType></PoseCycleType>
     <defName>BodyAnimDef_Human_Thin</defName>
     <label>BodyAnimDef_Human_Thin</label>
   </BodyAnimDef>

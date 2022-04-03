@@ -67,8 +67,6 @@
       </li>
     </walkCycles>
     <WalkCycleType>Quadruped</WalkCycleType>
-    <poseCycles />
-    <PoseCycleType>Undefined</PoseCycleType>
     <defName>BodyAnimDef_Donkey_Undefined</defName>
     <label>BodyAnimDef_Donkey_Undefined</label>
   </BodyAnimDef>

@@ -20,7 +20,7 @@ namespace FacialStuff
 
 
         [NotNull]
-        public Pawn pawn { get; set; }
+        public Pawn pawn;
 
 
         #endregion Protected Fields
@@ -51,24 +51,24 @@ namespace FacialStuff
             float rightZ = offsets.z;
 
             float offsetY = Offsets.YOffset_HandsFeetOver;
-            float leftY = offsetY;
 
             bool offsetsCarrying = false;
 
             switch (jointType)
             {
                 case JointType.Shoulder:
-                    offsetY = armed ? -Offsets.YOffset_HandsFeet : Offsets.YOffset_HandsFeetOver;
-                    leftY = this.CompAnimator.IsMoving ? Offsets.YOffset_HandsFeetOver : offsetY;
+                    offsetY = Offsets.YOffset_HandsFeetOver;
                     if (carrying) { offsetsCarrying = true; }
                     break;
             }
 
+            float leftY = offsetY;
             float rightY = offsetY;
+
             if (offsetsCarrying)
             {
-                leftX = -jointWidth / 2;
-                rightX = jointWidth / 2;
+                leftX = -jointWidth / 1.2f;
+                rightX = jointWidth / 1.2f;
                 leftZ = -0.025f;
                 rightZ = -leftZ;
             }
@@ -109,81 +109,7 @@ namespace FacialStuff
             return joints;
         }
 
-        [NotNull]
-        public CompBodyAnimator CompAnimator { get; set; }
-
-        protected internal void DoWalkCycleOffsets(ref Vector3 rightFoot,
-            ref Vector3 leftFoot,
-            ref float footAngleRight,
-            ref float footAngleLeft,
-            ref float offsetJoint,
-            SimpleCurve offsetX,
-            SimpleCurve offsetZ,
-            SimpleCurve angle)
-        {
-            rightFoot = Vector3.zero;
-            leftFoot = Vector3.zero;
-            footAngleRight = 0;
-            footAngleLeft = 0;
-            if (!this.CompAnimator.IsMoving)
-            {
-                return;
-            }
-            float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
-            float percent = this.CompAnimator.MovedPercent;
-
-            float flot = percent;
-            if (flot <= 0.5f)
-            {
-                flot += 0.5f;
-            }
-            else
-            {
-                flot -= 0.5f;
-            }
-
-            Rot4 rot = this.CompAnimator.CurrentRotation;
-            if (rot.IsHorizontal)
-            {
-                rightFoot.x = offsetX.Evaluate(percent);
-                leftFoot.x = offsetX.Evaluate(flot);
-
-                footAngleRight = angle.Evaluate(percent);
-                footAngleLeft = angle.Evaluate(flot);
-                rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
-
-                rightFoot.x += offsetJoint;
-                leftFoot.x += offsetJoint;
-
-                if (rot == Rot4.West)
-                {
-                    rightFoot.x *= -1f;
-                    leftFoot.x *= -1f;
-                    footAngleLeft *= -1f;
-                    footAngleRight *= -1f;
-                    offsetJoint *= -1;
-                }
-            }
-            else
-            {
-                rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
-                offsetJoint = 0;
-            }
-            
-            // smaller steps for smaller pawns
-            if (bodysizeScaling < 1f)
-            {
-                SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
-                float mod = curve.Evaluate(bodysizeScaling);
-                rightFoot.x *= mod;
-                rightFoot.z *= mod;
-                leftFoot.x *= mod;
-                leftFoot.z *= mod;
-            }
-
-        }
+        [NotNull] public CompBodyAnimator CompAnimator;
 
 
 

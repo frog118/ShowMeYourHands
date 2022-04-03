@@ -8,6 +8,8 @@ public class BodyProps
     public BodyPartRecord _leftFoot;
     public BodyPartRecord _rightHand;
     public BodyPartRecord _leftHand;
+
+
     public BodyPartRecord _rightEye;
     public BodyPartRecord _leftEye;
     public BodyPartRecord _rightEar;

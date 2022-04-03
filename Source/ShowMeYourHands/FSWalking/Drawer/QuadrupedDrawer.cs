@@ -90,7 +90,7 @@ namespace FacialStuff
                 offsetJoint = cycle.ShoulderOffsetHorizontalX.Evaluate(this.CompAnimator.MovedPercent);
 
                 // Center = drawpos of carryThing
-                this.DoWalkCycleOffsets(
+                this.CompAnimator.DoWalkCycleOffsets(
                     ref rightFootAnim,
                     ref leftFootAnim,
                     ref footAngleRight,

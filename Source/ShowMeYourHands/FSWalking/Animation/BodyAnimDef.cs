@@ -32,6 +32,8 @@ namespace RimWorld
 
         public float extraLegLength;
 
+        public float extremitySize;
+
         public List<Vector3> hipOffsets = new() { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
 
         public Vector2 headOffset = Vector2.zero;
@@ -48,10 +50,6 @@ namespace RimWorld
 
         public string WalkCycleType = "Undefined";
 
-        [NotNull]
-        public List<PoseCycleDef> poseCycles = new();
-
-        public string PoseCycleType = "Undefined";
 
         #endregion Public Fields
 

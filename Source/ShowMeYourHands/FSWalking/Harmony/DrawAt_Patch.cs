@@ -16,7 +16,11 @@ class DrawAt_Patch
     {
         Pawn pawn = __instance.renderer.graphics.pawn;
         //CompFace compFace = pawn.GetCompFace();
-        CompBodyAnimator compAnim = pawn.GetCompAnim();
+        if (!pawn.GetCompAnim(out CompBodyAnimator compAnim) || pawn.GetPosture() != PawnPosture.Standing)
+        {
+            __state = Vector3.zero;
+            return;
+        };
 
         loc.x += compAnim?.BodyAnim?.offCenterX ?? 0f;
         __state = loc;
@@ -29,7 +33,10 @@ class DrawAt_Patch
     {
         Pawn pawn = ___pawn;
 
-
+        if (__state == Vector3.zero)
+        {
+            return;
+        }
 
         //CompFace compFace = pawn.GetCompFace();
         if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))
@@ -72,27 +79,29 @@ class DrawAt_Patch
 
         if (!Find.TickManager.Paused)
         {
+            float rateMultiplier = Find.TickManager.TickRateMultiplier;
+            float elapsedTime = 1f * rateMultiplier;
+
             if (leftHand.State == TweenState.Running)
             {
-                leftHand.Update(1f * Find.TickManager.TickRateMultiplier);
+                leftHand.Update(elapsedTime);
             }
             if (rightHand.State == TweenState.Running)
             {
-                rightHand.Update(1f * Find.TickManager.TickRateMultiplier);
+                rightHand.Update(elapsedTime);
             }
             if (eqTween.State == TweenState.Running)
             {
-                eqTween.Update(1f * Find.TickManager.TickRateMultiplier);
+                eqTween.Update(elapsedTime);
             }
 
             if (angleTween.State == TweenState.Running)
             {
-                compAnim.AimAngleTween.Update(3f * Find.TickManager.TickRateMultiplier);
+                compAnim.AimAngleTween.Update(3f * rateMultiplier);
             }
 
-            compAnim.CheckMovement();
-
         }
+        compAnim.CheckMovement();
 
         // feet shouldn't rotate while standing. 
         if (ShowMeYourHandsMod.instance.Settings.UseFeet)

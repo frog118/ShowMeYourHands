@@ -10,7 +10,7 @@ namespace ShowMeYourHands.FSWalking
     {
         static void Postfix(PawnRenderer __instance, ref float __result, Pawn ___pawn)
         {
-            if (!___pawn.GetCompAnim(out CompBodyAnimator compAnim))
+            if (___pawn == null || !___pawn.GetCompAnim(out CompBodyAnimator compAnim))
             {
                 return;
             }

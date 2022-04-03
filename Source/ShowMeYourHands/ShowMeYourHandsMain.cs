@@ -15,6 +15,12 @@ public static class ShowMeYourHandsMain
 {
     public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations = new();
 
+    public static readonly Dictionary<Thing, Rot4?> pawnRotation = new();
+    public static readonly Dictionary<Thing, float> pawnAngle = new();
+    public static readonly Dictionary<Thing, Vector3> pawnOffset = new();
+
+
+
     public static readonly Dictionary<ThingDef, Vector3> southOffsets = new();
     public static readonly Dictionary<ThingDef, Vector3> northOffsets = new();
     public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new();
@@ -88,6 +94,8 @@ public static class ShowMeYourHandsMain
         // RIMMSqol
         "RIMMSqol"
     };
+
+
 
     static ShowMeYourHandsMain()
     {

@@ -285,7 +285,7 @@ namespace FacialStuff.AnimatorWindows
             if (bodyDrawers != null)
                 foreach (PawnBodyDrawer body in bodyDrawers)
                 {
-                    body?.DoWalkCycleOffsets(ref rightFootVector, ref leftFootVector, ref footAngleRight,
+                    this.CompAnim.DoWalkCycleOffsets(ref rightFootVector, ref leftFootVector, ref footAngleRight,
                         ref footAngleLeft, ref offsetJoint, EditorWalkcycle.FootPositionX,
                         EditorWalkcycle.FootPositionZ, EditorWalkcycle.BodyAngle);
                 }

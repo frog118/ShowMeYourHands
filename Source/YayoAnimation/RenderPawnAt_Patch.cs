@@ -14,11 +14,14 @@ public static class RenderPawnAt_Patch
         Pawn pawn = __instance.graphics.pawn;
 
         //CompFace compFace = pawn.GetCompFace();
+        if (pawn != null)
+        {
+
+        };
         if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))
         {
             return;
-        };
-
+        }
         pdd = dataUtility.GetData(pawn);
         compAnim.CurrentRotation = pdd.fixed_rot ?? pawn.Rotation;
         compAnim.Offset_Angle = pdd.offset_angle;

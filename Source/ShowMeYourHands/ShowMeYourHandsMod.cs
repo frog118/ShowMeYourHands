@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -17,7 +18,7 @@ internal class ShowMeYourHandsMod : Mod
     /// <summary>
     ///     The instance of the settings to be read by the mod
     /// </summary>
-    public static ShowMeYourHandsMod instance;
+    [NotNull] public static ShowMeYourHandsMod instance;
 
     private static readonly Vector2 buttonSize = new(120f, 25f);
 
@@ -110,6 +111,7 @@ internal class ShowMeYourHandsMod : Mod
     /// <summary>
     ///     The instance-settings for the mod
     /// </summary>
+    [NotNull]
     internal ShowMeYourHandsModSettings Settings
     {
         get

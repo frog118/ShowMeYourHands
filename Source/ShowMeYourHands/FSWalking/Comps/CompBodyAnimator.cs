@@ -1,17 +1,15 @@
-﻿using FacialStuff.Animator;
+﻿using ColorMine.ColorSpaces;
+using ColorMine.ColorSpaces.Comparisons;
+using FacialStuff.Animator;
 using FacialStuff.GraphicsFS;
 using FacialStuff.Tweener;
 using JetBrains.Annotations;
 using RimWorld;
+using ShowMeYourHands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ColorMine.ColorSpaces;
-using ColorMine.ColorSpaces.Comparisons;
-using FacialStuff.AnimatorWindows;
-using ShowMeYourHands;
-using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -23,9 +21,6 @@ namespace FacialStuff
     public class CompBodyAnimator : ThingComp
     {
         #region Public Fields
-
-        private static Dictionary<Thing, Color> colorDictionary;
-
 
         public bool Deactivated;
         public bool IgnoreRenderer;
@@ -41,18 +36,184 @@ namespace FacialStuff
 
         [CanBeNull] public PawnBodyGraphic pawnBodyGraphic;
 
-        [CanBeNull] public PoseCycleDef PoseCycle;
+        //[CanBeNull] public PoseCycleDef PoseCycle;
 
         public Vector3 FirstHandPosition;
         public Vector3 SecondHandPosition;
 
+        public void DoWalkCycleOffsets(ref Vector3 rightFoot,
+            ref Vector3 leftFoot,
+            ref float footAngleRight,
+            ref float footAngleLeft,
+            ref float offsetJoint,
+            SimpleCurve offsetX,
+            SimpleCurve offsetZ,
+            SimpleCurve angle)
+        {
+            rightFoot = Vector3.zero;
+            leftFoot = Vector3.zero;
+            footAngleRight = 0;
+            footAngleLeft = 0;
+            if (!this.IsMoving)
+            {
+                return;
+            }
+            float bodysizeScaling = GetBodysizeScaling(out _);
+            float percent = this.MovedPercent;
+
+            float flot = percent;
+            if (flot <= 0.5f)
+            {
+                flot += 0.5f;
+            }
+            else
+            {
+                flot -= 0.5f;
+            }
+
+            Rot4 rot = this.CurrentRotation;
+            if (rot.IsHorizontal)
+            {
+                rightFoot.x = offsetX.Evaluate(percent);
+                leftFoot.x = offsetX.Evaluate(flot);
+
+                footAngleRight = angle.Evaluate(percent);
+                footAngleLeft = angle.Evaluate(flot);
+                rightFoot.z = offsetZ.Evaluate(percent);
+                leftFoot.z = offsetZ.Evaluate(flot);
+
+                rightFoot.x += offsetJoint;
+                leftFoot.x += offsetJoint;
+
+                if (rot == Rot4.West)
+                {
+                    rightFoot.x *= -1f;
+                    leftFoot.x *= -1f;
+                    footAngleLeft *= -1f;
+                    footAngleRight *= -1f;
+                    offsetJoint *= -1;
+                }
+            }
+            else
+            {
+                rightFoot.z = offsetZ.Evaluate(percent);
+                leftFoot.z = offsetZ.Evaluate(flot);
+                offsetJoint = 0;
+            }
+
+            // smaller steps for smaller pawns
+            if (bodysizeScaling < 1f)
+            {
+                SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
+                float mod = curve.Evaluate(bodysizeScaling);
+                rightFoot.x *= mod;
+                rightFoot.z *= mod;
+                leftFoot.x *= mod;
+                leftFoot.z *= mod;
+            }
+        }
+
+        public Vector3 lastMainHandPosition;
+
+        public void DoWalkCycleOffsets(
+        float armLength,
+        ref Vector3 rightHand,
+        ref Vector3 leftHand,
+        ref List<float> shoulderAngle,
+        ref List<float> handSwingAngle,
+        ref JointLister shoulderPos,
+        SimpleCurve cycleHandsSwingAngle,
+        float offsetJoint)
+        {
+            // Has the pawn something in his hands?
+
+            float bodysizeScaling = GetBodysizeScaling(out _);
+
+            Rot4 rot = this.CurrentRotation;
+
+            // Basic values if pawn is carrying stuff
+            float x = 0;
+            float x2 = -x;
+            float y = Offsets.YOffset_Behind;
+            float y2 = y;
+            float z;
+            float z2;
+
+            // Offsets for hands from the pawn center
+            z = z2 = -armLength;
+
+            if (rot.IsHorizontal)
+            {
+                x = x2 = 0f;
+                if (rot == Rot4.East)
+                {
+                    y2 = -0.5f;
+                }
+                else
+                {
+                    y = -0.05f;
+                }
+            }
+            else if (rot == Rot4.North)
+            {
+                y = y2 = -0.02f;
+                x *= -1;
+                x2 *= -1;
+            }
+
+            // Swing the hands, try complete the cycle
+            if (this.IsMoving)
+            {
+                WalkCycleDef walkCycle = this.WalkCycle;
+                float percent = this.MovedPercent;
+                if (rot.IsHorizontal)
+                {
+                    float lookie = rot == Rot4.West ? -1f : 1f;
+                    float f = lookie * offsetJoint;
+
+                    shoulderAngle[0] = shoulderAngle[1] = lookie * walkCycle?.shoulderAngle ?? 0f;
+
+                    shoulderPos.RightJoint.x += f;
+                    shoulderPos.LeftJoint.x += f;
+
+                    handSwingAngle[0] = handSwingAngle[1] =
+                                        (rot == Rot4.West ? -1 : 1) * cycleHandsSwingAngle.Evaluate(percent);
+                }
+                else
+                {
+                    z += cycleHandsSwingAngle.Evaluate(percent) / 500;
+                    z2 -= cycleHandsSwingAngle.Evaluate(percent) / 500;
+
+                    z += walkCycle?.shoulderAngle / 800 ?? 0f;
+                    z2 += walkCycle?.shoulderAngle / 800 ?? 0f;
+                }
+            }
+
+            if (/*MainTabWindow_BaseAnimator.Panic || */ this.pawn.Fleeing() || this.pawn.IsBurning())
+            {
+                float offset = 1f + armLength;
+                x *= offset;
+                z *= offset;
+                x2 *= offset;
+                z2 *= offset;
+                handSwingAngle[0] += 180f;
+                handSwingAngle[1] += 180f;
+                shoulderAngle[0] = shoulderAngle[1] = 0f;
+            }
+
+            rightHand = new Vector3(x, y, z) * bodysizeScaling;
+            leftHand = new Vector3(x2, y2, z2) * bodysizeScaling;
+
+            lastMainHandPosition = rightHand;
+        }
+
         [CanBeNull]
         public WalkCycleDef WalkCycle { get; private set; }
-
 
         #endregion Public Fields
 
         #region Private Fields
+        private Rot4? _currentRotationOverride = null;
 
         private static readonly FieldInfo _infoJitterer;
 
@@ -74,9 +235,6 @@ namespace FacialStuff
 
         public BodyAnimator BodyAnimator { get; private set; }
 
-
-
-
         public JitterHandler Jitterer
             => GetHiddenValue(typeof(Pawn_DrawTracker), this.pawn.Drawer, "jitterer", _infoJitterer) as
                 JitterHandler;
@@ -87,7 +245,6 @@ namespace FacialStuff
         public List<PawnBodyDrawer> pawnBodyDrawers { get; private set; }
 
         public CompProperties_BodyAnimator Props => (CompProperties_BodyAnimator)this.props;
-
 
         #endregion Public Properties
 
@@ -176,7 +333,6 @@ namespace FacialStuff
             footPos += vector4;
         }
 
-
         // public override string CompInspectStringExtra()
         // {
         //     string extra = this.Pawn.DrawPos.ToString();
@@ -184,9 +340,6 @@ namespace FacialStuff
         // }
 
         // off for now
-
-
-
 
         public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
@@ -260,7 +413,6 @@ namespace FacialStuff
             return base.CompInspectStringExtra();
         }
 
-
         public override void PostExposeData()
         {
             base.PostExposeData();
@@ -276,7 +428,6 @@ namespace FacialStuff
                 this.Vector3Tweens[i] = new Vector3Tween();
             }
             this.BodyAnimator = new BodyAnimator(this.pawn, this);
-            this.pawn.CheckForAddedOrMissingParts();
             this.pawnBodyGraphic = new PawnBodyGraphic(this);
 
             string bodyType = "Undefined";
@@ -334,6 +485,7 @@ namespace FacialStuff
                 this.pawnBodyDrawers[i].Tick();
                 i++;
             }
+
         }
 
         public List<Material> UnderwearMatsBodyBaseAt(Rot4 facing, RotDrawMode bodyCondition = RotDrawMode.Fresh)
@@ -393,7 +545,6 @@ namespace FacialStuff
 
         public float LastAimAngle = 143f;
 
-
         //  public float lastWeaponAngle = 53f;
         public readonly Vector3[] LastPosition = new Vector3[(int)TweenThing.Max];
 
@@ -405,6 +556,7 @@ namespace FacialStuff
         private float bodysizeScaling = 0f;
         public Mesh pawnBodyMesh;
         public Mesh pawnBodyMeshFlipped;
+
         public void CheckMovement()
         {
             /*
@@ -423,8 +575,690 @@ namespace FacialStuff
             // pawn started pathing
 
             this.MovedPercent = PawnMovedPercent(pawn);
+        }
+        private static float CalcShortestRot(float from, float to)
+        {
+            // If from or to is a negative, we have to recalculate them.
+            // For an example, if from = -45 then from(-45) + 360 = 315.
+            if (@from < 0)
+            {
+                @from += 360;
+            }
+
+            if (to < 0)
+            {
+                to += 360;
+            }
+
+            // Do not rotate if from == to.
+            if (@from == to ||
+                @from == 0 && to == 360 ||
+                @from == 360 && to == 0)
+            {
+                return 0;
+            }
+
+            // Pre-calculate left and right.
+            float left = (360 - @from) + to;
+            float right = @from - to;
+
+            // If from < to, re-calculate left and right.
+            if (@from < to)
+            {
+                if (to > 0)
+                {
+                    left = to - @from;
+                    right = (360 - to) + @from;
+                }
+                else
+                {
+                    left = (360 - to) + @from;
+                    right = to - @from;
+                }
+            }
+
+            // Determine the shortest direction.
+            return ((left <= right) ? left : (right * -1));
+        }
+
+
+        private static int LastDrawn;
+        private static Vector3 MainHand;
+        private static Vector3 OffHand;
+
+        private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
+        {
+            if (!ShowMeYourHandsMain.OversizedWeaponLoaded && !ShowMeYourHandsMain.EnableOversizedLoaded)
+            {
+                return Vector3.zero;
+            }
+
+            switch (pawn.Rotation.AsInt)
+            {
+                case 0:
+                    return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out Vector3 northValue)
+                        ? northValue
+                        : Vector3.zero;
+
+                case 1:
+                    return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out Vector3 eastValue)
+                        ? eastValue
+                        : Vector3.zero;
+
+                case 2:
+                    return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out Vector3 southValue)
+                        ? southValue
+                        : Vector3.zero;
+
+                case 3:
+                    return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out Vector3 westValue)
+                        ? westValue
+                        : Vector3.zero;
+
+                default:
+                    return Vector3.zero;
+            }
+        }
+        public static void SetPositionsForHandsOnWeapons(Pawn pawn, bool flipped,
+    [CanBeNull] WhandCompProps compWeaponExtensions,
+    CompBodyAnimator animator)
+        {
+            // Prepare everything for DrawHands, but don't draw
+            if (compWeaponExtensions == null || pawn == null)
+            {
+                return;
+            }
+
+            ThingWithComps mainHandWeapon = pawn.equipment.Primary;
+            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+            {
+                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        mainHandWeapon.def.GetHashCode());
+                }
+
+                return;
+            }
+            WhandCompProps compProperties = mainHandWeapon.def.GetCompProperties<WhandCompProps>();
+            if (compProperties != null)
+            {
+                MainHand = compProperties.MainHand;
+                OffHand = compProperties.SecHand;
+            }
+            else
+            {
+                OffHand = Vector3.zero;
+                MainHand = Vector3.zero;
+            }
+
+            ThingWithComps offHandWeapon = null;
+            if (pawn.equipment.AllEquipmentListForReading.Count == 2)
+            {
+                offHandWeapon = (from weapon in pawn.equipment.AllEquipmentListForReading
+                                 where weapon != mainHandWeapon
+                                 select weapon).First();
+                WhandCompProps offhandComp = offHandWeapon?.def.GetCompProperties<WhandCompProps>();
+                if (offhandComp != null)
+                {
+                    OffHand = offhandComp.MainHand;
+                }
+            }
+
+            float aimAngle = 0f;
+            bool aiming = false;
+
+            if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false, focusTarg.IsValid: true } stance_Busy)
+            {
+                Vector3 a = stance_Busy.focusTarg.HasThing
+                    ? stance_Busy.focusTarg.Thing.DrawPos
+                    : stance_Busy.focusTarg.Cell.ToVector3Shifted();
+
+                if ((a - pawn.DrawPos).MagnitudeHorizontalSquared() > 0.001f)
+                {
+                    aimAngle = (a - pawn.DrawPos).AngleFlat();
+                }
+
+                aiming = true;
+            }
+
+
+            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+            {
+                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        mainHandWeapon.def.GetHashCode());
+                }
+
+                return;
+            }
+
+            Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
+            float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+            Vector3 offhandWeaponLocation = Vector3.zero;
+            float offHandAngle = mainHandAngle;
+            float mainMeleeExtra = 0f;
+            float offMeleeExtra = 0f;
+            bool mainMelee = false;
+            bool offMelee = false;
+
+            if (offHandWeapon != null)
+            {
+                if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
+                {
+                    if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                    {
+                        Log.ErrorOnce(
+                            $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                            offHandWeapon.def.GetHashCode());
+                    }
+                }
+                else
+                {
+                    offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
+                    offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
+                }
+            }
+
+            bool idle = false;
+            if (pawn.Rotation == Rot4.South || pawn.Rotation == Rot4.North)
+            {
+                idle = true;
+            }
+
+            mainHandAngle -= 90f;
+            offHandAngle -= 90f;
+            if (pawn.Rotation == Rot4.West || aimAngle is > 200f and < 340f)
+            {
+                flipped = true;
+            }
+
+            if (mainHandWeapon.def.IsMeleeWeapon)
+            {
+                mainMelee = true;
+                mainMeleeExtra = 0.0001f;
+                if (idle && offHandWeapon != null) //Dual wield idle vertical
+                {
+                    if (pawn.Rotation == Rot4.South)
+                    {
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        mainHandAngle -= 180f;
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+            }
+            else
+            {
+                if (flipped)
+                {
+                    mainHandAngle -= 180f;
+                }
+            }
+
+            if (offHandWeapon?.def?.IsMeleeWeapon == true)
+            {
+                offMelee = true;
+                offMeleeExtra = 0.0001f;
+                if (idle && pawn.Rotation == Rot4.North) //Dual wield north
+                {
+                    offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        offHandAngle -= 180f;
+                        offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        offHandAngle += offHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+            }
+            else
+            {
+                if (flipped)
+                {
+                    offHandAngle -= 180f;
+                }
+            }
+
+            mainHandAngle %= 360f;
+            offHandAngle %= 360f;
+
+            float drawSize = 1f;
+            LastDrawn = GenTicks.TicksAbs;
+
+            if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
+                mainHandWeapon?.def?.graphicData?.drawSize.x != 1f)
+            {
+                drawSize = mainHandWeapon.def.graphicData.drawSize.x;
+            }
+
+            if (!PawnExtensions.pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                float bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (pawn.RaceProps != null)
+                    {
+                        bodySize = pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
+                    }
+                }
+
+                PawnExtensions.pawnBodySizes[pawn] = 0.8f * bodySize;
+            }
+
+            // ToDo Integrate: y >= 0 ? matSingle : offSingle
+
+            // Only put the second hand on when aiming or not moving => free left hand for running
+            //  bool leftOnWeapon = true;// aiming || !animator.IsMoving;
+
+            if (MainHand != Vector3.zero)
+            {
+                float x = MainHand.x * drawSize;
+                float z = MainHand.z * drawSize;
+                float y = MainHand.y < 0 ? -0.0001f : 0.001f;
+
+                if (flipped)
+                {
+                    x *= -1;
+                }
+
+                if (pawn.Rotation == Rot4.North && !mainMelee && !aiming)
+                {
+                    z += 0.1f;
+                }
+
+                animator.FirstHandPosition = mainWeaponLocation + AdjustRenderOffsetFromDir(pawn, mainHandWeapon as ThingWithComps);
+                animator.FirstHandPosition += new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle);
+                animator.FirstHandQuat = Quaternion.AngleAxis(mainHandAngle, Vector3.up);
+            }
+            else
+            {
+                animator.FirstHandPosition = Vector3.zero;
+            }
+
+
+            if (OffHand != Vector3.zero)
+            {
+                float x2 = OffHand.x * drawSize;
+                float z2 = OffHand.z * drawSize;
+                float y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
+
+
+                if (offHandWeapon != null)
+                {
+                    drawSize = 1f;
+
+                    if (ShowMeYourHandsMod.instance.Settings.RepositionHands && offHandWeapon.def.graphicData != null &&
+                        offHandWeapon.def?.graphicData?.drawSize.x != 1f)
+                    {
+                        drawSize = offHandWeapon.def.graphicData.drawSize.x;
+                    }
+
+                    x2 = OffHand.x * drawSize;
+                    z2 = OffHand.z * drawSize;
+
+                    if (flipped)
+                    {
+                        x2 *= -1;
+                    }
+
+                    if (idle && !offMelee)
+                    {
+                        if (pawn.Rotation == Rot4.South)
+                        {
+                            z2 += 0.05f;
+                        }
+                        else
+                        {
+                            z2 -= 0.05f;
+                        }
+                    }
+
+
+                    animator.SecondHandPosition = offhandWeaponLocation + AdjustRenderOffsetFromDir(pawn, offHandWeapon as ThingWithComps);
+                    animator.SecondHandPosition += new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle);
+
+                    animator.SecondHandQuat = Quaternion.AngleAxis(offHandAngle, Vector3.up);
+                }
+
+            }
+            else
+            {
+                animator.SecondHandPosition = Vector3.zero;
+            }
 
         }
+
+        public  void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle)
+        {
+            WhandCompProps extensions = eq?.def?.GetCompProperties<WhandCompProps>();
+
+            Pawn ___pawn = this.pawn;
+
+            if ((___pawn == null) || (extensions == null))
+            {
+                return;
+            }
+
+            bool flipped = ___pawn.Rotation == Rot4.West || aimAngle is > 200f and < 340f;
+
+            // Prepare everything for DrawHands, but don't draw
+            if (extensions == null)
+            {
+                return;
+            }
+
+            ThingWithComps mainHandWeapon = eq;
+            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+            {
+                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {___pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        mainHandWeapon.def.GetHashCode());
+                }
+
+                return;
+            }
+            WhandCompProps compProperties = mainHandWeapon.def.GetCompProperties<WhandCompProps>();
+            if (compProperties != null)
+            {
+                MainHand = compProperties.MainHand;
+                OffHand = compProperties.SecHand;
+            }
+            else
+            {
+                OffHand = Vector3.zero;
+                MainHand = Vector3.zero;
+            }
+
+            ThingWithComps offHandWeapon = null;
+            if (___pawn.equipment.AllEquipmentListForReading.Count == 2)
+            {
+                offHandWeapon = (from weapon in ___pawn.equipment.AllEquipmentListForReading
+                                 where weapon != mainHandWeapon
+                                 select weapon).First();
+                WhandCompProps offhandComp = offHandWeapon?.def.GetCompProperties<WhandCompProps>();
+                if (offhandComp != null)
+                {
+                    OffHand = offhandComp.MainHand;
+                }
+            }
+
+            float aimAngle1 = 0f;
+            bool aiming = false;
+
+            if (___pawn.stances.curStance is Stance_Busy { neverAimWeapon: false, focusTarg.IsValid: true } stance_Busy)
+            {
+                Vector3 a = stance_Busy.focusTarg.HasThing
+                    ? stance_Busy.focusTarg.Thing.DrawPos
+                    : stance_Busy.focusTarg.Cell.ToVector3Shifted();
+
+                if ((a - ___pawn.DrawPos).MagnitudeHorizontalSquared() > 0.001f)
+                {
+                    aimAngle1 = (a - ___pawn.DrawPos).AngleFlat();
+                }
+
+                aiming = true;
+            }
+
+
+            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
+            {
+                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                {
+                    Log.ErrorOnce(
+                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {___pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                        mainHandWeapon.def.GetHashCode());
+                }
+
+                return;
+            }
+
+            Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
+            float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
+            Vector3 offhandWeaponLocation = Vector3.zero;
+            float offHandAngle = mainHandAngle;
+            float mainMeleeExtra = 0f;
+            float offMeleeExtra = 0f;
+            bool mainMelee = false;
+            bool offMelee = false;
+
+            if (offHandWeapon != null)
+            {
+                if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
+                {
+                    if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
+                    {
+                        Log.ErrorOnce(
+                            $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {___pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
+                            offHandWeapon.def.GetHashCode());
+                    }
+                }
+                else
+                {
+                    offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
+                    offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
+                }
+            }
+
+            bool idle = false;
+            if (___pawn.Rotation == Rot4.South || ___pawn.Rotation == Rot4.North)
+            {
+                idle = true;
+            }
+
+            mainHandAngle -= 90f;
+            offHandAngle -= 90f;
+            if (___pawn.Rotation == Rot4.West || aimAngle1 is > 200f and < 340f)
+            {
+                flipped = true;
+            }
+
+            if (mainHandWeapon.def.IsMeleeWeapon)
+            {
+                mainMelee = true;
+                mainMeleeExtra = 0.0001f;
+                if (idle && offHandWeapon != null) //Dual wield idle vertical
+                {
+                    if (___pawn.Rotation == Rot4.South)
+                    {
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        mainHandAngle -= 180f;
+                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+            }
+            else
+            {
+                if (flipped)
+                {
+                    mainHandAngle -= 180f;
+                }
+            }
+
+            if (offHandWeapon?.def?.IsMeleeWeapon == true)
+            {
+                offMelee = true;
+                offMeleeExtra = 0.0001f;
+                if (idle && ___pawn.Rotation == Rot4.North) //Dual wield north
+                {
+                    offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                }
+                else
+                {
+                    if (flipped)
+                    {
+                        offHandAngle -= 180f;
+                        offHandAngle -= offHandWeapon.def.equippedAngleOffset;
+                    }
+                    else
+                    {
+                        offHandAngle += offHandWeapon.def.equippedAngleOffset;
+                    }
+                }
+            }
+            else
+            {
+                if (flipped)
+                {
+                    offHandAngle -= 180f;
+                }
+            }
+
+            mainHandAngle %= 360f;
+            offHandAngle %= 360f;
+
+            float drawSize = 1f;
+            LastDrawn = GenTicks.TicksAbs;
+
+            if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
+                mainHandWeapon?.def?.graphicData?.drawSize.x != 1f)
+            {
+                drawSize = mainHandWeapon.def.graphicData.drawSize.x;
+            }
+
+            if (!PawnExtensions.pawnBodySizes.ContainsKey(___pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            {
+                float bodySize = 1f;
+                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
+                {
+                    if (___pawn.RaceProps != null)
+                    {
+                        bodySize = ___pawn.RaceProps.baseBodySize;
+                    }
+
+                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    {
+                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { ___pawn });
+                    }
+                }
+
+                PawnExtensions.pawnBodySizes[___pawn] = 0.8f * bodySize;
+            }
+
+            // ToDo Integrate: y >= 0 ? matSingle : offSingle
+
+            // Only put the second hand on when aiming or not moving => free left hand for running
+            //  bool leftOnWeapon = true;// aiming || !animator.IsMoving;
+
+            if (MainHand != Vector3.zero)
+            {
+                float x = MainHand.x * drawSize;
+                float z = MainHand.z * drawSize;
+                float y = MainHand.y < 0 ? -0.0001f : 0.001f;
+
+                if (flipped)
+                {
+                    x *= -1;
+                }
+
+                if (___pawn.Rotation == Rot4.North && !mainMelee && !aiming)
+                {
+                    z += 0.1f;
+                }
+
+                this.FirstHandPosition = mainWeaponLocation + AdjustRenderOffsetFromDir(___pawn, mainHandWeapon as ThingWithComps);
+                FirstHandPosition += new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle);
+                this.FirstHandQuat = Quaternion.AngleAxis(mainHandAngle, Vector3.up);
+            }
+            else
+            {
+                this.FirstHandPosition = Vector3.zero;
+            }
+
+
+            if (OffHand != Vector3.zero)
+            {
+                float x2 = OffHand.x * drawSize;
+                float z2 = OffHand.z * drawSize;
+                float y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
+
+
+                if (offHandWeapon != null)
+                {
+                    drawSize = 1f;
+
+                    if (ShowMeYourHandsMod.instance.Settings.RepositionHands && offHandWeapon.def.graphicData != null &&
+                        offHandWeapon.def?.graphicData?.drawSize.x != 1f)
+                    {
+                        drawSize = offHandWeapon.def.graphicData.drawSize.x;
+                    }
+
+                    x2 = OffHand.x * drawSize;
+                    z2 = OffHand.z * drawSize;
+
+                    if (flipped)
+                    {
+                        x2 *= -1;
+                    }
+
+                    if (idle && !offMelee)
+                    {
+                        if (___pawn.Rotation == Rot4.South)
+                        {
+                            z2 += 0.05f;
+                        }
+                        else
+                        {
+                            z2 -= 0.05f;
+                        }
+                    }
+
+
+                    this.SecondHandPosition = offhandWeaponLocation + AdjustRenderOffsetFromDir(___pawn, offHandWeapon as ThingWithComps);
+                    this.SecondHandPosition += new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle);
+
+                    this.SecondHandQuat = Quaternion.AngleAxis(offHandAngle, Vector3.up);
+                }
+
+            }
+            else
+            {
+                this.SecondHandPosition = Vector3.zero;
+            }
+        }
+
 
         public float GetBodysizeScaling(out Mesh pawnBodyMesh)
         {
@@ -456,14 +1290,12 @@ namespace FacialStuff
                     bodysizeScaling = 0.8f * bodySize;
                 }
 
-                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling);
-                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling, true);
-
+                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling* this.BodyAnim.extremitySize);
+                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling* this.BodyAnim.extremitySize, true);
             }
             pawnBodyMesh = this.pawnBodyMesh;
             return bodysizeScaling;
         }
-
 
         private float PawnMovedPercent(Pawn pawn)
         {
@@ -502,8 +1334,8 @@ namespace FacialStuff
 
             return 0f;
         }
-        public bool IsRider { get; set; } = false;
 
+        public bool IsRider = false;
 
         public void SetWalkCycle(WalkCycleDef walkCycleDef)
         {
@@ -530,6 +1362,7 @@ namespace FacialStuff
                 return 0f;
             }
         }
+
         // unused since 1.3
         public float HeadAngleX
         {
@@ -575,138 +1408,6 @@ namespace FacialStuff
 
         public bool IsMoving { get; private set; }
 
-        public Color HandColor
-        {
-            get
-            {
-                if (GenTicks.TicksAbs % 100 != 0 && handColor != default)
-                {
-                    return handColor;
-                }
-
-                if (pawn == null || !pawn.GetCompAnim(out CompBodyAnimator anim))
-                {
-                    return Color.white;
-                }
-                string texNameHand = TexNameHand();
-
-                handColor = getHandColor(pawn, out bool hasGloves, out Color secondColor);
-                if (anim?.pawnBodyGraphic?.HandGraphicRight == null || anim.pawnBodyGraphic.HandGraphicRight.color != handColor)
-                {
-                    if (hasGloves)
-                    {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.Cutout, //"HandClean"
-                            new Vector2(1f, 1f),
-                            handColor, handColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            handColor, handColor);
-                    }
-                }
-
-                if (anim.pawnBodyGraphic.HandGraphicLeft != null && anim.pawnBodyGraphic.HandGraphicLeft.color == handColor)
-                {
-                    return handColor;
-                }
-
-                if (hasGloves)
-                {
-                    anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
-                        ShaderDatabase.Cutout,
-                        new Vector2(1f, 1f),
-                        handColor, handColor);
-                }
-                else
-                {
-                    if (secondColor != default)
-                    {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand,
-                            ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            secondColor, secondColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameHand, ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            handColor, handColor);
-                    }
-                }
-
-                return handColor;
-            }
-            set => handColor = value;
-        }
-
-        public Color FootColor
-        {
-            get
-            {
-                if (GenTicks.TicksAbs % 100 != 0 && footColor != default)
-                {
-                    return footColor;
-                }
-
-                if (pawn == null || !pawn.GetCompAnim(out CompBodyAnimator anim))
-                {
-                    return Color.white;
-                }
-                string texNameFoot = TexNameFoot();
-
-                footColor = getFeetColor(pawn, out bool hasShoes, out Color secondColor);
-                if (anim?.pawnBodyGraphic?.FootGraphicRight == null || anim.pawnBodyGraphic.FootGraphicRight.color != footColor)
-                {
-                    if (hasShoes)
-                    {
-                        // ToDo TEXTURES!!!!
-                        anim.pawnBodyGraphic.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.Cutout,
-                            new Vector2(1f, 1f),
-                            footColor, footColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            footColor, footColor);
-                    }
-                }
-
-                if (anim.pawnBodyGraphic.FootGraphicLeft != null && anim.pawnBodyGraphic.FootGraphicLeft.color == footColor)
-                {
-                    return footColor;
-                }
-                
-                if (hasShoes)
-                {
-                    anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot,
-                        ShaderDatabase.Cutout,
-                        new Vector2(1f, 1f),
-                        footColor, footColor);
-                }
-                else
-                {
-                    if (secondColor != default)
-                    {
-                        anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot,
-                            ShaderDatabase.CutoutSkin,
-                            new Vector2(1f, 1f),
-                            secondColor, secondColor);
-                    }
-                    else
-                    {
-                        anim.pawnBodyGraphic.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(texNameFoot, ShaderDatabase.Cutout,
-                            new Vector2(1f, 1f),
-                            footColor, footColor);
-                    }
-                }
-
-                return footColor;
-            }
-            set => footColor = value;
-        }
 
 
         public Quaternion SecondHandQuat;
@@ -716,367 +1417,26 @@ namespace FacialStuff
         internal float LastWeaponAngle;
         internal readonly int[] LastPosUpdate = new int[(int)TweenThing.Max];
         internal int LastAngleTick;
-        private Color handColor;
-        private Color footColor;
-        private bool pawnsMissingAFoot;
-        private Rot4? _currentRotationOverride = null;
+
+        public Color HandColorLeft;
+        public Color HandColorRight;
+        public Color FootColorLeft;
+        public Color FootColorRight;
+
+
+
         public float Offset_Angle = 0f;
-        public Vector3 Offset_Pos = new();
+
+        public Vector3 Offset_Pos = Vector3.zero;
 
         public Rot4 CurrentRotation
         {
             get => _currentRotationOverride ?? pawn.Rotation;
             set => _currentRotationOverride = value;
         }
-        private Color getHandColor(Pawn pawn, out bool hasGloves, out Color secondColor)
-        {
-            hasGloves = false;
-            secondColor = default;
-            List<Hediff_AddedPart> addedHands = null;
-
-            if (pawn.story == null) // mechanoid or animal
-            {
-                PawnKindLifeStage curKindLifeStage = pawn.ageTracker.CurKindLifeStage;
-
-                return curKindLifeStage.bodyGraphicData.color;
-            }
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts ||
-                ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-            {
-                addedHands = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
-                    .Where(x => x.Part.def == ShowMeYourHandsMain.HandDef ||
-                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.HandDef)).ToList();
-            }
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts && pawn.health is { hediffSet: { } })
-            {
-                /*
-
-                pawn.GetCompAnim(out CompBodyAnimator anim);
-                pawnsMissingAHand = pawn.health
-                        .hediffSet
-                        .GetNotMissingParts().Count(record => record.def == ShowMeYourHandsMain.HandDef) +
-                    addedHands?.Count < 2;*/
-            }
-
-            if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
-                    where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
-                    select apparel).Any())
-            {
-                if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (addedHands == null || !addedHands.Any())
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                Color mainColor = (Color)default;
-
-                foreach (Hediff_AddedPart hediffAddedPart in addedHands)
-                {
-                    if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
-                    {
-                        continue;
-                    }
-
-                    if (mainColor == default)
-                    {
-                        mainColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                        continue;
-                    }
-
-                    secondColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                }
-
-                if (mainColor == default)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (secondColor == default)
-                {
-                    secondColor = pawn.story.SkinColor;
-                }
-
-                return mainColor;
-            }
-
-            IEnumerable<Apparel> handApparel = from apparel in pawn.apparel.WornApparel
-                where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
-                select apparel;
-
-            //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
-
-            Thing outerApparel = null;
-            int highestDrawOrder = 0;
-            foreach (Apparel thing in handApparel)
-            {
-                int thingOutmostLayer =
-                    thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
-                if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
-                {
-                    continue;
-                }
-
-                highestDrawOrder = thingOutmostLayer;
-                outerApparel = thing;
-            }
-
-            if (outerApparel == null)
-            {
-                return pawn.story.SkinColor;
-            }
-
-            hasGloves = true;
-            if (colorDictionary == null)
-            {
-                colorDictionary = new Dictionary<Thing, Color>();
-            }
-
-            if (ShowMeYourHandsMain.IsColorable.Contains(outerApparel.def))
-            {
-                CompColorable comp = outerApparel.TryGetComp<CompColorable>();
-                if (comp.Active)
-                {
-                    return comp.Color;
-                }
-            }
-
-            if (colorDictionary.ContainsKey(outerApparel))
-            {
-                return colorDictionary[outerApparel];
-            }
-
-            if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
-            {
-                colorDictionary[outerApparel] = outerApparel.def.GetColorForStuff(outerApparel.Stuff);
-            }
-            else
-            {
-                colorDictionary[outerApparel] =
-                    AverageColorFromTexture((Texture2D)outerApparel.Graphic.MatSingle.mainTexture);
-            }
-
-            return colorDictionary[outerApparel];
-        }
-
-        private Color getFeetColor(Pawn pawn, out bool hasShoes, out Color secondColor)
-        {
-            hasShoes = false;
-            secondColor = default;
-            List<Hediff_AddedPart> addedFeet = null;
-
-            if (pawn.story == null) // mechanoid or animal
-            {
-                PawnKindLifeStage curKindLifeStage = pawn.ageTracker.CurKindLifeStage;
-
-                return curKindLifeStage.bodyGraphicData.color;
-            }
 
 
 
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts ||
-                ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-            {
-                addedFeet = pawn.health?.hediffSet?.GetHediffs<Hediff_AddedPart>()
-                    .Where(x => x.Part.def == ShowMeYourHandsMain.FootDef ||
-                                x.Part.parts.Any(record => record.def == ShowMeYourHandsMain.FootDef)).ToList();
-            }
-
-            if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts && pawn.health is { hediffSet: { } })
-            {
-                /*
-                pawn.GetCompAnim(out CompBodyAnimator anim);
-
-                pawnsMissingAFoot = pawn.health
-                        .hediffSet
-                        .GetNotMissingParts().Count(record => record.def == ShowMeYourHandsMain.FootDef) +
-                    addedFeet?.Count < 2;
-                */
-            }
-
-            if (!ShowMeYourHandsMod.instance.Settings.MatchArmorColor || !(from apparel in pawn.apparel.WornApparel
-                                                                           where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Feet")
-                                                                           select apparel).Any())
-            {
-                if (!ShowMeYourHandsMod.instance.Settings.MatchArtificialLimbColor)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (addedFeet == null || !addedFeet.Any())
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                Color mainColor = (Color)default;
-
-                foreach (Hediff_AddedPart hediffAddedPart in addedFeet)
-                {
-                    if (!ShowMeYourHandsMain.HediffColors.ContainsKey(hediffAddedPart.def))
-                    {
-                        continue;
-                    }
-
-                    if (mainColor == default)
-                    {
-                        mainColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                        continue;
-                    }
-
-                    secondColor = ShowMeYourHandsMain.HediffColors[hediffAddedPart.def];
-                }
-
-                if (mainColor == default)
-                {
-                    return pawn.story.SkinColor;
-                }
-
-                if (secondColor == default)
-                {
-                    secondColor = pawn.story.SkinColor;
-                }
-
-                return mainColor;
-            }
-
-            IEnumerable<Apparel> footApparel = from apparel in pawn.apparel.WornApparel
-                                               where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Feet")
-                                               select apparel;
-
-            //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", footApparel)}");
-
-            Thing outerApparel = null;
-            int highestDrawOrder = 0;
-            if (!footApparel.Any())
-            {
-                return pawn.story.SkinColor;
-            }
-                foreach (Apparel thing in footApparel)
-                {
-                    int thingOutmostLayer =
-                        thing.def.apparel.layers.OrderByDescending(def => def.drawOrder).First().drawOrder;
-                    if (outerApparel != null && highestDrawOrder >= thingOutmostLayer)
-                    {
-                        continue;
-                    }
-
-                    highestDrawOrder = thingOutmostLayer;
-                    outerApparel = thing;
-                }
-
-            if (outerApparel == null)
-            {
-                return pawn.story.SkinColor;
-            }
-
-            hasShoes = true;
-            if (colorDictionary == null)
-            {
-                colorDictionary = new Dictionary<Thing, Color>();
-            }
-
-            if (ShowMeYourHandsMain.IsColorable.Contains(outerApparel.def))
-            {
-                CompColorable comp = outerApparel.TryGetComp<CompColorable>();
-                if (comp.Active)
-                {
-                    return comp.Color;
-                }
-            }
-
-            if (colorDictionary.ContainsKey(outerApparel))
-            {
-                return colorDictionary[outerApparel];
-            }
-
-            if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
-            {
-                colorDictionary[outerApparel] = outerApparel.def.GetColorForStuff(outerApparel.Stuff);
-            }
-            else
-            {
-                colorDictionary[outerApparel] =
-                    AverageColorFromTexture((Texture2D)outerApparel.Graphic.MatSingle.mainTexture);
-            }
-
-            return colorDictionary[outerApparel];
-        }
-
-
-        private Color32 AverageColorFromTexture(Texture2D texture)
-        {
-            RenderTexture renderTexture = RenderTexture.GetTemporary(
-                texture.width,
-                texture.height,
-                0,
-                RenderTextureFormat.Default,
-                RenderTextureReadWrite.Linear);
-            Graphics.Blit(texture, renderTexture);
-            RenderTexture previous = RenderTexture.active;
-            RenderTexture.active = renderTexture;
-            Texture2D tex = new(texture.width, texture.height);
-            tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
-            tex.Apply();
-            RenderTexture.active = previous;
-            RenderTexture.ReleaseTemporary(renderTexture);
-            return AverageColorFromColors(tex.GetPixels32());
-        }
-
-        private Color32 AverageColorFromColors(Color32[] colors)
-        {
-            Dictionary<Color32, int> shadeDictionary = new();
-            foreach (Color32 texColor in colors)
-            {
-                if (texColor.a < 50)
-                {
-                    // Ignore low transparency
-                    continue;
-                }
-
-                Rgb currentRgb = new() { B = texColor.b, G = texColor.b, R = texColor.r };
-
-                if (currentRgb.Compare(new Rgb { B = 0, G = 0, R = 0 }, new Cie1976Comparison()) < 2)
-                {
-                    // Ignore black pixels
-                    continue;
-                }
-
-                if (shadeDictionary.Count == 0)
-                {
-                    shadeDictionary[texColor] = 1;
-                    continue;
-                }
-
-
-                bool added = false;
-                foreach (Color32 rgb in shadeDictionary.Keys.Where(rgb =>
-                             currentRgb.Compare(new Rgb { B = rgb.b, G = rgb.b, R = rgb.r }, new Cie1976Comparison()) < 2))
-                {
-                    shadeDictionary[rgb]++;
-                    added = true;
-                    break;
-                }
-
-                if (!added)
-                {
-                    shadeDictionary[texColor] = 1;
-                }
-            }
-
-            if (shadeDictionary.Count == 0)
-            {
-                return new Color32(0, 0, 0, MaxValue);
-            }
-
-            Color32 greatestValue = shadeDictionary.Aggregate((rgb, max) => rgb.Value > max.Value ? rgb : max).Key;
-            greatestValue.a = MaxValue;
-            return greatestValue;
-        }
         public string TexNameHand()
         {
             string texNameHand;
@@ -1115,7 +1475,7 @@ namespace FacialStuff
 
     public static class HarmonyPatchesFS
     {
-       // public static bool AnimatorIsOpen()
-       // { return Find.WindowStack.IsOpen(typeof(MainTabWindow_WalkAnimator));// MainTabWindow_WalkAnimator.IsOpen;// || MainTabWindow_PoseAnimator.IsOpen;}
+        // public static bool AnimatorIsOpen()
+        // { return Find.WindowStack.IsOpen(typeof(MainTabWindow_WalkAnimator));// MainTabWindow_WalkAnimator.IsOpen;// || MainTabWindow_PoseAnimator.IsOpen;}
     }
 }

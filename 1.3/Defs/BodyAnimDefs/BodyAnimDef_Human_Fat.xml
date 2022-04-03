@@ -2,6 +2,7 @@
 <Defs>
   <BodyAnimDef>
     <armLength>0.45</armLength>
+    <extremitySize>1.08</extremitySize>
     <walkCycles>
       <li>
         <key>Amble</key>

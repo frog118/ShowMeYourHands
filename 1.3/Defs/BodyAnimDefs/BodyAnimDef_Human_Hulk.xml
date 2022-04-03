@@ -7,6 +7,7 @@
     <bipedWithHands>True</bipedWithHands>
     <armLength>0.55</armLength>
     <extraLegLength>0.35</extraLegLength>
+    <extremitySize>1.2</extremitySize>
     <hipOffsets>
       <li>
         <x>0.175</x>
@@ -71,8 +72,6 @@
       </li>
     </walkCycles>
     <WalkCycleType>Biped</WalkCycleType>
-    <poseCycles />
-    <PoseCycleType></PoseCycleType>
     <defName>BodyAnimDef_Human_Hulk</defName>
     <label>BodyAnimDef_Human_Hulk</label>
   </BodyAnimDef>

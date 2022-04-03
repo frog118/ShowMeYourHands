@@ -70,7 +70,7 @@ namespace FacialStuff.AnimatorWindows
         private int _frameLabel = 1;
 
         [NotNull]
-        public WalkCycleDef EditorWalkcycle { get; set; } = WalkCycleDefOf.Biped_Walk;
+        public WalkCycleDef EditorWalkcycle = WalkCycleDefOf.Biped_Walk;
 
         #endregion Private Fields
 
@@ -128,7 +128,7 @@ namespace FacialStuff.AnimatorWindows
             }
         }
 
-        protected static int CurrentFrameInt { get; set; }
+        protected static int CurrentFrameInt;
 
         protected static int LastInd
         {

@@ -15,11 +15,11 @@ namespace ShowMeYourHands.FSWalking
                 return;
             }
 
+
+            pawn.GetCompAnim()?.ClearCache();
+
+            pawn.CheckForAddedOrMissingPartsAndSetColors();
             pawn.GetCompAnim()?.pawnBodyGraphic?.Initialize();
-
-
-            pawn.GetComp<CompBodyAnimator>()?.ClearCache();
-
 
         }
     }

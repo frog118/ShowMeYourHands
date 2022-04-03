@@ -1,5 +1,6 @@
 ﻿// ReSharper disable StyleCop.SA1401
 
+using System;
 using UnityEngine;
 using Verse;
 
@@ -45,7 +46,7 @@ namespace FacialStuff.GraphicsFS
         {
             this.CompAni = compAni;
             this._pawn = compAni.pawn;
-
+            this._pawn.CheckForAddedOrMissingPartsAndSetColors();
             this.Initialize();
         }
 
@@ -74,9 +75,14 @@ namespace FacialStuff.GraphicsFS
         {
             string texNameFoot = CompAni.TexNameFoot();
             
-            Color skinColor;// = CompAni.FootColor;
             // no story, either animal or not humanoid biped
-            if (this._pawn.story == null)
+            
+            Color rightColorFoot = Color.red;
+            Color leftColorFoot = Color.blue;
+
+            Color skinColor;
+            bool animalOverride = this._pawn.story == null;
+            if (animalOverride)
             {
                 PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
 
@@ -84,77 +90,57 @@ namespace FacialStuff.GraphicsFS
             }
             else
             {
-                skinColor = this._pawn.story.SkinColor;
-            }
-            
-            Color rightColorFoot = Color.red;
-            Color leftColorFoot = Color.blue;
+                skinColor = _pawn.story.SkinColor;
 
-            Color rightFootColor = skinColor;
-            Color leftFootColor = skinColor;
-            Color metal = new(0.51f, 0.61f, 0.66f);
-
-            switch (this.CompAni.BodyStat.FootRight)
-            {
-                case PartStatus.Artificial:
-                    rightFootColor = metal;
-                    break;
             }
 
-            switch (this.CompAni.BodyStat.FootLeft)
-            {
-                case PartStatus.Artificial:
-                    leftFootColor = metal;
-                    break;
-            }
-
-            Color rightFootShadowColor = rightFootColor * this._shadowColor;
-            Color leftFootShadowColor = leftFootColor * this._shadowColor;
+            Color rightFootShadowColor = (animalOverride ? skinColor : this.CompAni.FootColorRight) * this._shadowColor;
+            Color leftFootShadowColor = (animalOverride ? skinColor : this.CompAni.FootColorLeft) * this._shadowColor;
 
 
             Vector2 drawSize = new(1f,1f);
-
+            var stats = this.CompAni.BodyStat;
             this.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootRight),
                 drawSize,
-                rightFootColor,
-                skinColor);
+                animalOverride? skinColor : this.CompAni.FootColorRight,
+                animalOverride ? skinColor : this.CompAni.FootColorRight);
 
             this.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootLeft),
                 drawSize,
-                leftFootColor,
-                skinColor);
+                animalOverride ? skinColor : this.CompAni.FootColorLeft,
+                animalOverride ? skinColor : this.CompAni.FootColorLeft);
 
             this.FootGraphicRightShadow = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootRight),
                 drawSize,
                 rightFootShadowColor,
-                skinColor);
+                rightFootShadowColor);
 
             this.FootGraphicLeftShadow = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootLeft),
                 drawSize,
                 leftFootShadowColor,
-                skinColor);
+                leftFootShadowColor);
 
             this.FootGraphicRightCol = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootRight),
                 drawSize,
-                rightColorFoot,
-                skinColor);
+                animalOverride ? skinColor : rightColorFoot,
+                animalOverride ? skinColor : rightColorFoot);
 
             this.FootGraphicLeftCol = GraphicDatabase.Get<Graphic_Multi>(
                 texNameFoot,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.FootLeft),
                 drawSize,
-                leftColorFoot,
-                skinColor);
+                animalOverride ? skinColor : leftColorFoot,
+                animalOverride ? skinColor : leftColorFoot);
         }
 
         private void InitializeGraphicsFrontPaws()
@@ -259,85 +245,80 @@ namespace FacialStuff.GraphicsFS
             Color rightColorHand = Color.cyan;
             Color leftColorHand = Color.magenta;
 
-            Color skinColor;// = CompAni.FootColor;
-            // no story, either animal or not humanoid biped
-            if (this._pawn.story == null)
-            {
-                PawnKindLifeStage curKindLifeStage = this._pawn.ageTracker.CurKindLifeStage;
 
-                skinColor = curKindLifeStage.bodyGraphicData.color;
-            }
-            else
-            {
-                skinColor = this._pawn.story.SkinColor;
-            }
-            Color rightHandColor = skinColor;
-            Color leftHandColor = skinColor;
+
+
 
             Color metal = new(0.51f, 0.61f, 0.66f);
 
-            switch (this.CompAni.BodyStat.HandRight)
-            {
-                case PartStatus.Artificial:
-                    rightHandColor = metal;
-                    break;
-            }
-
-            switch (this.CompAni.BodyStat.HandLeft)
-            {
-                case PartStatus.Artificial:
-                    leftHandColor = metal;
-                    break;
-            }
+            var leftHandColor = this.CompAni.HandColorLeft;
+            var rightHandColor = this.CompAni.HandColorRight;
 
             Color leftHandColorShadow = leftHandColor * this._shadowColor;
             Color rightHandColorShadow = rightHandColor * this._shadowColor;
 
+            var stats = this.CompAni.BodyStat;
             Vector2 drawSize = new(1f, 1f);
             this.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandRight),
                 drawSize,
                 rightHandColor,
-                skinColor);
+                rightHandColor);
 
             this.HandGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandLeft),
                 drawSize,
                 leftHandColor,
-                skinColor);
+                leftHandColor);
 
             this.HandGraphicRightShadow = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandRight),
                 drawSize,
                 rightHandColorShadow,
-                skinColor);
+                rightHandColorShadow);
 
             this.HandGraphicLeftShadow = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandLeft),
                 drawSize,
                 leftHandColorShadow,
-                skinColor);
+                leftHandColorShadow);
 
             // for development
             this.HandGraphicRightCol = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandRight),
                 drawSize,
                 rightColorHand,
-                skinColor);
+                rightColorHand);
 
             this.HandGraphicLeftCol = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,
-                ShaderDatabase.CutoutSkin,
+                GetShader(stats.HandLeft),
                 drawSize,
                 leftColorHand,
-                skinColor);
+                leftColorHand);
         }
 
+        private Shader GetShader(PartStatus partStatus)
+        {
+            switch (partStatus)
+            {
+                case PartStatus.Natural:
+                    return ShaderDatabase.CutoutSkin;
+                case PartStatus.Missing:
+                case PartStatus.Artificial:
+                case PartStatus.DisplayOverBeard:
+                case PartStatus.Apparel:
+                default:
+                    break;
+            }
+            return ShaderDatabase.Cutout;
+
+        }
 
         #endregion Private Methods
     }

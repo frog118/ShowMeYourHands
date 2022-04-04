@@ -5,7 +5,7 @@
     <handType>Human</handType>
     <quadruped>False</quadruped>
     <bipedWithHands>True</bipedWithHands>
-    <armLength>0.525</armLength>
+    <armLength>0.425</armLength>
     <extraLegLength>0.175</extraLegLength>
     <extremitySize>0.85</extremitySize>
     <hipOffsets>

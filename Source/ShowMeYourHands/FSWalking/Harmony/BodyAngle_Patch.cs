@@ -76,7 +76,11 @@ namespace ShowMeYourHands.FSWalking
         [HarmonyPriority(0)]
         public static void Prefix(PawnRenderer __instance, Pawn ___pawn, Dictionary<Apparel, (Color, bool)> ___tmpOriginalColors, Rot4 rotation, ref float angle, Vector3 positionOffset, bool renderHead, bool renderBody, bool portrait, bool renderHeadgear, bool renderClothes, Dictionary<Apparel, Color> overrideApparelColor = null, Color? overrideHairColor = null, bool stylingStation = false)
         {
-
+            if (portrait)
+            {
+                Patch_PawnRenderer_RenderPawnInternal.skipPatch = true;
+                return;
+            }
             if (___pawn == null || !___pawn.GetCompAnim(out CompBodyAnimator compAnim))
             {
                 return;
@@ -86,6 +90,7 @@ namespace ShowMeYourHands.FSWalking
             {
                 angle += compAnim.BodyAngle;
             }
+
             Patch_PawnRenderer_RenderPawnInternal.skipPatch = true;
 
         }

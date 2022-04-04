@@ -60,7 +60,7 @@ namespace FacialStuff
                 WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
                 if (walkCycle != null)
                 {
-                    float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
+                    float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
                     float bam = this.compAnimator.BodyOffsetZ*bodysizeScaling;
 
                     rootLoc.z += bam;
@@ -237,12 +237,12 @@ namespace FacialStuff
             // pawn jumping too high,move the feet
             if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
             {
-                float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
+                float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
 
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
-                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.5f)
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.7f)
                 {
                     float step = 0.025f;
                     footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
@@ -438,19 +438,18 @@ namespace FacialStuff
             }
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
-            float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
+            float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
 
             BodyAnimDef body = this.compAnimator.BodyAnim;
 
-            if (carrying && !compAnimator.IsMoving) // pawn could be eating
+            if (carrying) 
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
 
-
                 Vector3 handVector = drawPos;
-
+                handVector.y += Offsets.YOffset_CarriedThing;
                 // Arms too far away from body
-                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.5f)
+                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.25f)
                 {
                     float step = 0.025f;
                     handVector = Vector3.MoveTowards(handVector, this.pawn.DrawPos, step);
@@ -460,7 +459,7 @@ namespace FacialStuff
                 handVector.y = drawPos.y;
                 if (this.compAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
                 {
-                    handVector.y -= Offsets.YOffset_Behind;
+                    // handVector.y -= Offsets.YOffset_Behind;
                 }
                 drawPos = handVector;
             }

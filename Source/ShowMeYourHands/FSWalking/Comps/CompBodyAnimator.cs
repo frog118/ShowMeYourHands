@@ -59,7 +59,7 @@ namespace FacialStuff
             {
                 return;
             }
-            float bodysizeScaling = GetBodysizeScaling(out _);
+            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
             float percent = this.MovedPercent;
 
             float flot = percent;
@@ -128,7 +128,7 @@ namespace FacialStuff
         {
             // Has the pawn something in his hands?
 
-            float bodysizeScaling = GetBodysizeScaling(out _);
+            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
 
             Rot4 rot = this.CurrentRotation;
 
@@ -344,7 +344,7 @@ namespace FacialStuff
 
         public void ModifyBodyAndFootPos(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            float bodysizeScaling = GetBodysizeScaling(out _);
+            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
             float legModifier = this.BodyAnim.extraLegLength * bodysizeScaling;
             float posModB = legModifier * 0.75f;
             float posModF = -legModifier * 0.25f;

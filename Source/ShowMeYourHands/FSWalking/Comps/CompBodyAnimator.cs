@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FacialStuff.DefOfs;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -207,8 +208,12 @@ namespace FacialStuff
             lastMainHandPosition = rightHand;
         }
 
-        [CanBeNull]
-        public WalkCycleDef WalkCycle { get; private set; }
+        [NotNull]
+        public WalkCycleDef WalkCycle
+        {
+            get => _walkCycle == null ? WalkCycleDefOf.Biped_Amble : _walkCycle;
+            private set => _walkCycle = value;
+        }
 
         #endregion Public Fields
 
@@ -233,7 +238,11 @@ namespace FacialStuff
 
         #region Public Properties
 
-        public BodyAnimator BodyAnimator { get; private set; }
+        public BodyAnimator BodyAnimator
+        {
+            get => _bodyAnimator;
+            private set => _bodyAnimator = value;
+        }
 
         public JitterHandler Jitterer
             => GetHiddenValue(typeof(Pawn_DrawTracker), this.pawn.Drawer, "jitterer", _infoJitterer) as
@@ -242,7 +251,11 @@ namespace FacialStuff
         [NotNull]
         public Pawn pawn => this.parent as Pawn;
 
-        public List<PawnBodyDrawer> pawnBodyDrawers { get; private set; }
+        public List<PawnBodyDrawer> pawnBodyDrawers
+        {
+            get => _pawnBodyDrawers;
+            private set => _pawnBodyDrawers = value;
+        }
 
         public CompProperties_BodyAnimator Props => (CompProperties_BodyAnimator)this.props;
 
@@ -308,6 +321,26 @@ namespace FacialStuff
             this._cachedSkinMatsBodyBaseHash = -1;
             this._cachedNakedMatsBodyBaseHash = -1;
         }
+
+        public void SetBodyAngle()
+        {
+            WalkCycleDef walkCycle = this.WalkCycle;
+            float movedPercent = this.MovedPercent;
+
+            Rot4 currentRotation = this.CurrentRotation;
+            if (currentRotation.IsHorizontal)
+            {
+                this.BodyAngle = (currentRotation == Rot4.West ? -1 : 1)
+                                 * walkCycle.BodyAngle.Evaluate(movedPercent);
+            }
+            else
+            {
+                this.BodyAngle = (currentRotation == Rot4.South ? -1 : 1)
+                                 * walkCycle.BodyAngleVertical.Evaluate(movedPercent);
+            }
+
+        }
+
 
         public void ModifyBodyAndFootPos(ref Vector3 rootLoc, ref Vector3 footPos)
         {
@@ -381,7 +414,7 @@ namespace FacialStuff
                 {
                     PawnBodyDrawer thingComp =
                     (PawnBodyDrawer)Activator.CreateInstance(this.Props.bodyDrawers[i].GetType());
-                    thingComp.CompAnimator = this;
+                    thingComp.compAnimator = this;
                     thingComp.pawn = this.pawn;
                     this.pawnBodyDrawers.Add(thingComp);
                     thingComp.Initialize();
@@ -394,7 +427,7 @@ namespace FacialStuff
                 PawnBodyDrawer thingComp = isQuaduped
                     ? (PawnBodyDrawer)Activator.CreateInstance(typeof(QuadrupedDrawer))
                     : (PawnBodyDrawer)Activator.CreateInstance(typeof(HumanBipedDrawer));
-                thingComp.CompAnimator = this;
+                thingComp.compAnimator = this;
                 thingComp.pawn = this.pawn;
                 this.pawnBodyDrawers.Add(thingComp);
                 thingComp.Initialize();
@@ -540,15 +573,20 @@ namespace FacialStuff
 
         #endregion Public Methods
 
-        public float MovedPercent { get; private set; }
-        public float BodyAngle;
+        public float MovedPercent
+        {
+            get => _movedPercent;
+            private set => _movedPercent = value;
+        }
+
+        public float BodyAngle = 0f;
 
         public float LastAimAngle = 143f;
 
         //  public float lastWeaponAngle = 53f;
         public readonly Vector3[] LastPosition = new Vector3[(int)TweenThing.Max];
 
-        public readonly FloatTween AimAngleTween = new();
+        // public readonly FloatTween AimAngleTween = new();
         public bool HasLeftHandPosition => this.SecondHandPosition != Vector3.zero;
 
         public Vector3 LastEqPos = Vector3.zero;
@@ -1306,33 +1344,31 @@ namespace FacialStuff
                 return 0f;
             }
 
-            if (pather.Moving)
+            if (!pather.Moving) return 0f;
+
+            if (pawn.stances.FullBodyBusy)
             {
-                if (pawn.stances.FullBodyBusy)
-                {
-                    return 0f;
-                }
-
-                if (pather.BuildingBlockingNextPathCell() != null)
-                {
-                    return 0f;
-                }
-
-                if (pather.NextCellDoorToWaitForOrManuallyOpen() != null)
-                {
-                    return 0f;
-                }
-
-                if (pather.WillCollideWithPawnOnNextPathCell())
-                {
-                    return 0f;
-                }
-
-                this.IsMoving = true;
-                return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
+                return 0f;
             }
 
-            return 0f;
+            if (pather.BuildingBlockingNextPathCell() != null)
+            {
+                return 0f;
+            }
+
+            if (pather.NextCellDoorToWaitForOrManuallyOpen() != null)
+            {
+                return 0f;
+            }
+
+            if (pather.WillCollideWithPawnOnNextPathCell())
+            {
+                return 0f;
+            }
+
+            this.IsMoving = true;
+            return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
+
         }
 
         public bool IsRider = false;
@@ -1392,13 +1428,11 @@ namespace FacialStuff
                 if (ShowMeYourHandsMod.instance.Settings.UseFeet)
                 {
                     WalkCycleDef walkCycle = this.WalkCycle;
-                    if (walkCycle != null)
+
+                    SimpleCurve curve = walkCycle.BodyOffsetZ;
+                    if (curve.PointsCount > 0)
                     {
-                        SimpleCurve curve = walkCycle.BodyOffsetZ;
-                        if (curve.PointsCount > 0)
-                        {
-                            return curve.Evaluate(this.MovedPercent);
-                        }
+                        return curve.Evaluate(this.MovedPercent);
                     }
                 }
 
@@ -1406,7 +1440,7 @@ namespace FacialStuff
             }
         }
 
-        public bool IsMoving { get; private set; }
+        public bool IsMoving;
 
 
 
@@ -1428,6 +1462,10 @@ namespace FacialStuff
         public float Offset_Angle = 0f;
 
         public Vector3 Offset_Pos = Vector3.zero;
+        [CanBeNull] private WalkCycleDef _walkCycle;
+        private BodyAnimator _bodyAnimator;
+        private List<PawnBodyDrawer> _pawnBodyDrawers;
+        private float _movedPercent;
 
         public Rot4 CurrentRotation
         {

@@ -8,7 +8,6 @@ using Verse;
 
 namespace ShowMeYourHands.FSWalking;
 
-[HarmonyAfter("com.yayo.yayoAni")]
 [HarmonyPatch(typeof(Pawn_DrawTracker), "DrawAt")]
 class DrawAt_Patch
 {
@@ -73,7 +72,7 @@ class DrawAt_Patch
         // Tweener
         Vector3Tween eqTween = compAnim.Vector3Tweens[(int)TweenThing.Equipment];
 
-        FloatTween angleTween = compAnim.AimAngleTween;
+        // FloatTween angleTween = compAnim.AimAngleTween;
         Vector3Tween leftHand = compAnim.Vector3Tweens[(int)TweenThing.HandLeft];
         Vector3Tween rightHand = compAnim.Vector3Tweens[(int)TweenThing.HandRight];
 
@@ -95,10 +94,12 @@ class DrawAt_Patch
                 eqTween.Update(elapsedTime);
             }
 
+            /*
             if (angleTween.State == TweenState.Running)
             {
                 compAnim.AimAngleTween.Update(3f * rateMultiplier);
             }
+            */
 
         }
         compAnim.CheckMovement();

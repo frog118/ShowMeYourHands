@@ -13,13 +13,13 @@ namespace FacialStuff
         {
 
 
-            if (this.CompAnimator.IsMoving)
+            if (this.compAnimator.IsMoving)
             {
                 drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
             }
 
             // Fix the position, maybe needs new code in GetJointPositions()?
-            Rot4 _compAnimatorCurrentRotation = this.CompAnimator.CurrentRotation;
+            Rot4 _compAnimatorCurrentRotation = this.compAnimator.CurrentRotation;
             if (!_compAnimatorCurrentRotation.IsHorizontal)
             {
                 //       rootLoc.y -=  Offsets.YOffset_Behind;
@@ -49,15 +49,15 @@ namespace FacialStuff
         protected virtual void DrawFrontPaws(Quaternion drawQuat, Vector3 rootLoc,
             float factor = 1f)
         {
-            if (!this.CompAnimator.Props.quadruped)
+            if (!this.compAnimator.Props.quadruped)
             {
                 return;
             }
 
             // Basic values
-            BodyAnimDef body = this.CompAnimator.BodyAnim;
+            BodyAnimDef body = this.compAnimator.BodyAnim;
 
-            Rot4 rot = this.CompAnimator.CurrentRotation;
+            Rot4 rot = this.compAnimator.CurrentRotation;
             if (body == null)
             {
                 return;
@@ -82,15 +82,15 @@ namespace FacialStuff
             float footAngleLeft = 0f;
             float offsetJoint = 0;
 
-            WalkCycleDef cycle = this.CompAnimator.WalkCycle;
+            WalkCycleDef cycle = this.compAnimator.WalkCycle;
 
 
-            if (cycle != null && CompAnimator.IsMoving)
+            if (cycle != null && compAnimator.IsMoving)
             {
-                offsetJoint = cycle.ShoulderOffsetHorizontalX.Evaluate(this.CompAnimator.MovedPercent);
+                offsetJoint = cycle.ShoulderOffsetHorizontalX.Evaluate(this.compAnimator.MovedPercent);
 
                 // Center = drawpos of carryThing
-                this.CompAnimator.DoWalkCycleOffsets(
+                this.compAnimator.DoWalkCycleOffsets(
                     ref rightFootAnim,
                     ref leftFootAnim,
                     ref footAngleRight,
@@ -118,23 +118,23 @@ namespace FacialStuff
                 switch (rot.AsInt)
                 {
                     default:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicRight
+                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
                             ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
+                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
                             ?.MatAt(rot));
                         break;
 
                     case 1:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicRight
+                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
                             ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
+                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
                             ?.FrontPawGraphicLeftShadow?.MatAt(rot));
                         break;
 
                     case 3:
-                        matRight = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
+                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
                             ?.FrontPawGraphicRightShadow?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
+                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
                             ?.MatAt(rot));
                         break;
                 }
@@ -144,7 +144,7 @@ namespace FacialStuff
 
             if (matLeft != null)
             {
-                if (this.CompAnimator.BodyStat.FootLeft != PartStatus.Missing)
+                if (this.compAnimator.BodyStat.FootLeft != PartStatus.Missing)
                 {
                     Vector3 position = ground + (jointPositions.LeftJoint + leftFootAnim) * factor;
                     Graphics.DrawMesh(
@@ -158,7 +158,7 @@ namespace FacialStuff
 
             if (matRight != null)
             {
-                if (this.CompAnimator.BodyStat.FootRight != PartStatus.Missing)
+                if (this.compAnimator.BodyStat.FootRight != PartStatus.Missing)
                 {
                     Vector3 position = ground + (jointPositions.RightJoint + rightFootAnim) * factor;
                     Graphics.DrawMesh(

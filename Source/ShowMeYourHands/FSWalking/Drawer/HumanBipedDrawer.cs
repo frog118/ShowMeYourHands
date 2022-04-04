@@ -34,15 +34,15 @@ namespace FacialStuff
         #region Public Properties
 
         public Material LeftHandMat =>
-        this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.HandGraphicLeft?.MatSingle);
+        this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.HandGraphicLeft?.MatSingle);
 
-        public Material LeftHandShadowMat => this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
+        public Material LeftHandShadowMat => this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
                                                                            ?.HandGraphicLeftShadow?.MatSingle);
 
         public Material RightHandMat =>
-        this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic?.HandGraphicRight?.MatSingle);
+        this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.HandGraphicRight?.MatSingle);
 
-        public Material RightHandShadowMat => this.Flasher.GetDamagedMat(this.CompAnimator.pawnBodyGraphic
+        public Material RightHandShadowMat => this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
                                                                             ?.HandGraphicRightShadow?.MatSingle);
 
         #endregion Public Properties
@@ -51,20 +51,20 @@ namespace FacialStuff
 
         public override void ApplyBodyWobble(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            if (this.CompAnimator.BodyAnim != null)
+            if (this.compAnimator.BodyAnim != null)
             {
-                this.CompAnimator.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
+                this.compAnimator.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
             }
-            if (this.CompAnimator.IsMoving)
+            if (this.compAnimator.IsMoving)
             {
-                WalkCycleDef walkCycle = this.CompAnimator.WalkCycle;
+                WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
                 if (walkCycle != null)
                 {
-                    float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
-                    float bam = this.CompAnimator.BodyOffsetZ*bodysizeScaling;
+                    float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
+                    float bam = this.compAnimator.BodyOffsetZ*bodysizeScaling;
 
                     rootLoc.z += bam;
-                    this.SetBodyAngle(this.CompAnimator.MovedPercent);
+                    this.compAnimator.SetBodyAngle();
 
                     // Log.Message(CompFace.Pawn + " - " + this.movedPercent + " - " + bam.ToString());
                 }
@@ -79,12 +79,12 @@ namespace FacialStuff
 
         public void ApplyEquipmentWobble(ref Vector3 rootLoc)
         {
-            if (this.CompAnimator.IsMoving)
+            if (this.compAnimator.IsMoving)
             {
-                WalkCycleDef walkCycle = this.CompAnimator.WalkCycle;
+                WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
                 if (walkCycle != null)
                 {
-                    float bam = this.CompAnimator.BodyOffsetZ;
+                    float bam = this.compAnimator.BodyOffsetZ;
                     rootLoc.z += bam;
 
                     // Log.Message(CompFace.Pawn + " - " + this.movedPercent + " - " + bam.ToString());
@@ -133,9 +133,9 @@ namespace FacialStuff
 
             // total weapon angle change during animation sequence
             int totalSwingAngle = 0;
-            Vector3 currentOffset = this.CompAnimator.Jitterer.CurrentOffset;
+            Vector3 currentOffset = this.compAnimator.Jitterer.CurrentOffset;
 
-            float jitterMax = this.CompAnimator.JitterMax;
+            float jitterMax = this.compAnimator.JitterMax;
             float magnitude = currentOffset.magnitude;
             float animationPhasePercent = magnitude / jitterMax;
             {
@@ -172,7 +172,7 @@ namespace FacialStuff
             Job curJob = this.pawn.CurJob;
             if (curJob != null)
             {
-                if (curJob.def == JobDefOf.Ingest && !this.CompAnimator.CurrentRotation.IsHorizontal)
+                if (curJob.def == JobDefOf.Ingest && !this.compAnimator.CurrentRotation.IsHorizontal)
                 {
                     if (curJob.targetB.IsValid)
                     {
@@ -195,15 +195,15 @@ namespace FacialStuff
                 drawQuat = Quaternion.AngleAxis(0f, Vector3.up);
             }
 
-            if (this.CompAnimator.IsMoving)
+            if (this.compAnimator.IsMoving)
             {
                 // drawQuat *= Quaternion.AngleAxis(-pawn.Drawer.renderer.BodyAngle(), Vector3.up);
             }
 
-            Rot4 rot = this.CompAnimator.CurrentRotation;
+            Rot4 rot = this.compAnimator.CurrentRotation;
 
             // Basic values
-            BodyAnimDef body = this.CompAnimator.BodyAnim;
+            BodyAnimDef body = this.compAnimator.BodyAnim;
             if (body == null)
             {
                 return;
@@ -218,11 +218,11 @@ namespace FacialStuff
             float footAngleRight = 0;
             float footAngleLeft = 0;
             float offsetJoint = 0;
-            WalkCycleDef cycle = this.CompAnimator.WalkCycle;
-            if (this.CompAnimator.IsMoving && cycle != null)
+            WalkCycleDef cycle = this.compAnimator.WalkCycle;
+            if (this.compAnimator.IsMoving && cycle != null)
             {
-                offsetJoint = cycle.HipOffsetHorizontalX.Evaluate(this.CompAnimator.MovedPercent);
-                this.CompAnimator.DoWalkCycleOffsets(
+                offsetJoint = cycle.HipOffsetHorizontalX.Evaluate(this.compAnimator.MovedPercent);
+                this.compAnimator.DoWalkCycleOffsets(
                                         ref rightFootCycle,
                                         ref leftFootCycle,
                                         ref footAngleRight,
@@ -235,9 +235,9 @@ namespace FacialStuff
             }
 
             // pawn jumping too high,move the feet
-            if (!CompAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
+            if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
             {
-                float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
+                float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
 
                 Vector3 footVector = rootLoc;
 
@@ -249,7 +249,7 @@ namespace FacialStuff
                 }
 
                 footVector.y = rootLoc.y;
-                if (this.CompAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
+                if (this.compAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
                 {
                     footVector.y -= Offsets.YOffset_Behind;
                 }
@@ -269,10 +269,10 @@ namespace FacialStuff
             else 
             */
             {
-                Material rightFootMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicRight?.MatAt(rot);
-                Material leftFootMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeft?.MatAt(rot);
-                Material leftShadowMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicLeftShadow?.MatAt(rot);
-                Material rightShadowMat = this.CompAnimator.pawnBodyGraphic?.FootGraphicRightShadow?.MatAt(rot);
+                Material rightFootMat = this.compAnimator.pawnBodyGraphic?.FootGraphicRight?.MatAt(rot);
+                Material leftFootMat = this.compAnimator.pawnBodyGraphic?.FootGraphicLeft?.MatAt(rot);
+                Material leftShadowMat = this.compAnimator.pawnBodyGraphic?.FootGraphicLeftShadow?.MatAt(rot);
+                Material rightShadowMat = this.compAnimator.pawnBodyGraphic?.FootGraphicRightShadow?.MatAt(rot);
 
                 switch (rot.AsInt)
                 {
@@ -295,9 +295,9 @@ namespace FacialStuff
                 }
             }
 
-            bool drawRight = matRight != null && this.CompAnimator.BodyStat.FootRight != PartStatus.Missing;
+            bool drawRight = matRight != null && this.compAnimator.BodyStat.FootRight != PartStatus.Missing;
 
-            bool drawLeft = matLeft != null && this.CompAnimator.BodyStat.FootLeft != PartStatus.Missing;
+            bool drawLeft = matLeft != null && this.compAnimator.BodyStat.FootLeft != PartStatus.Missing;
 
             groundPos.LeftJoint = drawQuat * groundPos.LeftJoint;
             groundPos.RightJoint = drawQuat * groundPos.RightJoint;
@@ -416,7 +416,7 @@ namespace FacialStuff
             }
 
 
-            if (!this.CompAnimator.Props.bipedWithHands)
+            if (!this.compAnimator.Props.bipedWithHands)
             {
                 return;
             }
@@ -429,20 +429,20 @@ namespace FacialStuff
                 object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
-                    this.CompAnimator.DoHandOffsetsOnWeapon(eq, this.CompAnimator.CurrentRotation == Rot4.West ? 217f : 143f);
+                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f);
                 }
             }
             else
             {
-                this.CompAnimator.FirstHandPosition = this.CompAnimator.SecondHandPosition = Vector3.zero;
+                this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
             }
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
-            float bodysizeScaling = CompAnimator.GetBodysizeScaling(out _);
+            float bodysizeScaling = compAnimator.GetBodysizeScaling(out _);
 
-            BodyAnimDef body = this.CompAnimator.BodyAnim;
+            BodyAnimDef body = this.compAnimator.BodyAnim;
 
-            if (carrying && !CompAnimator.IsMoving) // pawn could be eating
+            if (carrying && !compAnimator.IsMoving) // pawn could be eating
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
 
@@ -458,7 +458,7 @@ namespace FacialStuff
 
                 // carriedThing.DrawAt(drawPos, flip);
                 handVector.y = drawPos.y;
-                if (this.CompAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
+                if (this.compAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
                 {
                     handVector.y -= Offsets.YOffset_Behind;
                 }
@@ -466,7 +466,7 @@ namespace FacialStuff
             }
 
 
-            Rot4 rot = this.CompAnimator.CurrentRotation;
+            Rot4 rot = this.compAnimator.CurrentRotation;
 
             if (body == null)
             {
@@ -482,15 +482,15 @@ namespace FacialStuff
             List<float> shoulderAngle = new() { 0f, 0f };
             Vector3 rightHand = Vector3.zero;
             Vector3 leftHand = Vector3.zero;
-            WalkCycleDef walkCycle = this.CompAnimator.WalkCycle;
+            WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
             //PoseCycleDef poseCycle = this.CompAnimator.PoseCycle;
 
             if (walkCycle != null && !carrying)
             {
-                float offsetJoint = walkCycle.ShoulderOffsetHorizontalX.Evaluate(this.CompAnimator.MovedPercent);
+                float offsetJoint = walkCycle.ShoulderOffsetHorizontalX.Evaluate(this.compAnimator.MovedPercent);
 
                 // Children's arms are way too long
-                this.CompAnimator.DoWalkCycleOffsets(
+                this.compAnimator.DoWalkCycleOffsets(
                                         body.armLength,
                                         ref rightHand,
                                         ref leftHand,
@@ -531,8 +531,8 @@ namespace FacialStuff
                 }
             }
 
-            bool drawLeft = matLeft != null && this.CompAnimator.BodyStat.HandLeft != PartStatus.Missing;
-            bool drawRight = matRight != null && this.CompAnimator.BodyStat.HandRight != PartStatus.Missing;
+            bool drawLeft = matLeft != null && this.compAnimator.BodyStat.HandLeft != PartStatus.Missing;
+            bool drawRight = matRight != null && this.compAnimator.BodyStat.HandRight != PartStatus.Missing;
 
             float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f; 
 
@@ -542,10 +542,10 @@ namespace FacialStuff
                 Quaternion quat;
                 Vector3 position;
                 bool noTween = false;
-                if (!this.CompAnimator.IsMoving && this.CompAnimator.SecondHandPosition != Vector3.zero)
+                if (!this.compAnimator.IsMoving && this.compAnimator.SecondHandPosition != Vector3.zero)
                 {
-                    position = this.CompAnimator.SecondHandPosition;
-                    quat = this.CompAnimator.SecondHandQuat;
+                    position = this.compAnimator.SecondHandPosition;
+                    quat = this.compAnimator.SecondHandQuat;
                     quat *= Quaternion.AngleAxis(90f, Vector3.up);
                     noTween = true;
                 }
@@ -576,11 +576,11 @@ namespace FacialStuff
                 Quaternion quat;
                 Vector3 position;
                 bool noTween = false;
-                if (this.CompAnimator.FirstHandPosition != Vector3.zero)
+                if (this.compAnimator.FirstHandPosition != Vector3.zero)
                 {
-                    quat = this.CompAnimator.FirstHandQuat;
+                    quat = this.compAnimator.FirstHandQuat;
                     quat *= Quaternion.AngleAxis(-90f, Vector3.up);
-                    position = this.CompAnimator.FirstHandPosition;
+                    position = this.compAnimator.FirstHandPosition;
                     noTween = true;
                 }
                 else
@@ -641,26 +641,6 @@ namespace FacialStuff
             base.Initialize();
         }
 
-        public void SetBodyAngle(float movedPercent)
-        {
-            WalkCycleDef walkCycle = this.CompAnimator.WalkCycle;
-            if (walkCycle != null)
-            {
-                float angle;
-                if (this.CompAnimator.CurrentRotation.IsHorizontal)
-                {
-                    angle = (this.CompAnimator.CurrentRotation == Rot4.West ? -1 : 1)
-                          * walkCycle.BodyAngle.Evaluate(movedPercent);
-                }
-                else
-                {
-                    angle = (this.CompAnimator.CurrentRotation == Rot4.South ? -1 : 1)
-                          * walkCycle.BodyAngleVertical.Evaluate(movedPercent);
-                }
-
-                this.CompAnimator.BodyAngle = angle;
-            }
-        }
 
         public Job lastJob;
 
@@ -676,7 +656,7 @@ namespace FacialStuff
 
             if (this.pawn.CurJob != null && this.pawn.CurJob != this.lastJob)
             {
-                BodyAnimDef animDef = this.CompAnimator.BodyAnim;
+                BodyAnimDef animDef = this.compAnimator.BodyAnim;
 
                 Dictionary<LocomotionUrgency, WalkCycleDef> cycles = animDef?.walkCycles;
 
@@ -686,12 +666,12 @@ namespace FacialStuff
                     {
                         if (cycle != null)
                         {
-                            this.CompAnimator.SetWalkCycle(cycle);
+                            this.compAnimator.SetWalkCycle(cycle);
                         }
                     }
                     else
                     {
-                        this.CompAnimator.SetWalkCycle(animDef.walkCycles.FirstOrDefault().Value);
+                        this.compAnimator.SetWalkCycle(animDef.walkCycles.FirstOrDefault().Value);
                     }
                 }
 
@@ -726,23 +706,23 @@ namespace FacialStuff
 
         protected void GetBipedMesh(out Mesh meshRight, out Mesh meshLeft)
         {
-            Rot4 rot = this.CompAnimator.CurrentRotation;
+            Rot4 rot = this.compAnimator.CurrentRotation;
 
             switch (rot.AsInt)
             {
                 default:
-                    meshRight = this.CompAnimator.pawnBodyMesh;// MeshPool.plane10;
-                    meshLeft = this.CompAnimator.pawnBodyMeshFlipped; // MeshPool.plane10Flip;
+                    meshRight = this.compAnimator.pawnBodyMesh;// MeshPool.plane10;
+                    meshLeft = this.compAnimator.pawnBodyMeshFlipped; // MeshPool.plane10Flip;
                     break;
 
                 case 1:
-                    meshRight = this.CompAnimator.pawnBodyMesh;
-                    meshLeft = this.CompAnimator.pawnBodyMesh;
+                    meshRight = this.compAnimator.pawnBodyMesh;
+                    meshLeft = this.compAnimator.pawnBodyMesh;
                     break;
 
                 case 3:
-                    meshRight = CompAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
-                    meshLeft = CompAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
+                    meshRight = compAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
+                    meshLeft = compAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
                     break;
             }
         }
@@ -765,9 +745,9 @@ namespace FacialStuff
                 return;
             }
             
-            if (Find.TickManager.TicksGame == this.CompAnimator.LastPosUpdate[(int)tweenThing])
+            if (Find.TickManager.TicksGame == this.compAnimator.LastPosUpdate[(int)tweenThing])
             {
-                position = this.CompAnimator.LastPosition[(int)tweenThing];
+                position = this.compAnimator.LastPosition[(int)tweenThing];
             }
             else
             {
@@ -777,16 +757,16 @@ namespace FacialStuff
                     noTween = true;
                 }
 
-                this.CompAnimator.LastPosUpdate[(int)tweenThing] = Find.TickManager.TicksGame;
+                this.compAnimator.LastPosUpdate[(int)tweenThing] = Find.TickManager.TicksGame;
 
 
-                Vector3Tween tween = this.CompAnimator.Vector3Tweens[(int)tweenThing];
+                Vector3Tween tween = this.compAnimator.Vector3Tweens[(int)tweenThing];
 
 
                 switch (tween.State)
                 {
                     case TweenState.Running:
-                        if (noTween || this.CompAnimator.IsMoving)
+                        if (noTween || this.compAnimator.IsMoving)
                         {
                             tween.Stop(StopBehavior.ForceComplete);
                         }
@@ -798,7 +778,7 @@ namespace FacialStuff
                         break;
 
                     case TweenState.Stopped:
-                        if (noTween || (this.CompAnimator.IsMoving))
+                        if (noTween || (this.compAnimator.IsMoving))
                         {
                             break;
                         }
@@ -806,7 +786,7 @@ namespace FacialStuff
                         ScaleFunc scaleFunc = ScaleFuncs.SineEaseOut;
 
 
-                        Vector3 start = this.CompAnimator.LastPosition[(int)tweenThing];
+                        Vector3 start = this.compAnimator.LastPosition[(int)tweenThing];
                         float distance = Vector3.Distance(start, position);
                         float duration = Mathf.Abs(distance * 50f);
                         if (start != Vector3.zero && duration > 12f)
@@ -819,7 +799,7 @@ namespace FacialStuff
                         break;
                 }
 
-                this.CompAnimator.LastPosition[(int)tweenThing] = position;
+                this.compAnimator.LastPosition[(int)tweenThing] = position;
             }
 
             //  tweener.PreThingPosCalculation(tweenThing, noTween);

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using FacialStuff.Genetics;
 using HarmonyLib;
+using JetBrains.Annotations;
 using RimWorld;
 using ShowMeYourHands.FSWalking;
 using UnityEngine;
@@ -26,7 +28,7 @@ public static class ShowMeYourHandsMain
     public static readonly Dictionary<ThingDef, Vector3> eastOffsets = new();
     public static readonly Dictionary<ThingDef, Vector3> westOffsets = new();
 
-    public static readonly List<ThingDef> IsColorable;
+    [NotNull] public static readonly List<ThingDef> IsColorable;
 
     public static readonly Harmony harmony;
 
@@ -179,7 +181,7 @@ public static class ShowMeYourHandsMain
                          null);
         */
         // FS Hands on Weapons
-        /*
+        // more skin colors
         harmony.Patch(
                          AccessTools.Method(typeof(PawnSkinColors), "GetSkinDataIndexOfMelanin"),
                          new HarmonyMethod(
@@ -204,7 +206,7 @@ public static class ShowMeYourHandsMain
                                            typeof(PawnSkinColors_FS),
                                            nameof(PawnSkinColors_FS.GetMelaninCommonalityFactor_Prefix)),
                          null);
-        */
+        
 
     }
 

@@ -1,16 +1,17 @@
 ﻿using FacialStuff;
 using HarmonyLib;
+using RimWorld;
 using Verse;
 
 namespace ShowMeYourHands.FSWalking
 {
     [StaticConstructorOnStartup]
-    [HarmonyPatch(typeof(PawnGraphicSet), nameof(PawnGraphicSet.ResolveAllGraphics))]
-    internal class ResolveAllGraphics_Postfix
+    [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.RestorePart))]
+    internal class RestorePart_Postfix
     {
-        public static void Postfix(PawnGraphicSet __instance)
+        public static void Postfix(Pawn_HealthTracker __instance, Pawn ___pawn)
         {
-            Pawn pawn = __instance.pawn;
+            Pawn pawn = ___pawn;
             if (pawn == null)
             {
                 return;

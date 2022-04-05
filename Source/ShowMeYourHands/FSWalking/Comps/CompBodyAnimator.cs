@@ -59,7 +59,7 @@ namespace FacialStuff
             {
                 return;
             }
-            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
+            float bodysizeScaling = GetBodysizeScaling() ;
             float percent = this.MovedPercent;
 
             float flot = percent;
@@ -128,7 +128,7 @@ namespace FacialStuff
         {
             // Has the pawn something in his hands?
 
-            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
+            float bodysizeScaling = GetBodysizeScaling();
 
             Rot4 rot = this.CurrentRotation;
 
@@ -344,7 +344,7 @@ namespace FacialStuff
 
         public void ModifyBodyAndFootPos(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            float bodysizeScaling = GetBodysizeScaling(out _) * 1.25f;
+            float bodysizeScaling = GetBodysizeScaling();
             float legModifier = this.BodyAnim.extraLegLength * bodysizeScaling;
             float posModB = legModifier * 0.75f;
             float posModF = -legModifier * 0.25f;
@@ -1297,8 +1297,7 @@ namespace FacialStuff
             }
         }
 
-
-        public float GetBodysizeScaling(out Mesh pawnBodyMesh)
+        public float GetBodysizeScaling()
         {
             if (bodysizeScaling == 0f || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
             {
@@ -1311,7 +1310,6 @@ namespace FacialStuff
                         Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
                         bodySize = sizePaws.x / maxSize.x;
                     }
-
                     bodysizeScaling = bodySize;
                 }
                 else if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
@@ -1325,13 +1323,13 @@ namespace FacialStuff
                     {
                         bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
                     }
-                    bodysizeScaling = 0.8f * bodySize;
+                    bodysizeScaling =  bodySize;
                 }
-
-                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling* this.BodyAnim.extremitySize);
-                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling* this.BodyAnim.extremitySize, true);
+                // FS walks & so need 1f for regular pawns
+                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling * this.BodyAnim.extremitySize * 0.8f);
+                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling * this.BodyAnim.extremitySize * 0.8f, true);
             }
-            pawnBodyMesh = this.pawnBodyMesh;
+
             return bodysizeScaling;
         }
 

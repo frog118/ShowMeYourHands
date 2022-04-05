@@ -60,7 +60,7 @@ namespace FacialStuff
                 WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
                 if (walkCycle != null)
                 {
-                    float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
+                    float bodysizeScaling = compAnimator.GetBodysizeScaling();
                     float bam = this.compAnimator.BodyOffsetZ*bodysizeScaling;
 
                     rootLoc.z += bam;
@@ -237,7 +237,7 @@ namespace FacialStuff
             // pawn jumping too high,move the feet
             if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
             {
-                float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
+                float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
                 Vector3 footVector = rootLoc;
 
@@ -421,6 +421,8 @@ namespace FacialStuff
                 return;
             }
 
+            this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
+
             ThingWithComps eq = pawn?.equipment?.Primary;
             if (eq != null && !pawn.CurJob.def.neverShowWeapon)
             {
@@ -432,13 +434,10 @@ namespace FacialStuff
                     this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f);
                 }
             }
-            else
-            {
-                this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
-            }
+
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
-            float bodysizeScaling = compAnimator.GetBodysizeScaling(out _) * 1.25f;
+            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
             BodyAnimDef body = this.compAnimator.BodyAnim;
 
@@ -447,9 +446,9 @@ namespace FacialStuff
                 // this.ApplyEquipmentWobble(ref drawPos);
 
                 Vector3 handVector = drawPos;
-                handVector.y += Offsets.YOffset_CarriedThing;
+                //handVector.y += Offsets.YOffset_CarriedThing;
                 // Arms too far away from body
-                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.25f)
+                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.35f)
                 {
                     float step = 0.025f;
                     handVector = Vector3.MoveTowards(handVector, this.pawn.DrawPos, step);
@@ -484,7 +483,7 @@ namespace FacialStuff
             WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
             //PoseCycleDef poseCycle = this.CompAnimator.PoseCycle;
 
-            if (walkCycle != null && !carrying)
+            if (!carrying)
             {
                 float offsetJoint = walkCycle.ShoulderOffsetHorizontalX.Evaluate(this.compAnimator.MovedPercent);
 
@@ -515,7 +514,7 @@ namespace FacialStuff
                 matRight = this.CompAnimator.PawnBodyGraphic?.HandGraphicRightCol?.MatSingle;
             }
             else */
-            if (carriedThing == null)
+            if (!carrying)
             {
                 // Should draw shadow if inner side of the palm is facing to camera?
                 switch (rot.AsInt)
@@ -555,7 +554,7 @@ namespace FacialStuff
 
                     position = drawPos + (shoulperPos.LeftJoint + leftHand) * bodysizeScaling;
                     quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0] - shoulderAngle[0] -shouldRotate, Vector3.up);
-                    if (carrying)
+                    if (carrying) // grabby angle
                     {
                         quat *= Quaternion.AngleAxis(-90f, Vector3.up);
                     }
@@ -589,7 +588,7 @@ namespace FacialStuff
 
                     position = drawPos + (shoulperPos.RightJoint + rightHand) * bodysizeScaling;
                     quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1] +shoulderAngle[1] +shouldRotate, Vector3.up);
-                    if (carrying)
+                    if (carrying) // grabby angle
                     {
                         quat *= Quaternion.AngleAxis(90f, Vector3.up);
                     }

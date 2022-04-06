@@ -6,7 +6,7 @@
         HandRight = 1,
         FootLeft = 2,
         FootRight = 3,
-        Equipment = 4,
+        // Equipment = 4,
         Max = 5
     }
 }

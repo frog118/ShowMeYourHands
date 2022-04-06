@@ -587,7 +587,7 @@ namespace FacialStuff
 
         public Vector3 LastEqPos = Vector3.zero;
         public float DrawOffsetY;
-        private float bodysizeScaling = 0f;
+
         public Mesh pawnBodyMesh;
         public Mesh pawnBodyMeshFlipped;
 
@@ -956,24 +956,7 @@ namespace FacialStuff
                 drawSize = mainHandWeapon.def.graphicData.drawSize.x;
             }
 
-            if (!PawnExtensions.pawnBodySizes.ContainsKey(___pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-            {
-                float bodySize = 1f;
-                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-                {
-                    if (___pawn.RaceProps != null)
-                    {
-                        bodySize = ___pawn.RaceProps.baseBodySize;
-                    }
 
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                    {
-                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { ___pawn });
-                    }
-                }
-
-                PawnExtensions.pawnBodySizes[___pawn] = 0.8f * bodySize;
-            }
 
             // ToDo Integrate: y >= 0 ? matSingle : offSingle
 
@@ -1059,7 +1042,7 @@ namespace FacialStuff
 
         public float GetBodysizeScaling()
         {
-            if (bodysizeScaling == 0f || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            if (!PawnExtensions.pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
             {
                 float bodySize = 1f;
                 if (pawn.story == null) // mechanoids and animals
@@ -1070,7 +1053,6 @@ namespace FacialStuff
                         Vector2 sizePaws = this.pawn.ageTracker.CurKindLifeStage.bodyGraphicData.drawSize;
                         bodySize = sizePaws.x / maxSize.x;
                     }
-                    bodysizeScaling = bodySize;
                 }
                 else if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
                 {
@@ -1083,14 +1065,16 @@ namespace FacialStuff
                     {
                         bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
                     }
-                    bodysizeScaling =  bodySize;
                 }
-                // FS walks & so need 1f for regular pawns
-                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling * this.BodyAnim.extremitySize * 0.8f);
-                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodysizeScaling * this.BodyAnim.extremitySize * 0.8f, true);
+
+                PawnExtensions.pawnBodySizes[pawn] = bodySize;
+                // FS walks & so need 1f for regular pawns; 80% drawsize looks fine
+                this.pawnBodyMesh = MeshMakerPlanes.NewPlaneMesh(bodySize * this.BodyAnim.extremitySize * 0.8f);
+                this.pawnBodyMeshFlipped = MeshMakerPlanes.NewPlaneMesh(bodySize * this.BodyAnim.extremitySize * 0.8f, true);
             }
 
-            return bodysizeScaling;
+            return PawnExtensions.pawnBodySizes[pawn];
+
         }
 
         private float PawnMovedPercent(Pawn pawn)

@@ -1,13 +1,10 @@
-﻿using System;
+﻿using FacialStuff.Tweener;
+using RimWorld;
+using ShowMeYourHands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FacialStuff.Animator;
-using FacialStuff.AnimatorWindows;
-using FacialStuff.Tweener;
-using RimWorld;
-using ShowMeYourHands;
-using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -61,7 +58,7 @@ namespace FacialStuff
                 if (walkCycle != null)
                 {
                     float bodysizeScaling = compAnimator.GetBodysizeScaling();
-                    float bam = this.compAnimator.BodyOffsetZ*bodysizeScaling;
+                    float bam = this.compAnimator.BodyOffsetZ * bodysizeScaling;
 
                     rootLoc.z += bam;
                     this.compAnimator.SetBodyAngle();
@@ -72,10 +69,7 @@ namespace FacialStuff
             base.ApplyBodyWobble(ref rootLoc, ref footPos);
 
             // Adds the leg length to the rootloc and relocates the feet to keep the pawn in center, e.g. for shields
-
         }
-
-
 
         public void ApplyEquipmentWobble(ref Vector3 rootLoc)
         {
@@ -94,8 +88,6 @@ namespace FacialStuff
             return;
             // cannot move root pos so the stuff below not working
         }
-
-
 
         public override bool CarryStuff()
         {
@@ -153,14 +145,11 @@ namespace FacialStuff
             weaponAngle[1] += (flipped ? -1f : 1f) * angle;
         }
 
-
         private Material OverrideMaterialIfNeeded(Material original, Pawn pawn, bool portrait = false)
         {
             Material baseMat = ((!portrait && pawn.IsInvisible()) ? InvisibilityMatPool.GetInvisibleMat(original) : original);
             return pawn.Drawer.renderer.graphics.flasher.GetDamagedMat(baseMat);
         }
-
-
 
         public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
         {
@@ -231,7 +220,6 @@ namespace FacialStuff
                                         cycle.FootPositionX,
                                         cycle.FootPositionZ,
                                         cycle.FootAngle);
-
             }
 
             // pawn jumping too high,move the feet
@@ -266,7 +254,7 @@ namespace FacialStuff
                 matRight = this.CompAnimator.PawnBodyGraphic?.FootGraphicRightCol?.MatAt(rot);
                 matLeft = this.CompAnimator.PawnBodyGraphic?.FootGraphicLeftCol?.MatAt(rot);
             }
-            else 
+            else
             */
             {
                 Material rightFootMat = this.compAnimator.pawnBodyGraphic?.FootGraphicRight?.MatAt(rot);
@@ -304,7 +292,7 @@ namespace FacialStuff
             leftFootCycle = drawQuat * leftFootCycle;
             rightFootCycle = drawQuat * rightFootCycle;
             Vector3 ground = rootLoc + drawQuat * new Vector3(0, 0, OffsetGroundZ) * factor;
-            
+
             if (drawLeft)
             {
                 // TweenThing leftFoot = TweenThing.FootLeft;
@@ -394,26 +382,13 @@ namespace FacialStuff
             {
                 return;
             }
-
-
-            if (!PawnExtensions.pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
+            BodyAnimDef body = this.compAnimator.BodyAnim;
+            if (body == null)
             {
-                float bodySize = 1f;
-                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-                {
-                    if (pawn.RaceProps != null)
-                    {
-                        bodySize = pawn.RaceProps.baseBodySize;
-                    }
-
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                    {
-                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                    }
-                }
-
-                PawnExtensions.pawnBodySizes[pawn] = 0.8f * bodySize;
+                return;
             }
+
+            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
 
             if (!this.compAnimator.Props.bipedWithHands)
@@ -437,16 +412,17 @@ namespace FacialStuff
 
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
-            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
-            BodyAnimDef body = this.compAnimator.BodyAnim;
 
-            if (carrying) 
+            Rot4 rot = this.compAnimator.CurrentRotation;
+            bool isFacingNorth = rot == Rot4.North;
+
+            if (carrying)
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
 
                 Vector3 handVector = drawPos;
-                handVector.z += 0.2f; // hands too high on carriedthing
+                // handVector.z += 0.2f; // hands too high on carriedthing - edit: looks good on smokeleaf joints
 
                 //handVector.y += Offsets.YOffset_CarriedThing;
                 // Arms too far away from body
@@ -458,20 +434,20 @@ namespace FacialStuff
 
                 // carriedThing.DrawAt(drawPos, flip);
                 handVector.y = drawPos.y;
-                if (this.compAnimator.CurrentRotation == Rot4.North) // put the hands behind the pawn
+                if (isFacingNorth) // put the hands behind the pawn
                 {
-                    // handVector.y -= Offsets.YOffset_Behind;
+                     handVector.y -= Offsets.YOffset_Behind;
                 }
                 drawPos = handVector;
             }
 
-
-            Rot4 rot = this.compAnimator.CurrentRotation;
-
-            if (body == null)
+            if (false)
             {
-                return;
+                DoAnimationHands();
             }
+
+
+
 
             JointLister shoulperPos = this.GetJointPositions(JointType.Shoulder,
                                                              body.shoulderOffsets[rot.AsInt],
@@ -501,9 +477,7 @@ namespace FacialStuff
                                         offsetJoint);
             }
 
-
-           // this.DoAttackAnimationHandOffsets(ref handSwingAngle, ref rightHand, false);
-
+            // this.DoAttackAnimationHandOffsets(ref handSwingAngle, ref rightHand, false);
 
             this.GetBipedMesh(out Mesh handMeshRight, out Mesh handMeshLeft);
 
@@ -529,6 +503,11 @@ namespace FacialStuff
                         matRight = this.RightHandShadowMat;
                         break;
                 }
+            }
+            else if (isFacingNorth)
+            {
+                matLeft = this.LeftHandShadowMat;
+                matRight = this.RightHandShadowMat;
             }
 
             bool drawLeft = matLeft != null && this.compAnimator.BodyStat.HandLeft != PartStatus.Missing;
@@ -561,7 +540,6 @@ namespace FacialStuff
                     else
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0] - shoulderAngle, Vector3.up);
-
                     }
                 }
 
@@ -599,15 +577,12 @@ namespace FacialStuff
                     else
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1] - shoulderAngle, Vector3.up);
-
                     }
                     /*else if (compAnimator.CurrentRotation.IsHorizontal)
                     {
                         quat *= Quaternion.AngleAxis(compAnimator.CurrentRotation == Rot4.West ? +90f : -90f, Vector3.up);
                     }*/
-
                 }
-
 
                 TweenThing handRight = TweenThing.HandRight;
                 this.DrawTweenedHand(position, handMeshRight, matRight, quat, handRight, noTween);
@@ -644,6 +619,463 @@ namespace FacialStuff
             */
         }
 
+        public enum aniType
+        { none, doSomeThing, social, smash, idle, gameCeremony, crowd, solemn }
+
+        private void DoAnimationHands()
+        {
+            if (pawn.CurJob == null)
+            {
+                return;
+            }
+            int t = 0;
+                float f;
+            int t2;
+            Rot4 r;
+            int IdTick = pawn.thingIDNumber * 20;
+            Rot4 rot = compAnimator.CurrentRotation;
+            Rot4 tr = rot;
+            aniType aniType = aniType.none;
+            float oa = 0f;
+            Vector3 op = Vector3.zero;
+            int total;
+
+            switch (pawn.CurJob.def.defName)
+            {
+                // do something
+                case "UseArtifact":
+                case "UseNeurotrainer":
+                case "UseStylingStation":
+                case "UseStylingStationAutomatic":
+                case "Wear":
+                case "SmoothWall":
+                case "UnloadYourInventory":
+                case "UnloadInventory":
+                case "Uninstall":
+                case "Train":
+                case "TendPatient":
+                case "Tame":
+                case "TakeBeerOutOfFermentingBarrel":
+                case "StudyThing":
+                case "Strip":
+                case "SmoothFloor":
+                case "SlaveSuppress":
+                case "SlaveExecution":
+                case "DoBill": // 제작, 조리
+                case "Deconstruct":
+                case "FinishFrame": // 건설
+                case "Equip":
+                case "ExtractRelic":
+                case "ExtractSkull":
+                case "ExtractTree":
+                case "GiveSpeech":
+                case "Hack":
+                case "InstallRelic":
+                case "Insult":
+                case "Milk":
+                case "Open":
+                case "Play_MusicalInstrument":
+                case "PruneGauranlenTree":
+                case "RearmTurret":
+                case "RearmTurretAtomic":
+                case "RecolorApparel":
+                case "Refuel":
+                case "RefuelAtomic":
+                case "Reload":
+                case "RemoveApparel":
+                case "RemoveFloor":
+                case "RemoveRoof":
+                case "Repair":
+                case "Research":
+                case "Resurrect":
+                case "Sacrifice":
+                case "Scarify":
+                case "Shear":
+                case "Slaughter":
+                case "Ignite":
+                case "ManTurret":
+                    aniType = aniType.doSomeThing;
+                    break;
+
+                // social
+                case "GotoAndBeSociallyActive":
+                case "StandAndBeSociallyActive":
+                case "VisitSickPawn":
+                case "SocialRelax":
+                    aniType = aniType.social;
+                    break;
+
+                // idle
+                case "Wait_Combat":
+                case "Wait":
+                    aniType = aniType.idle;
+                    break;
+
+                case "Vomit":
+                    t = (Find.TickManager.TicksGame + IdTick) % 200;
+                    if (!PawnExtensions.Ani(ref t, 25, ref oa, 15f, 35f, -1f, ref op, rot))
+                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
+                            if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
+                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
+                                    if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
+                                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
+                                            if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
+                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 15f, -1f, ref op, rot)) ;
+                    break;
+
+                case "Clean":
+                    aniType = aniType.doSomeThing;
+                    break;
+
+                case "Mate":
+                    break;
+
+                case "MarryAdjacentPawn":
+                    t = (Find.TickManager.TicksGame) % 310;
+
+                    if (!PawnExtensions.Ani(ref t, 150))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 5f, -1f, ref op, Vector3.zero, new Vector3(0.05f, 0f, 0f), rot))
+                            if (!PawnExtensions.Ani(ref t, 50, ref oa, 5f, 10f, -1f, ref op, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
+                                if (!PawnExtensions.Ani(ref t, 50, ref oa, 10, 10f, -1f, ref op, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
+                                    if (!PawnExtensions.Ani(ref t, 40, ref oa, 10f, 0f, -1f, ref op, new Vector3(0.05f, 0f, 0f), Vector3.zero, rot)) ;
+
+                    }
+
+                    break;
+
+                case "SpectateCeremony": // 각종 행사, 의식 (결혼식, 장례식, 이념행사)
+                    LordJob_Ritual ritualJob = PawnExtensions.GetPawnRitual(pawn);
+                    if (ritualJob == null) // 기본
+                    {
+                        aniType = aniType.crowd;
+                    }
+                    else if (ritualJob.Ritual == null)
+                    {
+                        // 로얄티 수여식 관중
+                        aniType = aniType.solemn;
+                    }
+                    else
+                    {
+                        switch (ritualJob.Ritual.def.defName)
+                        {
+                            default:
+                                aniType = aniType.crowd;
+                                break;
+
+                            case "Funeral": // 장례식
+                                aniType = aniType.solemn;
+                                break;
+                        }
+                    }
+                    break;
+
+                case "BestowingCeremony": // 로얄티 수여식 받는 대상
+                    aniType = aniType.solemn;
+                    break;
+
+                case "Dance":
+                    break;
+
+                // joy
+
+                case "Play_Hoopstone":
+                    t = (Find.TickManager.TicksGame + IdTick) % 60;
+                    if (!PawnExtensions.Ani(ref t, 30, ref oa, 10f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 30, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                    }
+                    break;
+                case "Play_Horseshoes":
+                    t = (Find.TickManager.TicksGame + IdTick) % 60;
+                    if (!PawnExtensions.Ani(ref t, 30, ref oa, 10f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 30, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                    }
+                    break;
+
+                case "Play_GameOfUr":
+                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    else { aniType = aniType.doSomeThing; }
+                    break;
+
+                case "Play_Poker":
+                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    else { aniType = aniType.doSomeThing; }
+                    break;
+
+                case "Play_Billiards":
+                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    else { aniType = aniType.doSomeThing; }
+                    break;
+
+                case "Play_Chess":
+                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    else { aniType = aniType.doSomeThing; }
+                    break;
+
+                case "ExtinguishSelf": // 스스로 불 끄기
+                    // custom anim, laying
+                    break;
+
+                case "Sow": // 씨뿌리기
+                    t = (Find.TickManager.TicksGame + IdTick) % 50;
+
+                    if (!PawnExtensions.Ani(ref t, 35))
+                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, rot))
+                            if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot)) ;
+
+                    // custom animation
+                    break;
+
+                case "CutPlant": // 식물 베기
+                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    {
+                        aniType = aniType.smash;
+                    }
+                    else
+                    {
+                        aniType = aniType.doSomeThing;
+                    }
+                    break;
+
+                case "Harvest": // 자동 수확
+                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    {
+                        aniType = aniType.smash;
+                    }
+                    else
+                    {
+                        aniType = aniType.doSomeThing;
+                    }
+                    break;
+
+                case "HarvestDesignated": // 수동 수확
+                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    {
+                        aniType = aniType.smash;
+                    }
+                    else
+                    {
+                        aniType = aniType.doSomeThing;
+                    }
+                    break;
+
+                case "Mine": // 채굴
+                    aniType = aniType.smash;
+                    break;
+
+                case "Ingest": // 밥먹기
+                // custom animation
+                    break;
+            }
+
+            switch (aniType)
+            {
+                case aniType.solemn:
+                    t = (Find.TickManager.TicksGame + (IdTick % 25)) % 660;
+
+                    if (!PawnExtensions.Ani(ref t, 300))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 30, ref oa, 0f, 15f, -1f, ref op, Vector3.zero, Vector3.zero, rot))
+                            if (!PawnExtensions.Ani(ref t, 300, ref oa, 15f, 15f, -1f, ref op, Vector3.zero, Vector3.zero, rot))
+                                if (!PawnExtensions.Ani(ref t, 30, ref oa, 15f, 0f, -1f, ref op, Vector3.zero, Vector3.zero, rot)) ;
+
+                    }
+                    break;
+
+                case aniType.crowd:
+                    total = 143;
+                    t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
+                    t = t2 % total;
+                    r = PawnExtensions.Rot90(rot);
+                    tr = rot;
+                    if (!PawnExtensions.Ani(ref t, 20))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
+                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
+                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
+                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                                    {
+                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        {
+                                            tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
+                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            {
+                                                tr = rot;
+                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
+
+
+                                                    if (t2 >= total)
+                                                    {
+                                                        if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                                            if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line)) ;
+
+                                                    }
+                                                    else
+                                                    {
+                                                        if (!PawnExtensions.Ani(ref t, 33)) ;
+
+                                                    }
+
+                                            }
+                                        }
+
+                                    }
+                    }
+
+                    rot = tr;
+                    break;
+
+                case aniType.gameCeremony:
+
+                    // need 159 tick
+
+                    r = PawnExtensions.Rot90(rot);
+                    tr = rot;
+
+                    if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+
+                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                                {
+                                    rot = PawnExtensions.Rot90b(rot);
+                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                    {
+                                        rot = PawnExtensions.Rot90b(rot);
+                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+
+                                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                                if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                                    {
+                                                        rot = PawnExtensions.Rot90b(rot);
+                                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                                        {
+                                                            rot = PawnExtensions.Rot90b(rot);
+                                                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                                                        }
+                                                    }
+                                    }
+
+                                }
+
+                    }
+
+
+                    break;
+
+                case aniType.idle:
+                    t = (Find.TickManager.TicksGame + IdTick * 13) % 800;
+                    f = 4.5f;
+                    r = PawnExtensions.Rot90(rot);
+                    if (!PawnExtensions.Ani(ref t, 500, ref oa, 0f, 0f, -1f, ref op, r))
+                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 0f, f, -1f, ref op, r))
+                            if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
+                                if (!PawnExtensions.Ani(ref t, 50, ref oa, -f, f, -1f, ref op, r))
+                                    if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
+                                        if (!PawnExtensions.Ani(ref t, 50, ref oa, -f, f, -1f, ref op, r))
+                                            if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
+                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, -f, 0f, -1f, ref op, r)) ;
+                    break;
+
+                case aniType.smash:
+                    t = (Find.TickManager.TicksGame + IdTick) % 133;
+
+                    if (!PawnExtensions.Ani(ref t, 70, ref oa, 0f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    {
+                        if (!PawnExtensions.Ani(ref t, 3, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                if (!PawnExtensions.Ani(ref t, 40, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+
+                    }
+                    break;
+
+                case aniType.doSomeThing:
+                    total = 121;
+                    t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
+                    t = t2 % total;
+                    r = PawnExtensions.Rot90(rot);
+                    tr = rot;
+                    if (!PawnExtensions.Ani(ref t, 20))
+                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
+                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
+                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
+                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                                    {
+                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        {
+                                            //tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
+                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            {
+                                                //tr = rot;
+                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
+                                                    if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
+                                                        if (!PawnExtensions.Ani(ref t, 6, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot)) ;
+
+                                            }
+                                        }
+
+                                    }
+
+                    rot = tr;
+                    break;
+
+
+                case aniType.social:
+                    total = 221;
+                    t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
+                    t = t2 % total;
+                    r = PawnExtensions.Rot90(rot);
+                    tr = rot;
+                    if (!PawnExtensions.Ani(ref t, 20))
+                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
+                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
+                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
+                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                                    {
+                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        {
+                                            tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
+                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            {
+                                                tr = rot;
+                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
+                                                    if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
+                                                        if (!PawnExtensions.Ani(ref t, 6, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot))
+
+                                                            if (!PawnExtensions.Ani(ref t, 35, ref oa, 0f, 0f, -1f, ref op, rot))
+                                                                if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 10f, -1f, ref op, rot))
+                                                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot))
+                                                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 10f, -1f, ref op, rot))
+                                                                            if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot))
+                                                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 0f, 0f, -1f, ref op, rot)) ;
+
+                                            }
+                                        }
+
+                                    }
+
+                    rot = tr;
+                    break;
+            }
+
+            // New hand n feet animation
+            /*
+            pdd.offset_angle = oa;
+            pdd.fixed_rot = rot;
+            op = new Vector3(op.x, 0f, op.z);
+            pdd.offset_pos = op;
+            pos += op;
+            */
+        }
+
         public override void Initialize()
         {
             this.Flasher = this.pawn.Drawer.renderer.graphics.flasher;
@@ -651,7 +1083,6 @@ namespace FacialStuff
             // this.feetTweener = new PawnFeetTweener();
             base.Initialize();
         }
-
 
         public Job lastJob;
 
@@ -690,21 +1121,20 @@ namespace FacialStuff
             }
         }
 
-
         public override void Tick()
         {
             base.Tick();
 
-           // BodyAnimator animator = CompAnimator.BodyAnimator;
-           /*
-            if (animator != null)
-            {
-                animator.IsPosing(out this._animatedPercent);
-            }
-            */
-           // var curve = bodyFacing.IsHorizontal ? this.walkCycle.BodyOffsetZ : this.walkCycle.BodyOffsetVerticalZ;
-           //bool pawnInEditor = HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn;
-           // if (GenTicks.TicksAbs % 10 == 0)
+            // BodyAnimator animator = CompAnimator.BodyAnimator;
+            /*
+             if (animator != null)
+             {
+                 animator.IsPosing(out this._animatedPercent);
+             }
+             */
+            // var curve = bodyFacing.IsHorizontal ? this.walkCycle.BodyOffsetZ : this.walkCycle.BodyOffsetVerticalZ;
+            //bool pawnInEditor = HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn;
+            // if (GenTicks.TicksAbs % 10 == 0)
             {
                 this.SelectWalkcycle(false);
                 // this.SelectPosecycle();
@@ -742,8 +1172,6 @@ namespace FacialStuff
 
         #region Private Methods
 
-
-
         private void DrawTweenedHand(Vector3 position, Mesh handsMesh, Material material, Quaternion quat, TweenThing tweenThing, bool noTween)
         {
             if (position == Vector3.zero || handsMesh == null || material == null)
@@ -751,11 +1179,14 @@ namespace FacialStuff
                 return;
             }
 
+            // todo removed the tweener for now, will be used with hand animations
+
+            
             if (this.ShouldBeIgnored())
             {
                 return;
             }
-            
+
             if (Find.TickManager.TicksGame == this.compAnimator.LastPosUpdate[(int)tweenThing])
             {
                 position = this.compAnimator.LastPosition[(int)tweenThing];
@@ -770,39 +1201,39 @@ namespace FacialStuff
 
                 this.compAnimator.LastPosUpdate[(int)tweenThing] = Find.TickManager.TicksGame;
 
-
                 Vector3Tween tween = this.compAnimator.Vector3Tweens[(int)tweenThing];
-
-
+                Vector3 start = this.compAnimator.LastPosition[(int)tweenThing];
+                start.y = position.y;
+                float distance = Vector3.Distance(start, position);
+                
                 switch (tween.State)
                 {
                     case TweenState.Running:
-                        if (noTween || this.compAnimator.IsMoving)
+                        if (noTween || this.compAnimator.IsMoving || distance > 1f)
                         {
                             tween.Stop(StopBehavior.ForceComplete);
                         }
-
-                        position = tween.CurrentValue;
+                        else
+                        {
+                            position = tween.CurrentValue;
+                        }
                         break;
 
                     case TweenState.Paused:
                         break;
 
                     case TweenState.Stopped:
-                        if (noTween || (this.compAnimator.IsMoving))
+                        if (noTween  || this.compAnimator.IsMoving)
                         {
                             break;
                         }
-
+                        
                         ScaleFunc scaleFunc = ScaleFuncs.SineEaseOut;
 
 
-                        Vector3 start = this.compAnimator.LastPosition[(int)tweenThing];
-                        float distance = Vector3.Distance(start, position);
                         float duration = Mathf.Abs(distance * 50f);
                         if (start != Vector3.zero && duration > 12f)
                         {
-                            start.y = position.y;
                             tween.Start(start, position, duration, scaleFunc);
                             position = start;
                         }
@@ -813,13 +1244,10 @@ namespace FacialStuff
                 this.compAnimator.LastPosition[(int)tweenThing] = position;
             }
 
+            
             //  tweener.PreThingPosCalculation(tweenThing, noTween);
 
-            Graphics.DrawMesh(
-                handsMesh, position,
-                quat,
-                material,
-                0);
+            Graphics.DrawMesh(handsMesh, position, quat, material, 0);
         }
 
         public bool ShouldBeIgnored()

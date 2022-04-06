@@ -70,13 +70,13 @@ class DrawAt_Patch
         }
 
         // Tweener
-        Vector3Tween eqTween = compAnim.Vector3Tweens[(int)TweenThing.Equipment];
+       // Vector3Tween eqTween = compAnim.Vector3Tweens[(int)TweenThing.Equipment];
 
         // FloatTween angleTween = compAnim.AimAngleTween;
         Vector3Tween leftHand = compAnim.Vector3Tweens[(int)TweenThing.HandLeft];
         Vector3Tween rightHand = compAnim.Vector3Tweens[(int)TweenThing.HandRight];
 
-        if (!Find.TickManager.Paused)
+       // if (!Find.TickManager.Paused)
         {
             float rateMultiplier = Find.TickManager.TickRateMultiplier;
             float elapsedTime = 1f * rateMultiplier;
@@ -89,11 +89,12 @@ class DrawAt_Patch
             {
                 rightHand.Update(elapsedTime);
             }
+            /*
             if (eqTween.State == TweenState.Running)
             {
                 eqTween.Update(elapsedTime);
             }
-
+            */
             /*
             if (angleTween.State == TweenState.Running)
             {

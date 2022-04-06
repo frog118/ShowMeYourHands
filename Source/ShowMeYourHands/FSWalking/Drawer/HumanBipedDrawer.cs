@@ -399,7 +399,7 @@ namespace FacialStuff
             this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
 
             ThingWithComps eq = pawn?.equipment?.Primary;
-            if (eq != null && !pawn.CurJob.def.neverShowWeapon)
+            if (eq != null && pawn?.CurJob?.def != null && !pawn.CurJob.def.neverShowWeapon)
             {
                 Type baseType = pawn.Drawer.renderer.GetType();
                 MethodInfo methodInfo = baseType.GetMethod("CarryWeaponOpenly", BindingFlags.NonPublic | BindingFlags.Instance);

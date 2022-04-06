@@ -45,13 +45,13 @@ public class PawnRenderer_DrawEquipmentAiming
         float size = compAnim.GetBodysizeScaling();
         // TODO: Options?
 
-        ShowMeYourHandsMain.LogMessage($"Changing angle and position {eq.def.defName}, {drawLoc}, {aimAngle}");
+        // ShowMeYourHandsMain.LogMessage($"Changing angle and position {eq.def.defName}, {drawLoc}, {aimAngle}");
 
         compAnim.CalculatePositionsWeapon(ref aimAngle, extensions, out Vector3 weaponOffset, flipped);
         drawLoc += weaponOffset * size;
         ShowMeYourHandsMain.LogMessage($"New angle and position {eq.def.defName}, {drawLoc}, {aimAngle}");
 
-        ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
+        // ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
 
     }
 

@@ -1109,6 +1109,30 @@ namespace FacialStuff
             }
 
             this.IsMoving = true;
+            // revert the walkcycle for drafted shooters
+            if (CurrentRotation.IsHorizontal && CurrentRotation.FacingCell != pather.nextCell)
+            {
+                IntVec3 intVec = pather.nextCell - pawn.Position;
+                bool invert = false;
+                if (intVec.x > 0)
+                {
+                    invert = CurrentRotation != Rot4.East;
+                }
+                else if (intVec.x < 0)
+                {
+                    invert = CurrentRotation != Rot4.West;
+                }
+                else if (intVec.z > 0)
+                {
+                    invert = CurrentRotation != Rot4.North;
+                }
+                else
+                {
+                    invert = CurrentRotation != Rot4.South;
+                }
+                if (invert)
+                return pather.nextCellCostLeft / pather.nextCellCostTotal;
+            }
             return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
 
         }

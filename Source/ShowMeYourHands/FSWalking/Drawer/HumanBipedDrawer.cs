@@ -446,6 +446,8 @@ namespace FacialStuff
                 // this.ApplyEquipmentWobble(ref drawPos);
 
                 Vector3 handVector = drawPos;
+                handVector.z += 0.2f; // hands too high on carriedthing
+
                 //handVector.y += Offsets.YOffset_CarriedThing;
                 // Arms too far away from body
                 while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.35f)
@@ -477,7 +479,7 @@ namespace FacialStuff
                                                              carrying, this.pawn.ShowWeaponOpenly());
 
             List<float> handSwingAngle = new() { 0f, 0f };
-            List<float> shoulderAngle = new() { 0f, 0f };
+            float shoulderAngle = 0f;
             Vector3 rightHand = Vector3.zero;
             Vector3 leftHand = Vector3.zero;
             WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
@@ -532,8 +534,7 @@ namespace FacialStuff
             bool drawLeft = matLeft != null && this.compAnimator.BodyStat.HandLeft != PartStatus.Missing;
             bool drawRight = matRight != null && this.compAnimator.BodyStat.HandRight != PartStatus.Missing;
 
-            float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f; 
-
+            //float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f;
 
             if (drawLeft)
             {
@@ -550,13 +551,17 @@ namespace FacialStuff
                 else
                 {
                     shoulperPos.LeftJoint = bodyQuat * shoulperPos.LeftJoint;
-                    leftHand = bodyQuat * leftHand.RotatedBy(-handSwingAngle[0] - shoulderAngle[0]);
+                    leftHand = bodyQuat * leftHand.RotatedBy(-handSwingAngle[0] - shoulderAngle);
 
                     position = drawPos + (shoulperPos.LeftJoint + leftHand) * bodysizeScaling;
-                    quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0] - shoulderAngle[0] -shouldRotate, Vector3.up);
                     if (carrying) // grabby angle
                     {
-                        quat *= Quaternion.AngleAxis(-90f, Vector3.up);
+                        quat = bodyQuat * Quaternion.AngleAxis(-90f, Vector3.up);
+                    }
+                    else
+                    {
+                        quat = bodyQuat * Quaternion.AngleAxis(-handSwingAngle[0] - shoulderAngle, Vector3.up);
+
                     }
                 }
 
@@ -584,14 +589,22 @@ namespace FacialStuff
                 else
                 {
                     shoulperPos.RightJoint = bodyQuat * shoulperPos.RightJoint;
-                    rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle[1]);
+                    rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle);
 
                     position = drawPos + (shoulperPos.RightJoint + rightHand) * bodysizeScaling;
-                    quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1] +shoulderAngle[1] +shouldRotate, Vector3.up);
                     if (carrying) // grabby angle
                     {
-                        quat *= Quaternion.AngleAxis(90f, Vector3.up);
+                        quat = bodyQuat * Quaternion.AngleAxis(90f, Vector3.up);
                     }
+                    else
+                    {
+                        quat = bodyQuat * Quaternion.AngleAxis(handSwingAngle[1] - shoulderAngle, Vector3.up);
+
+                    }
+                    /*else if (compAnimator.CurrentRotation.IsHorizontal)
+                    {
+                        quat *= Quaternion.AngleAxis(compAnimator.CurrentRotation == Rot4.West ? +90f : -90f, Vector3.up);
+                    }*/
 
                 }
 
@@ -691,7 +704,7 @@ namespace FacialStuff
             */
            // var curve = bodyFacing.IsHorizontal ? this.walkCycle.BodyOffsetZ : this.walkCycle.BodyOffsetVerticalZ;
            //bool pawnInEditor = HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn;
-            if (GenTicks.TicksAbs % 10 == 0)
+           // if (GenTicks.TicksAbs % 10 == 0)
             {
                 this.SelectWalkcycle(false);
                 // this.SelectPosecycle();
@@ -803,10 +816,10 @@ namespace FacialStuff
             //  tweener.PreThingPosCalculation(tweenThing, noTween);
 
             Graphics.DrawMesh(
-                                       handsMesh, position,
-                                       quat,
-                                       material,
-                                       0);
+                handsMesh, position,
+                quat,
+                material,
+                0);
         }
 
         public bool ShouldBeIgnored()

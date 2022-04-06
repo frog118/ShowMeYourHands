@@ -120,7 +120,7 @@ namespace FacialStuff
         float armLength,
         ref Vector3 rightHand,
         ref Vector3 leftHand,
-        ref List<float> shoulderAngle,
+        ref float shoulderAngle,
         ref List<float> handSwingAngle,
         ref JointLister shoulderPos,
         SimpleCurve cycleHandsSwingAngle,
@@ -172,7 +172,7 @@ namespace FacialStuff
                     float lookie = rot == Rot4.West ? -1f : 1f;
                     float f = lookie * offsetJoint;
 
-                    shoulderAngle[0] = shoulderAngle[1] = lookie * walkCycle?.shoulderAngle ?? 0f;
+                    shoulderAngle = lookie * walkCycle?.shoulderAngle ?? 0f;
 
                     shoulderPos.RightJoint.x += f;
                     shoulderPos.LeftJoint.x += f;
@@ -199,7 +199,7 @@ namespace FacialStuff
                 z2 *= offset;
                 handSwingAngle[0] += 180f;
                 handSwingAngle[1] += 180f;
-                shoulderAngle[0] = shoulderAngle[1] = 0f;
+                shoulderAngle = 0f;
             }
 
             rightHand = new Vector3(x, y, z) * bodysizeScaling;
@@ -208,12 +208,8 @@ namespace FacialStuff
             lastMainHandPosition = rightHand;
         }
 
-        [NotNull]
-        public WalkCycleDef WalkCycle
-        {
-            get => _walkCycle == null ? WalkCycleDefOf.Biped_Amble : _walkCycle;
-            private set => _walkCycle = value;
-        }
+        public WalkCycleDef WalkCycle { get; private set; }
+
 
         #endregion Public Fields
 
@@ -664,6 +660,65 @@ namespace FacialStuff
         private static Vector3 MainHand;
         private static Vector3 OffHand;
 
+        public void CalculatePositionsWeapon(ref float weaponAngle, WhandCompProps extensions,
+                                             out Vector3 weaponPosOffset, bool flipped)
+        {
+            weaponPosOffset = Vector3.zero;
+
+            if (this.CurrentRotation == Rot4.West || this.CurrentRotation == Rot4.North)
+            {
+                weaponPosOffset.y = -Offsets.YOffset_Head - Offsets.YOffset_CarriedThing;
+            }
+
+            // Use y for the horizontal position. too lazy to add even more vectors
+            bool isHorizontal = this.CurrentRotation.IsHorizontal;
+            bool aiming = pawn.Aiming();
+            Vector3 extOffset;
+            Vector3 o = extensions.WeaponPositionOffset;
+            Vector3 d = extensions.AimedWeaponPositionOffset;
+            if (isHorizontal)
+            {
+                extOffset = new Vector3(o.y, 0, o.z);
+                if (aiming)
+                {
+                    extOffset += new Vector3(d.y, 0, d.z);
+                }
+            }
+            else
+            {
+                extOffset = new Vector3(o.x, 0, o.z);
+                if (aiming)
+                {
+                    extOffset += new Vector3(d.x, 0, d.z);
+                }
+            }
+
+            if (flipped)
+            {
+                if (aiming)
+                {
+                    weaponAngle -= extensions?.AttackAngleOffset ?? 0;
+                }
+
+                weaponPosOffset += extOffset;
+
+                // flip x position offset
+                if (pawn.Rotation != Rot4.South)
+                {
+                    weaponPosOffset.x *= -1;
+                }
+            }
+            else
+            {
+                if (aiming)
+                {
+                    weaponAngle += extensions?.AttackAngleOffset ?? 0;
+                }
+
+                weaponPosOffset += extOffset;
+            }
+        }
+
         private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
         {
             if (!ShowMeYourHandsMain.OversizedWeaponLoaded && !ShowMeYourHandsMain.EnableOversizedLoaded)
@@ -696,301 +751,6 @@ namespace FacialStuff
                 default:
                     return Vector3.zero;
             }
-        }
-        public static void SetPositionsForHandsOnWeapons(Pawn pawn, bool flipped,
-    [CanBeNull] WhandCompProps compWeaponExtensions,
-    CompBodyAnimator animator)
-        {
-            // Prepare everything for DrawHands, but don't draw
-            if (compWeaponExtensions == null || pawn == null)
-            {
-                return;
-            }
-
-            ThingWithComps mainHandWeapon = pawn.equipment.Primary;
-            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
-            {
-                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
-                {
-                    Log.ErrorOnce(
-                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
-                        mainHandWeapon.def.GetHashCode());
-                }
-
-                return;
-            }
-            WhandCompProps compProperties = mainHandWeapon.def.GetCompProperties<WhandCompProps>();
-            if (compProperties != null)
-            {
-                MainHand = compProperties.MainHand;
-                OffHand = compProperties.SecHand;
-            }
-            else
-            {
-                OffHand = Vector3.zero;
-                MainHand = Vector3.zero;
-            }
-
-            ThingWithComps offHandWeapon = null;
-            if (pawn.equipment.AllEquipmentListForReading.Count == 2)
-            {
-                offHandWeapon = (from weapon in pawn.equipment.AllEquipmentListForReading
-                                 where weapon != mainHandWeapon
-                                 select weapon).First();
-                WhandCompProps offhandComp = offHandWeapon?.def.GetCompProperties<WhandCompProps>();
-                if (offhandComp != null)
-                {
-                    OffHand = offhandComp.MainHand;
-                }
-            }
-
-            float aimAngle = 0f;
-            bool aiming = false;
-
-            if (pawn.stances.curStance is Stance_Busy { neverAimWeapon: false, focusTarg.IsValid: true } stance_Busy)
-            {
-                Vector3 a = stance_Busy.focusTarg.HasThing
-                    ? stance_Busy.focusTarg.Thing.DrawPos
-                    : stance_Busy.focusTarg.Cell.ToVector3Shifted();
-
-                if ((a - pawn.DrawPos).MagnitudeHorizontalSquared() > 0.001f)
-                {
-                    aimAngle = (a - pawn.DrawPos).AngleFlat();
-                }
-
-                aiming = true;
-            }
-
-
-            if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
-            {
-                if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
-                {
-                    Log.ErrorOnce(
-                        $"[ShowMeYourHands]: Could not find the position for {mainHandWeapon.def.label} from the mod {mainHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
-                        mainHandWeapon.def.GetHashCode());
-                }
-
-                return;
-            }
-
-            Vector3 mainWeaponLocation = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item1;
-            float mainHandAngle = ShowMeYourHandsMain.weaponLocations[mainHandWeapon].Item2;
-            Vector3 offhandWeaponLocation = Vector3.zero;
-            float offHandAngle = mainHandAngle;
-            float mainMeleeExtra = 0f;
-            float offMeleeExtra = 0f;
-            bool mainMelee = false;
-            bool offMelee = false;
-
-            if (offHandWeapon != null)
-            {
-                if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(offHandWeapon))
-                {
-                    if (ShowMeYourHandsMod.instance.Settings.VerboseLogging)
-                    {
-                        Log.ErrorOnce(
-                            $"[ShowMeYourHands]: Could not find the position for {offHandWeapon.def.label} from the mod {offHandWeapon.def.modContentPack.Name}, equipped by {pawn.Name}. Please report this issue to the author of Show Me Your Hands if possible.",
-                            offHandWeapon.def.GetHashCode());
-                    }
-                }
-                else
-                {
-                    offhandWeaponLocation = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item1;
-                    offHandAngle = ShowMeYourHandsMain.weaponLocations[offHandWeapon].Item2;
-                }
-            }
-
-            bool idle = false;
-            if (pawn.Rotation == Rot4.South || pawn.Rotation == Rot4.North)
-            {
-                idle = true;
-            }
-
-            mainHandAngle -= 90f;
-            offHandAngle -= 90f;
-            if (pawn.Rotation == Rot4.West || aimAngle is > 200f and < 340f)
-            {
-                flipped = true;
-            }
-
-            if (mainHandWeapon.def.IsMeleeWeapon)
-            {
-                mainMelee = true;
-                mainMeleeExtra = 0.0001f;
-                if (idle && offHandWeapon != null) //Dual wield idle vertical
-                {
-                    if (pawn.Rotation == Rot4.South)
-                    {
-                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
-                    }
-                    else
-                    {
-                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
-                    }
-                }
-                else
-                {
-                    if (flipped)
-                    {
-                        mainHandAngle -= 180f;
-                        mainHandAngle -= mainHandWeapon.def.equippedAngleOffset;
-                    }
-                    else
-                    {
-                        mainHandAngle += mainHandWeapon.def.equippedAngleOffset;
-                    }
-                }
-            }
-            else
-            {
-                if (flipped)
-                {
-                    mainHandAngle -= 180f;
-                }
-            }
-
-            if (offHandWeapon?.def?.IsMeleeWeapon == true)
-            {
-                offMelee = true;
-                offMeleeExtra = 0.0001f;
-                if (idle && pawn.Rotation == Rot4.North) //Dual wield north
-                {
-                    offHandAngle -= offHandWeapon.def.equippedAngleOffset;
-                }
-                else
-                {
-                    if (flipped)
-                    {
-                        offHandAngle -= 180f;
-                        offHandAngle -= offHandWeapon.def.equippedAngleOffset;
-                    }
-                    else
-                    {
-                        offHandAngle += offHandWeapon.def.equippedAngleOffset;
-                    }
-                }
-            }
-            else
-            {
-                if (flipped)
-                {
-                    offHandAngle -= 180f;
-                }
-            }
-
-            mainHandAngle %= 360f;
-            offHandAngle %= 360f;
-
-            float drawSize = 1f;
-            LastDrawn = GenTicks.TicksAbs;
-
-            if (ShowMeYourHandsMod.instance.Settings.RepositionHands && mainHandWeapon.def.graphicData != null &&
-                mainHandWeapon?.def?.graphicData?.drawSize.x != 1f)
-            {
-                drawSize = mainHandWeapon.def.graphicData.drawSize.x;
-            }
-
-            if (!PawnExtensions.pawnBodySizes.ContainsKey(pawn) || GenTicks.TicksAbs % GenTicks.TickLongInterval == 0)
-            {
-                float bodySize = 1f;
-                if (ShowMeYourHandsMod.instance.Settings.ResizeHands)
-                {
-                    if (pawn.RaceProps != null)
-                    {
-                        bodySize = pawn.RaceProps.baseBodySize;
-                    }
-
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
-                    {
-                        bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
-                    }
-                }
-
-                PawnExtensions.pawnBodySizes[pawn] = 0.8f * bodySize;
-            }
-
-            // ToDo Integrate: y >= 0 ? matSingle : offSingle
-
-            // Only put the second hand on when aiming or not moving => free left hand for running
-            //  bool leftOnWeapon = true;// aiming || !animator.IsMoving;
-
-            if (MainHand != Vector3.zero)
-            {
-                float x = MainHand.x * drawSize;
-                float z = MainHand.z * drawSize;
-                float y = MainHand.y < 0 ? -0.0001f : 0.001f;
-
-                if (flipped)
-                {
-                    x *= -1;
-                }
-
-                if (pawn.Rotation == Rot4.North && !mainMelee && !aiming)
-                {
-                    z += 0.1f;
-                }
-
-                animator.FirstHandPosition = mainWeaponLocation + AdjustRenderOffsetFromDir(pawn, mainHandWeapon as ThingWithComps);
-                animator.FirstHandPosition += new Vector3(x, y + mainMeleeExtra, z).RotatedBy(mainHandAngle);
-                animator.FirstHandQuat = Quaternion.AngleAxis(mainHandAngle, Vector3.up);
-            }
-            else
-            {
-                animator.FirstHandPosition = Vector3.zero;
-            }
-
-
-            if (OffHand != Vector3.zero)
-            {
-                float x2 = OffHand.x * drawSize;
-                float z2 = OffHand.z * drawSize;
-                float y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
-
-
-                if (offHandWeapon != null)
-                {
-                    drawSize = 1f;
-
-                    if (ShowMeYourHandsMod.instance.Settings.RepositionHands && offHandWeapon.def.graphicData != null &&
-                        offHandWeapon.def?.graphicData?.drawSize.x != 1f)
-                    {
-                        drawSize = offHandWeapon.def.graphicData.drawSize.x;
-                    }
-
-                    x2 = OffHand.x * drawSize;
-                    z2 = OffHand.z * drawSize;
-
-                    if (flipped)
-                    {
-                        x2 *= -1;
-                    }
-
-                    if (idle && !offMelee)
-                    {
-                        if (pawn.Rotation == Rot4.South)
-                        {
-                            z2 += 0.05f;
-                        }
-                        else
-                        {
-                            z2 -= 0.05f;
-                        }
-                    }
-
-
-                    animator.SecondHandPosition = offhandWeaponLocation + AdjustRenderOffsetFromDir(pawn, offHandWeapon as ThingWithComps);
-                    animator.SecondHandPosition += new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle);
-
-                    animator.SecondHandQuat = Quaternion.AngleAxis(offHandAngle, Vector3.up);
-                }
-
-            }
-            else
-            {
-                animator.SecondHandPosition = Vector3.zero;
-            }
-
         }
 
         public  void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle)

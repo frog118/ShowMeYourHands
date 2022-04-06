@@ -30,6 +30,11 @@ namespace FacialStuff
                     (pawn.mindState.duty != null && pawn.mindState.duty.def.alwaysShowWeapon));
         }
 
+        public static bool Aiming(this Pawn pawn)
+        {
+            return pawn.stances.curStance is Stance_Busy stanceBusy && !stanceBusy.neverAimWeapon &&
+                   stanceBusy.focusTarg.IsValid;
+        }
 
         public static bool Fleeing(this Pawn pawn)
         {

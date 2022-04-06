@@ -911,6 +911,10 @@ internal class ShowMeYourHandsMod : Mod
 
         compProperties.MainHand = Vector3.zero;
         compProperties.SecHand = Vector3.zero;
+        compProperties.AttackAngleOffset = 0f;
+        compProperties.WeaponPositionOffset = Vector3.zero;
+        compProperties.AimedWeaponPositionOffset = Vector3.zero;
+
         RimWorld_MainMenuDrawer_MainMenuOnGUI.LoadFromDefs(currentDef);
         if (compProperties.MainHand == Vector3.zero)
         {

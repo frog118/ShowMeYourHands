@@ -304,11 +304,14 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                     if (compProps == null)
                     {
                         compProps = new WhandCompProps
-
                         {
                             compClass = typeof(WhandComp),
                             MainHand = weaponSets.MainHand,
-                            SecHand = weaponSets.SecHand
+                            SecHand = weaponSets.SecHand,
+
+                            AttackAngleOffset = weaponSets.AttackAngleOffset,
+                            WeaponPositionOffset = weaponSets.WeaponPositionOffset,
+                            AimedWeaponPositionOffset = weaponSets.AimedWeaponPositionOffset
                         };
                         weapon.comps.Add(compProps);
                     }
@@ -316,6 +319,11 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                     {
                         compProps.MainHand = weaponSets.MainHand;
                         compProps.SecHand = weaponSets.SecHand;
+                        
+                        compProps.AttackAngleOffset = weaponSets.AttackAngleOffset;
+                        compProps.WeaponPositionOffset = weaponSets.WeaponPositionOffset;
+                        compProps.AimedWeaponPositionOffset = weaponSets.AimedWeaponPositionOffset;
+
                     }
 
                     ShowMeYourHandsMod.DefinedByDef.Add(weapon.defName);

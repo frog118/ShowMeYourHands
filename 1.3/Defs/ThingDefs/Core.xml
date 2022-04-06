@@ -12,12 +12,32 @@
       <li>
         <MainHand>(-0.194, 0.100, -0.087)</MainHand>
         <SecHand>(0.180, -0.100, -0.043)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.081761</x>
+          <y>0.2075472</y>
+          <z>-0.1069182</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1194969</x>
+          <y>-0.03773585</y>
+          <z>0.1132075</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_AssaultRifle</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.090, 0.100, -0.048)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.1006289</x>
+          <y>0</y>
+          <z>-0.1823899</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>0.0509434</x>
+          <y>0.1911321</y>
+          <z>0.2375472</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_Autopistol</li>
         </ThingTargets>
@@ -25,6 +45,16 @@
       <li>
         <MainHand>(-0.175, 0.100, -0.087)</MainHand>
         <SecHand>(0.200, -0.100, -0.050)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.1291824</x>
+          <y>0</y>
+          <z>-0.07402515</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1446541</x>
+          <y>0.1069182</y>
+          <z>0.1069182</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_BoltActionRifle</li>
         </ThingTargets>
@@ -32,6 +62,16 @@
       <li>
         <MainHand>(-0.183, 0.100, -0.021)</MainHand>
         <SecHand>(0.200, -0.100, -0.017)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.04113208</x>
+          <y>0</y>
+          <z>-0.04886792</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1069182</x>
+          <y>0.09433962</y>
+          <z>0.1006289</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_ChainShotgun</li>
         </ThingTargets>
@@ -39,6 +79,7 @@
       <li>
         <MainHand>(-0.083, 0.100, -0.083)</MainHand>
         <SecHand>(0.250, -0.100, -0.050)</SecHand>
+        <!--unknown to FS-->
         <ThingTargets>
           <li>Gun_ChargeLance</li>
         </ThingTargets>
@@ -46,6 +87,16 @@
       <li>
         <MainHand>(-0.134, 0.100, -0.090)</MainHand>
         <SecHand>(0.250, -0.100, -0.050)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.03144654</x>
+          <y>0</y>
+          <z>-0.03773585</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.08805031</x>
+          <y>0.1006289</y>
+          <z>0.1006289</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_ChargeRifle</li>
         </ThingTargets>
@@ -53,6 +104,16 @@
       <li>
         <MainHand>(0.034, 0.100, -0.254)</MainHand>
         <SecHand>(0.211, -0.100, -0.101)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.1132075</x>
+          <y>0.2012579</y>
+          <z>-0.09433962</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>0.006289308</x>
+          <y>0</y>
+          <z>0</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_DoomsdayRocket</li>
         </ThingTargets>
@@ -60,12 +121,23 @@
       <li>
         <MainHand>(-0.201, 0.100, -0.120)</MainHand>
         <SecHand>(0.266, -0.100, -0.087)</SecHand>
+        <!-- unknown -->
         <ThingTargets>
           <li>Gun_EmpLauncher</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.075, 0.100, -0.056)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.06918239</x>
+          <y>0</y>
+          <z>-0.1572327</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.04968554</x>
+          <y>0.08421382</y>
+          <z>0.111761</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_HeavySMG</li>
         </ThingTargets>
@@ -73,6 +145,16 @@
       <li>
         <MainHand>(-0.194, 0.100, -0.105)</MainHand>
         <SecHand>(0.244, -0.100, -0.109)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.06</x>
+          <y>0</y>
+          <z>-0.1243396</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1257862</x>
+          <y>0.09433962</y>
+          <z>0.1194969</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_IncendiaryLauncher</li>
         </ThingTargets>
@@ -80,12 +162,32 @@
       <li>
         <MainHand>(-0.212, 0.100, -0.076)</MainHand>
         <SecHand>(0.180, -0.100, -0.050)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.08</x>
+          <y>0</y>
+          <z>-0.04</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.12</x>
+          <y>0.15</y>
+          <z>0.04</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_LMG</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.130, 0.100, -0.073)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.0754717</x>
+          <y>0</y>
+          <z>-0.02515723</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.03773585</x>
+          <y>0.05031447</y>
+          <z>0.08805031</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_MachinePistol</li>
         </ThingTargets>
@@ -93,6 +195,16 @@
       <li>
         <MainHand>(-0.415, 0.100, 0.037)</MainHand>
         <SecHand>(0.204, -0.100, -0.061)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.06</x>
+          <y>0</y>
+          <z>-0.1496855</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.2264151</x>
+          <y>0.0754717</y>
+          <z>-0.05031447</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_Minigun</li>
         </ThingTargets>
@@ -100,12 +212,32 @@
       <li>
         <MainHand>(-0.117, 0.100, -0.050)</MainHand>
         <SecHand>(0.200, -0.100, -0.050)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.04113208</x>
+          <y>0</y>
+          <z>-0.04886792</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1069182</x>
+          <y>0.09433962</y>
+          <z>0.1006289</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_PumpShotgun</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.130, 0.100, -0.030)</MainHand>
+        <WeaponPositionOffset>
+          <x>0.06918239</x>
+          <y>0</y>
+          <z>-0.1823899</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.1691824</x>
+          <y>0.1974214</y>
+          <z>0.2438365</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_Revolver</li>
         </ThingTargets>
@@ -113,6 +245,7 @@
       <li>
         <MainHand>(-0.208, 0.100, -0.112)</MainHand>
         <SecHand>(0.281, -0.100, -0.101)</SecHand>
+        <!--unknown-->
         <ThingTargets>
           <li>Gun_SmokeLauncher</li>
         </ThingTargets>
@@ -120,6 +253,16 @@
       <li>
         <MainHand>(-0.186, 0.100, -0.050)</MainHand>
         <SecHand>(0.200, -0.100, -0.050)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.08515723</x>
+          <y>0</y>
+          <z>-0.06773585</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.09094343</x>
+          <y>0.1856604</y>
+          <z>0.03194966</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_SniperRifle</li>
         </ThingTargets>
@@ -127,30 +270,56 @@
       <li>
         <MainHand>(0.014, 0.100, -0.180)</MainHand>
         <SecHand>(0.241, -0.100, -0.162)</SecHand>
+        <WeaponPositionOffset>
+          <x>-0.02515723</x>
+          <y>0</y>
+          <z>0</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>0</x>
+          <y>0.08805031</y>
+          <z>-0.0754717</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Gun_TripleRocket</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.287, 0.100, 0.007)</MainHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_Axe</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.008, 0.100, 0.180)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.1066038</x>
+          <y>0</y>
+          <z>-0.1394968</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>Beer</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.290, 0.100, 0.000)</MainHand>
+        <WeaponPositionOffset>
+          <x>0.1132075</x>
+          <y>0</y>
+          <z>-0.03773585</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Club</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.298, 0.100, -0.051)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.05</x>
+          <y>0</y>
+          <z>-0.1206289</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>ElephantTusk</li>
         </ThingTargets>
@@ -158,24 +327,40 @@
       <li>
         <MainHand>(-0.287, 0.100, 0.000)</MainHand>
         <SecHand>(-0.088, -0.100, 0.000)</SecHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_PsyfocusStaff</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.008, 0.100, 0.103)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.1069182</x>
+          <y>0</y>
+          <z>-0.04402516</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>Weapon_GrenadeEMP</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(0.014, 0.100, 0.103)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.1257862</x>
+          <y>0</y>
+          <z>-0.0754717</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>Weapon_GrenadeFrag</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.279, 0.100, 0.029)</MainHand>
+        <WeaponPositionOffset>
+          <x>0.01</x>
+          <y>0</y>
+          <z>-0.02</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Gladius</li>
         </ThingTargets>
@@ -183,30 +368,61 @@
       <li>
         <MainHand>(0.112, 0.100, 0.000)</MainHand>
         <SecHand>(-0.084, -0.100, 0.008)</SecHand>
+        <WeaponPositionOffset>
+          <x>-0.0754717</x>
+          <y>0</y>
+          <z>0</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>5.857375E-10</x>
+          <y>0.03773586</y>
+          <z>0.05031447</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Bow_Great</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.250, 0.100, 0.026)</MainHand>
+        <WeaponPositionOffset>
+          <x>0.01</x>
+          <y>0</y>
+          <z>-0.02</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Ikwa</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.184, 0.100, 0.000)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.1066038</x>
+          <y>0</y>
+          <z>-0.101761</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Knife</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.375, 0.100, 0.030)</MainHand>
+        <SecHand>(-0.3522013, -0.100, 0)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.1949686</x>
+          <y>0</y>
+          <z>-0.01886792</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_LongSword</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.254, 0.100, 0.022)</MainHand>
+        <WeaponPositionOffset>
+          <x>0.01</x>
+          <y>0</y>
+          <z>-0.02</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Mace</li>
         </ThingTargets>
@@ -219,18 +435,21 @@
       </li>
       <li>
         <MainHand>(-0.338, 0.100, 0.015)</MainHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_MonoSword</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.342, 0.100, 0.011)</MainHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_MonoSwordBladelink</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.345, 0.100, 0.000)</MainHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_PlasmaSwordBladelink</li>
         </ThingTargets>
@@ -238,6 +457,7 @@
       <li>
         <MainHand>(-0.239, 0.100, 0.000)</MainHand>
         <SecHand>(-0.096, -0.100, 0.000)</SecHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_ZeusHammerBladelink</li>
         </ThingTargets>
@@ -250,6 +470,7 @@
       </li>
       <li>
         <MainHand>(-0.342, 0.100, 0.000)</MainHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_PlasmaSword</li>
         </ThingTargets>
@@ -257,6 +478,16 @@
       <li>
         <MainHand>(0.069, 0.100, 0.000)</MainHand>
         <SecHand>(-0.103, -0.100, 0.000)</SecHand>
+        <WeaponPositionOffset>
+          <x>0.03144654</x>
+          <y>0</y>
+          <z>-0.09433962</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>0</x>
+          <y>0.05660377</y>
+          <z>0.04402516</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Bow_Recurve</li>
         </ThingTargets>
@@ -264,6 +495,16 @@
       <li>
         <MainHand>(0.128, 0.100, 0.000)</MainHand>
         <SecHand>(-0.077, -0.100, 0.000)</SecHand>
+        <WeaponPositionOffset>
+          <x>0</x>
+          <y>0</y>
+          <z>0</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.04402516</x>
+          <y>0.09433962</y>
+          <z>0.1006289</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>Bow_Short</li>
         </ThingTargets>
@@ -271,6 +512,11 @@
       <li>
         <MainHand>(-0.320, 0.100, 0.000)</MainHand>
         <SecHand>(-0.055, -0.100, 0.000)</SecHand>
+        <WeaponPositionOffset>
+          <x>0</x>
+          <y>0</y>
+          <z>-0.0754717</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>MeleeWeapon_Spear</li>
         </ThingTargets>
@@ -278,6 +524,11 @@
       <li>
         <MainHand>(-0.309, 0.100, -0.103)</MainHand>
         <SecHand>(-0.103, -0.100, 0.073)</SecHand>
+        <WeaponPositionOffset>
+          <x>-0.07515723</x>
+          <y>0</y>
+          <z>-0.0954717</z>
+        </WeaponPositionOffset>
         <ThingTargets>
           <li>ThrumboHorn</li>
         </ThingTargets>
@@ -285,12 +536,23 @@
       <li>
         <MainHand>(-0.309, 0.100, 0.000)</MainHand>
         <SecHand>(-0.117, -0.100, 0.000)</SecHand>
+        <!--unknown-->
         <ThingTargets>
           <li>MeleeWeapon_Warhammer</li>
         </ThingTargets>
       </li>
       <li>
         <MainHand>(-0.089, 0.100, -0.059)</MainHand>
+        <WeaponPositionOffset>
+          <x>-0.02484281</x>
+          <y>0</y>
+          <z>-0.02628931</z>
+        </WeaponPositionOffset>
+        <AimedWeaponPositionOffset>
+          <x>-0.01886792</x>
+          <y>0.1383648</y>
+          <z>0.05660377</z>
+        </AimedWeaponPositionOffset>
         <ThingTargets>
           <li>WoodLog</li>
         </ThingTargets>
@@ -304,6 +566,7 @@
       </li>
       <li>
         <MainHand>(-0.144, 0.100, 0.000)</MainHand>
+        <!--unknwown-->
         <ThingTargets>
           <li>MeleeWeapon_BreachAxe</li>
           <!-- breach axe -->

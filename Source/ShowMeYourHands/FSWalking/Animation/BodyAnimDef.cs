@@ -45,8 +45,7 @@ namespace RimWorld
             { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
 
         [NotNull]
-        public Dictionary<LocomotionUrgency, WalkCycleDef> walkCycles =
-            new();
+        public Dictionary<LocomotionUrgency, WalkCycleDef> walkCycles = new();
 
         public string WalkCycleType = "Undefined";
 

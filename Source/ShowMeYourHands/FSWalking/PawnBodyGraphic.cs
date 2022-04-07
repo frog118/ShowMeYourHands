@@ -84,9 +84,10 @@ namespace FacialStuff.GraphicsFS
         private void InitializeGraphicsFeet()
         {
             string texNameFoot = CompAni.TexNameFoot();
-            
+            string texNameArtificial = PawnExtensions.PathHumanlike + "Feet/" + CompAni.Props.handType + "_PegLeg";
+
             // no story, either animal or not humanoid biped
-            
+
             Color rightColorFoot = Color.red;
             Color leftColorFoot = Color.blue;
 
@@ -111,28 +112,28 @@ namespace FacialStuff.GraphicsFS
             Vector2 drawSize = new(1f,1f);
             var stats = this.CompAni.BodyStat;
             this.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
-                texNameFoot,
+                CompAni.BodyStat.FootRight == PartStatus.Artificial ? texNameArtificial : texNameFoot,
                 GetShader(stats.FootRight),
                 drawSize,
                 animalOverride? skinColor : this.CompAni.FootColorRight,
                 animalOverride ? skinColor : this.CompAni.FootColorRight);
 
             this.FootGraphicLeft = GraphicDatabase.Get<Graphic_Multi>(
-                texNameFoot,
+                CompAni.BodyStat.FootLeft == PartStatus.Artificial ? texNameArtificial : texNameFoot,
                 GetShader(stats.FootLeft),
                 drawSize,
                 animalOverride ? skinColor : this.CompAni.FootColorLeft,
                 animalOverride ? skinColor : this.CompAni.FootColorLeft);
 
             this.FootGraphicRightShadow = GraphicDatabase.Get<Graphic_Multi>(
-                texNameFoot,
+                CompAni.BodyStat.FootRight == PartStatus.Artificial ? texNameArtificial : texNameFoot,
                 GetShader(stats.FootRight),
                 drawSize,
                 rightFootShadowColor,
                 rightFootShadowColor);
 
             this.FootGraphicLeftShadow = GraphicDatabase.Get<Graphic_Multi>(
-                texNameFoot,
+                CompAni.BodyStat.FootLeft == PartStatus.Artificial ? texNameArtificial : texNameFoot,
                 GetShader(stats.FootLeft),
                 drawSize,
                 leftFootShadowColor,
@@ -426,14 +427,15 @@ namespace FacialStuff.GraphicsFS
                                         diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Shoulder") ||
                                         diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Clavicle") ||
                                         diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Humerus") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Radius"))
+                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Radius") ||
+                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Paw"))
                                     {
-                                        if (diff.Part.customLabel.Contains("left"))
+                                        if (diff.Part.customLabel.Contains("front left") || diff.Part.customLabel.Contains("left"))
                                         {
                                             anim.BodyStat.HandLeft = PartStatus.Missing;
                                         }
 
-                                        if (diff.Part.customLabel.Contains("right"))
+                                        if (diff.Part.customLabel.Contains("front right") || diff.Part.customLabel.Contains("right"))
                                         {
                                             anim.BodyStat.HandRight = PartStatus.Missing;
                                         }
@@ -444,15 +446,26 @@ namespace FacialStuff.GraphicsFS
                                         diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Tibia") ||
                                         diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Foot"))
                                     {
-                                        if (diff.Part.customLabel.Contains("left"))
+                                        if (diff.Part.customLabel.Contains("rear left") || diff.Part.customLabel.Contains("left"))
                                         {
                                             anim.BodyStat.FootLeft = PartStatus.Missing;
                                         }
 
-                                        if (diff.Part.customLabel.Contains("right"))
+                                        if (diff.Part.customLabel.Contains("rear right") || diff.Part.customLabel.Contains("right"))
                                         {
                                             anim.BodyStat.FootRight = PartStatus.Missing;
                                         }
+
+                                        if (diff.Part.customLabel.Contains("front left"))
+                                        {
+                                            anim.BodyStat.HandLeft = PartStatus.Missing;
+                                        }
+
+                                        if (diff.Part.customLabel.Contains("front right"))
+                                        {
+                                            anim.BodyStat.HandRight = PartStatus.Missing;
+                                        }
+
                                     }
                                 }
 
@@ -554,12 +567,13 @@ namespace FacialStuff.GraphicsFS
 
             if (ShowMeYourHandsMod.instance.Settings.MatchArmorColor)
             {
-                IEnumerable<Apparel> handApparel = from apparel in pawn.apparel.WornApparel
-                                                   where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Hands")
-                                                   select apparel;
-                IEnumerable<Apparel> footApparel = from apparel in pawn.apparel.WornApparel
-                                                   where apparel.def.apparel.bodyPartGroups.Any(def => def.defName == "Feet")
-                                                   select apparel;
+                IEnumerable<Apparel> handApparel = pawn.apparel.WornApparel.Where(apparel =>
+                    apparel.def.apparel.bodyPartGroups.Contains(
+                        DefDatabase<BodyPartGroupDef>.GetNamedSilentFail("Hands")));
+                IEnumerable<Apparel> footApparel = pawn.apparel.WornApparel
+                    .Where(apparel => apparel.def.apparel.bodyPartGroups.Contains(
+                        DefDatabase<BodyPartGroupDef>.GetNamedSilentFail(
+                            "Feet")));
 
                 //ShowMeYourHandsMain.LogMessage($"Found gloves on {pawn.NameShortColored}: {string.Join(",", handApparel)}");
 
@@ -582,7 +596,8 @@ namespace FacialStuff.GraphicsFS
 
                     if (outerApparel != null)
                     {
-                        if (PawnExtensions.colorDictionary == null)
+                        // The method is only called on changes, and the apparel can be dyed. deactivated for now
+                        // if (PawnExtensions.colorDictionary == null)
                         {
                             PawnExtensions.colorDictionary = new Dictionary<Thing, Color>();
                         }
@@ -644,7 +659,7 @@ namespace FacialStuff.GraphicsFS
                     bool hasColor = false;
                     if (outerApparel != null)
                     {
-                        if (PawnExtensions.colorDictionary == null)
+                     //   if (PawnExtensions.colorDictionary == null)
                         {
                             PawnExtensions.colorDictionary = new Dictionary<Thing, Color>();
                         }
@@ -662,9 +677,6 @@ namespace FacialStuff.GraphicsFS
                                     SetFeetColor(comp.Color);
                                 }
                             }
-
-                            // BUG Tried to get a resource "Things/Pawn/Humanlike/Apparel/Duster/Duster" from a different thread. All resources must be loaded in the main thread. 
-
                             else if (outerApparel.Stuff != null && outerApparel.Graphic.Shader != ShaderDatabase.CutoutComplex)
                             {
                                 PawnExtensions.colorDictionary[outerApparel] = outerApparel.def.GetColorForStuff(outerApparel.Stuff);

@@ -13,6 +13,12 @@
     <Compile Remove="FSWalking\BodyProps.cs" />
     <Compile Remove="FSWalking\Class1.cs" />
     <Compile Remove="FSWalking\Class18.cs" />
+    <Compile Remove="FSWalking\HairCut\CutHairDB.cs" />
+    <Compile Remove="FSWalking\HairCut\FaceTextures.cs" />
+    <Compile Remove="FSWalking\HairCut\HairCutPawn.cs" />
+    <Compile Remove="FSWalking\HairCut\HairCutPawnPatch.cs" />
+    <Compile Remove="FSWalking\HairCut\Notify_StyleItemChanged_Postfix.cs" />
+    <Compile Remove="FSWalking\HairCut\ResolveApparelGraphics_Postfix.cs" />
     <Compile Remove="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <Compile Remove="FSWalking\SimpleCurve_Extension.cs" />
     <Compile Remove="HandDrawer.cs" />
@@ -22,6 +28,12 @@
     <None Include="FSWalking\BodyProps.cs" />
     <None Include="FSWalking\Class1.cs" />
     <None Include="FSWalking\Class18.cs" />
+    <None Include="FSWalking\HairCut\CutHairDB.cs" />
+    <None Include="FSWalking\HairCut\FaceTextures.cs" />
+    <None Include="FSWalking\HairCut\HairCutPawn.cs" />
+    <None Include="FSWalking\HairCut\HairCutPawnPatch.cs" />
+    <None Include="FSWalking\HairCut\Notify_StyleItemChanged_Postfix.cs" />
+    <None Include="FSWalking\HairCut\ResolveApparelGraphics_Postfix.cs" />
     <None Include="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <None Include="FSWalking\SimpleCurve_Extension.cs" />
     <None Include="HandDrawer.cs" />

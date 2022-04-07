@@ -9,7 +9,7 @@ namespace FacialStuff
     public class QuadrupedDrawer : HumanBipedDrawer
     {
 
-        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
+        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc)
         {
 
 
@@ -34,9 +34,9 @@ namespace FacialStuff
                 frontPawLoc.y += (_compAnimatorCurrentRotation == Rot4.North ? Offsets.YOffset_Behind : -Offsets.YOffset_Behind);
             }
 
-            this.DrawFrontPaws(drawQuat, frontPawLoc, factor);
+            this.DrawFrontPaws(drawQuat, frontPawLoc);
 
-            base.DrawFeet(drawQuat, rearPawLoc, bodyLoc, factor);
+            base.DrawFeet(drawQuat, rearPawLoc, bodyLoc);
         }
 
 
@@ -46,8 +46,7 @@ namespace FacialStuff
             // base.DrawHands(bodyQuat, drawPos, portrait, carrying, drawSide);
         }
 
-        protected virtual void DrawFrontPaws(Quaternion drawQuat, Vector3 rootLoc,
-            float factor = 1f)
+        protected virtual void DrawFrontPaws(Quaternion drawQuat, Vector3 rootLoc)
         {
             if (!this.compAnimator.Props.quadruped)
             {
@@ -100,6 +99,7 @@ namespace FacialStuff
                     cycle.FrontPawPositionZ,
                     cycle.FrontPawAngle);
             }
+            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
             this.GetBipedMesh(out Mesh footMeshRight, out Mesh footMeshLeft);
 
@@ -140,13 +140,13 @@ namespace FacialStuff
                 }
             }
 
-            Vector3 ground = rootLoc + (drawQuat * new Vector3(0, 0, OffsetGroundZ)) * factor;
+            Vector3 ground = rootLoc + (drawQuat * new Vector3(0, 0, OffsetGroundZ)) * bodysizeScaling;
 
             if (matLeft != null)
             {
-                if (this.compAnimator.BodyStat.FootLeft != PartStatus.Missing)
+                if (this.compAnimator.BodyStat.HandLeft != PartStatus.Missing)
                 {
-                    Vector3 position = ground + (jointPositions.LeftJoint + leftFootAnim) * factor;
+                    Vector3 position = ground + (jointPositions.LeftJoint + leftFootAnim) * bodysizeScaling;
                     Graphics.DrawMesh(
                         footMeshLeft,
                         position,
@@ -158,9 +158,9 @@ namespace FacialStuff
 
             if (matRight != null)
             {
-                if (this.compAnimator.BodyStat.FootRight != PartStatus.Missing)
+                if (this.compAnimator.BodyStat.HandRight != PartStatus.Missing)
                 {
-                    Vector3 position = ground + (jointPositions.RightJoint + rightFootAnim) * factor;
+                    Vector3 position = ground + (jointPositions.RightJoint + rightFootAnim) * bodysizeScaling;
                     Graphics.DrawMesh(
                         footMeshRight,
                         position,

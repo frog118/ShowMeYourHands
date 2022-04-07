@@ -370,7 +370,7 @@ namespace FacialStuff
 
         // off for now
 
-        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
+        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc)
         {
             if (!this.pawnBodyDrawers.NullOrEmpty())
             {
@@ -378,7 +378,7 @@ namespace FacialStuff
                 int count = this.pawnBodyDrawers.Count;
                 while (i < count)
                 {
-                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc, factor);
+                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc);
                     i++;
                 }
             }
@@ -753,8 +753,9 @@ namespace FacialStuff
             }
         }
 
-        public  void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle)
+        public  void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle, out bool hasSecondWeapon)
         {
+            hasSecondWeapon = false;
             WhandCompProps extensions = eq?.def?.GetCompProperties<WhandCompProps>();
 
             Pawn ___pawn = this.pawn;
@@ -806,6 +807,7 @@ namespace FacialStuff
                 if (offhandComp != null)
                 {
                     OffHand = offhandComp.MainHand;
+                    hasSecondWeapon = true;
                 }
             }
 

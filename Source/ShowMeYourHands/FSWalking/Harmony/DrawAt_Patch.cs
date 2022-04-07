@@ -36,6 +36,7 @@ class DrawAt_Patch
         {
             return;
         }
+        if (pawn.Dead) return;
 
         //CompFace compFace = pawn.GetCompFace();
         if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))

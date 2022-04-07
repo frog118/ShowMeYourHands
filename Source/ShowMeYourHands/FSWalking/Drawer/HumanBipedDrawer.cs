@@ -102,48 +102,6 @@ namespace FacialStuff
             return base.CarryStuff();
         }
 
-        public void DoAttackAnimationHandOffsets(ref List<float> weaponAngle, ref Vector3 weaponPosition, bool flipped)
-        {
-            Pawn pawn = this.pawn;
-            if (pawn.story != null && ((pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.Violent) != 0))
-            {
-                return;
-            }
-
-            if (pawn.health?.capacities != null)
-            {
-                if (!pawn.health.capacities
-                         .CapableOf(PawnCapacityDefOf
-                                   .Manipulation))
-                {
-                    if (pawn.RaceProps != null && pawn.RaceProps.ToolUser)
-                    {
-                        return;
-                    }
-                }
-            }
-
-            // total weapon angle change during animation sequence
-            int totalSwingAngle = 0;
-            Vector3 currentOffset = this.compAnimator.Jitterer.CurrentOffset;
-
-            float jitterMax = this.compAnimator.JitterMax;
-            float magnitude = currentOffset.magnitude;
-            float animationPhasePercent = magnitude / jitterMax;
-            {
-                // if (damageDef == DamageDefOf.Stab)
-                weaponPosition += currentOffset;
-            }
-
-            // else if (damageDef == DamageDefOf.Blunt || damageDef == DamageDefOf.Cut)
-            // {
-            // totalSwingAngle = 120;
-            // weaponPosition += currentOffset + new Vector3(0, 0, Mathf.Sin(magnitude * Mathf.PI / jitterMax) / 10);
-            // }
-            float angle = animationPhasePercent * totalSwingAngle;
-            weaponAngle[0] += (flipped ? -1f : 1f) * angle;
-            weaponAngle[1] += (flipped ? -1f : 1f) * angle;
-        }
 
         private Material OverrideMaterialIfNeeded(Material original, Pawn pawn, bool portrait = false)
         {
@@ -151,7 +109,7 @@ namespace FacialStuff
             return pawn.Drawer.renderer.graphics.flasher.GetDamagedMat(baseMat);
         }
 
-        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc, float factor = 1f)
+        public override void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc)
         {
             if (this.ShouldBeIgnored())
             {
@@ -221,16 +179,16 @@ namespace FacialStuff
                                         cycle.FootPositionZ,
                                         cycle.FootAngle);
             }
+            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
             // pawn jumping too high,move the feet
             if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
             {
-                float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
-                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.7f)
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 2f)
                 {
                     float step = 0.025f;
                     footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
@@ -291,7 +249,7 @@ namespace FacialStuff
             groundPos.RightJoint = drawQuat * groundPos.RightJoint;
             leftFootCycle = drawQuat * leftFootCycle;
             rightFootCycle = drawQuat * rightFootCycle;
-            Vector3 ground = rootLoc + drawQuat * new Vector3(0, 0, OffsetGroundZ) * factor;
+            Vector3 ground = rootLoc + drawQuat * new Vector3(0, 0, OffsetGroundZ) * bodysizeScaling;
 
             if (drawLeft)
             {
@@ -299,7 +257,7 @@ namespace FacialStuff
                 // PawnPartsTweener tweener = this.CompAnimator.PartTweener;
                 // if (tweener != null)
                 {
-                    Vector3 position = ground + (groundPos.LeftJoint + leftFootCycle) * factor;
+                    Vector3 position = ground + (groundPos.LeftJoint + leftFootCycle) * bodysizeScaling;
                     // tweener.PartPositions[(int)leftFoot] = position;
                     // tweener.PreThingPosCalculation(leftFoot, spring: SpringTightness.Stff);
 
@@ -318,7 +276,7 @@ namespace FacialStuff
                 // PawnPartsTweener tweener = this.CompAnimator.PartTweener;
                 // if (tweener != null)
                 // {
-                Vector3 position = ground + (groundPos.RightJoint + rightFootCycle) * factor;
+                Vector3 position = ground + (groundPos.RightJoint + rightFootCycle) * bodysizeScaling;
 
                 // tweener.PartPositions[(int)rightFoot] = position;
                 //     tweener.PreThingPosCalculation(rightFoot, spring: SpringTightness.Stff);
@@ -397,7 +355,7 @@ namespace FacialStuff
             }
 
             this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
-
+            bool hasSecondWeapon = false;
             ThingWithComps eq = pawn?.equipment?.Primary;
             if (eq != null && pawn?.CurJob?.def != null && !pawn.CurJob.def.neverShowWeapon)
             {
@@ -406,7 +364,7 @@ namespace FacialStuff
                 object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
-                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f);
+                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f, out hasSecondWeapon);
                 }
             }
 
@@ -417,7 +375,28 @@ namespace FacialStuff
             Rot4 rot = this.compAnimator.CurrentRotation;
             bool isFacingNorth = rot == Rot4.North;
 
-            if (carrying)
+            float animationAngle = 0f;
+            Vector3 animationPosOffset = Vector3.zero;
+            if (true)
+            {
+                DoAnimationHands(ref animationPosOffset, ref animationAngle);
+            }
+            bool poschanged = false;
+            if (animationAngle != 0f)
+            {
+                animationAngle *= 4;
+                bodyQuat *= Quaternion.AngleAxis(animationAngle, Vector3.up);
+            }
+            if (animationPosOffset != Vector3.zero)
+            {
+                drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.3f * bodysizeScaling;
+                
+                //this.compAnimator.FirstHandPosition += animationPosOffset.RotatedBy(animationAngle);
+                //this.compAnimator.SecondHandPosition += animationPosOffset.RotatedBy(-animationAngle);
+                poschanged = true;
+            }
+
+            if (carrying || poschanged)
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
 
@@ -441,10 +420,7 @@ namespace FacialStuff
                 drawPos = handVector;
             }
 
-            if (false)
-            {
-                DoAnimationHands();
-            }
+
 
 
 
@@ -456,8 +432,8 @@ namespace FacialStuff
 
             List<float> handSwingAngle = new() { 0f, 0f };
             float shoulderAngle = 0f;
-            Vector3 rightHand = Vector3.zero;
-            Vector3 leftHand = Vector3.zero;
+            Vector3 rightHandVector = Vector3.zero;
+            Vector3 leftHandVector = Vector3.zero;
             WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
             //PoseCycleDef poseCycle = this.CompAnimator.PoseCycle;
 
@@ -468,8 +444,8 @@ namespace FacialStuff
                 // Children's arms are way too long
                 this.compAnimator.DoWalkCycleOffsets(
                                         body.armLength,
-                                        ref rightHand,
-                                        ref leftHand,
+                                        ref rightHandVector,
+                                        ref leftHandVector,
                                         ref shoulderAngle,
                                         ref handSwingAngle,
                                         ref shoulperPos,
@@ -515,24 +491,26 @@ namespace FacialStuff
 
             //float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f;
 
+
+
             if (drawLeft)
             {
                 Quaternion quat;
                 Vector3 position;
                 bool noTween = false;
-                if (!this.compAnimator.IsMoving && this.compAnimator.SecondHandPosition != Vector3.zero)
+                if (hasSecondWeapon ||
+                    (!this.compAnimator.IsMoving && this.compAnimator.SecondHandPosition != Vector3.zero))
                 {
                     position = this.compAnimator.SecondHandPosition;
-                    quat = this.compAnimator.SecondHandQuat;
-                    quat *= Quaternion.AngleAxis(90f, Vector3.up);
+                    quat = this.compAnimator.SecondHandQuat * Quaternion.AngleAxis(90f, Vector3.up);
                     noTween = true;
                 }
                 else
                 {
                     shoulperPos.LeftJoint = bodyQuat * shoulperPos.LeftJoint;
-                    leftHand = bodyQuat * leftHand.RotatedBy(-handSwingAngle[0] - shoulderAngle);
+                    leftHandVector = bodyQuat * leftHandVector.RotatedBy(-handSwingAngle[0] - shoulderAngle + animationAngle);
 
-                    position = drawPos + (shoulperPos.LeftJoint + leftHand) * bodysizeScaling;
+                    position = drawPos + (shoulperPos.LeftJoint + leftHandVector) * bodysizeScaling;
                     if (carrying) // grabby angle
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(-90f, Vector3.up);
@@ -559,17 +537,16 @@ namespace FacialStuff
                 bool noTween = false;
                 if (this.compAnimator.FirstHandPosition != Vector3.zero)
                 {
-                    quat = this.compAnimator.FirstHandQuat;
-                    quat *= Quaternion.AngleAxis(-90f, Vector3.up);
+                    quat = this.compAnimator.FirstHandQuat * Quaternion.AngleAxis(-90f, Vector3.up);
                     position = this.compAnimator.FirstHandPosition;
                     noTween = true;
                 }
                 else
                 {
                     shoulperPos.RightJoint = bodyQuat * shoulperPos.RightJoint;
-                    rightHand = bodyQuat * rightHand.RotatedBy(handSwingAngle[1] - shoulderAngle);
+                    rightHandVector = bodyQuat * rightHandVector.RotatedBy(handSwingAngle[1] - shoulderAngle + animationAngle);
 
-                    position = drawPos + (shoulperPos.RightJoint + rightHand) * bodysizeScaling;
+                    position = drawPos + (shoulperPos.RightJoint + rightHandVector) * bodysizeScaling;
                     if (carrying) // grabby angle
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(90f, Vector3.up);
@@ -622,13 +599,14 @@ namespace FacialStuff
         public enum aniType
         { none, doSomeThing, social, smash, idle, gameCeremony, crowd, solemn }
 
-        private void DoAnimationHands()
+        private void DoAnimationHands(ref Vector3 posOffset, ref float animationAngle)
         {
-            if (pawn.CurJob == null)
+            Job curJob = pawn.CurJob;
+            if (curJob == null)
             {
                 return;
             }
-            int t = 0;
+            int tick = 0;
                 float f;
             int t2;
             Rot4 r;
@@ -636,11 +614,11 @@ namespace FacialStuff
             Rot4 rot = compAnimator.CurrentRotation;
             Rot4 tr = rot;
             aniType aniType = aniType.none;
-            float oa = 0f;
-            Vector3 op = Vector3.zero;
+            float angle = 0f;
+            Vector3 pos = Vector3.zero;
             int total;
 
-            switch (pawn.CurJob.def.defName)
+            switch (curJob.def.defName)
             {
                 // do something
                 case "UseArtifact":
@@ -712,15 +690,15 @@ namespace FacialStuff
                     break;
 
                 case "Vomit":
-                    t = (Find.TickManager.TicksGame + IdTick) % 200;
-                    if (!PawnExtensions.Ani(ref t, 25, ref oa, 15f, 35f, -1f, ref op, rot))
-                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
-                            if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
-                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
-                                    if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
-                                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 25f, -1f, ref op, rot))
-                                            if (!PawnExtensions.Ani(ref t, 25, ref oa, 25f, 35f, -1f, ref op, rot))
-                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 35f, 15f, -1f, ref op, rot)) ;
+                    tick = (Find.TickManager.TicksGame + IdTick) % 200;
+                    if (!PawnExtensions.Ani(ref tick, 25, ref angle, 15f, 35f, -1f, ref pos, rot))
+                        if (!PawnExtensions.Ani(ref tick, 25, ref angle, 35f, 25f, -1f, ref pos, rot))
+                            if (!PawnExtensions.Ani(ref tick, 25, ref angle, 25f, 35f, -1f, ref pos, rot))
+                                if (!PawnExtensions.Ani(ref tick, 25, ref angle, 35f, 25f, -1f, ref pos, rot))
+                                    if (!PawnExtensions.Ani(ref tick, 25, ref angle, 25f, 35f, -1f, ref pos, rot))
+                                        if (!PawnExtensions.Ani(ref tick, 25, ref angle, 35f, 25f, -1f, ref pos, rot))
+                                            if (!PawnExtensions.Ani(ref tick, 25, ref angle, 25f, 35f, -1f, ref pos, rot))
+                                                if (!PawnExtensions.Ani(ref tick, 25, ref angle, 35f, 15f, -1f, ref pos, rot)) ;
                     break;
 
                 case "Clean":
@@ -731,15 +709,14 @@ namespace FacialStuff
                     break;
 
                 case "MarryAdjacentPawn":
-                    t = (Find.TickManager.TicksGame) % 310;
+                    tick = (Find.TickManager.TicksGame) % 310;
 
-                    if (!PawnExtensions.Ani(ref t, 150))
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 150))
                     {
-                        if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 5f, -1f, ref op, Vector3.zero, new Vector3(0.05f, 0f, 0f), rot))
-                            if (!PawnExtensions.Ani(ref t, 50, ref oa, 5f, 10f, -1f, ref op, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
-                                if (!PawnExtensions.Ani(ref t, 50, ref oa, 10, 10f, -1f, ref op, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
-                                    if (!PawnExtensions.Ani(ref t, 40, ref oa, 10f, 0f, -1f, ref op, new Vector3(0.05f, 0f, 0f), Vector3.zero, rot)) ;
-
+                        if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 5f, -1f, ref pos, Vector3.zero, new Vector3(0.05f, 0f, 0f), rot))
+                            if (!PawnExtensions.Ani(ref tick, 50, ref angle, 5f, 10f, -1f, ref pos, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
+                                if (!PawnExtensions.Ani(ref tick, 50, ref angle, 10, 10f, -1f, ref pos, new Vector3(0.05f, 0f, 0f), new Vector3(0.05f, 0f, 0f), rot))
+                                    if (!PawnExtensions.Ani(ref tick, 40, ref angle, 10f, 0f, -1f, ref pos, new Vector3(0.05f, 0f, 0f), Vector3.zero, rot)) ;
                     }
 
                     break;
@@ -780,41 +757,41 @@ namespace FacialStuff
                 // joy
 
                 case "Play_Hoopstone":
-                    t = (Find.TickManager.TicksGame + IdTick) % 60;
-                    if (!PawnExtensions.Ani(ref t, 30, ref oa, 10f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    tick = (Find.TickManager.TicksGame + IdTick) % 60;
+                    if (!PawnExtensions.Ani(ref tick, 30, ref angle, 10f, -20f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                     {
-                        if (!PawnExtensions.Ani(ref t, 30, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                        if (!PawnExtensions.Ani(ref tick, 30, ref angle, -20f, 10f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
                     }
                     break;
                 case "Play_Horseshoes":
-                    t = (Find.TickManager.TicksGame + IdTick) % 60;
-                    if (!PawnExtensions.Ani(ref t, 30, ref oa, 10f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    tick = (Find.TickManager.TicksGame + IdTick) % 60;
+                    if (!PawnExtensions.Ani(ref tick, 30, ref angle, 10f, -20f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                     {
-                        if (!PawnExtensions.Ani(ref t, 30, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                        if (!PawnExtensions.Ani(ref tick, 30, ref angle, -20f, 10f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
                     }
                     break;
 
                 case "Play_GameOfUr":
-                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
-                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    tick = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (tick <= 159) { aniType = aniType.gameCeremony; }
                     else { aniType = aniType.doSomeThing; }
                     break;
 
                 case "Play_Poker":
-                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
-                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    tick = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (tick <= 159) { aniType = aniType.gameCeremony; }
                     else { aniType = aniType.doSomeThing; }
                     break;
 
                 case "Play_Billiards":
-                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
-                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    tick = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (tick <= 159) { aniType = aniType.gameCeremony; }
                     else { aniType = aniType.doSomeThing; }
                     break;
 
                 case "Play_Chess":
-                    t = (Find.TickManager.TicksGame + IdTick * 27) % 900;
-                    if (t <= 159) { aniType = aniType.gameCeremony; }
+                    tick = (Find.TickManager.TicksGame + IdTick * 27) % 900;
+                    if (tick <= 159) { aniType = aniType.gameCeremony; }
                     else { aniType = aniType.doSomeThing; }
                     break;
 
@@ -823,17 +800,15 @@ namespace FacialStuff
                     break;
 
                 case "Sow": // 씨뿌리기
-                    t = (Find.TickManager.TicksGame + IdTick) % 50;
+                    tick = (Find.TickManager.TicksGame + IdTick) % 50;
 
-                    if (!PawnExtensions.Ani(ref t, 35))
-                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, rot))
-                            if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot)) ;
-
-                    // custom animation
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 35))
+                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 10f, -1f, ref pos, rot))
+                            if (!PawnExtensions.Ani(ref tick, 10, ref angle, 10f, 0f, -1f, ref pos, rot)) ;
                     break;
 
                 case "CutPlant": // 식물 베기
-                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    if (curJob.targetA.Thing?.def.plant?.IsTree != null && curJob.targetA.Thing.def.plant.IsTree)
                     {
                         aniType = aniType.smash;
                     }
@@ -844,7 +819,7 @@ namespace FacialStuff
                     break;
 
                 case "Harvest": // 자동 수확
-                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    if (curJob.targetA.Thing?.def.plant?.IsTree != null && curJob.targetA.Thing.def.plant.IsTree)
                     {
                         aniType = aniType.smash;
                     }
@@ -855,7 +830,7 @@ namespace FacialStuff
                     break;
 
                 case "HarvestDesignated": // 수동 수확
-                    if (pawn.CurJob.targetA.Thing?.def.plant?.IsTree != null && pawn.CurJob.targetA.Thing.def.plant.IsTree)
+                    if (curJob.targetA.Thing?.def.plant?.IsTree != null && curJob.targetA.Thing.def.plant.IsTree)
                     {
                         aniType = aniType.smash;
                     }
@@ -870,20 +845,31 @@ namespace FacialStuff
                     break;
 
                 case "Ingest": // 밥먹기
-                // custom animation
+                    tick = (Find.TickManager.TicksGame + IdTick) % 150;
+                    f = 0.03f;
+                    if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 15f, -1f, ref pos, Vector3.zero, new Vector3(0f, 0f, 0f), rot))
+                        if (!PawnExtensions.Ani(ref tick, 10, ref angle, 15f, 0f, -1f, ref pos, Vector3.zero, new Vector3(0f, 0f, 0f), rot))
+                            if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 0f, -1f, ref pos, Vector3.zero, new Vector3(0f, 0f, f), rot))
+                                if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, f), new Vector3(0f, 0f, -f), rot))
+                                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, -f), new Vector3(0f, 0f, f), rot))
+                                        if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, f), new Vector3(0f, 0f, -f), rot))
+                                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, -f), new Vector3(0f, 0f, f), rot))
+                                                if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, f), new Vector3(0f, 0f, -f), rot))
+                                                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, -f), new Vector3(0f, 0f, f), rot)) ;
+
                     break;
             }
 
             switch (aniType)
             {
                 case aniType.solemn:
-                    t = (Find.TickManager.TicksGame + (IdTick % 25)) % 660;
+                    tick = (Find.TickManager.TicksGame + (IdTick % 25)) % 660;
 
-                    if (!PawnExtensions.Ani(ref t, 300))
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 300))
                     {
-                        if (!PawnExtensions.Ani(ref t, 30, ref oa, 0f, 15f, -1f, ref op, Vector3.zero, Vector3.zero, rot))
-                            if (!PawnExtensions.Ani(ref t, 300, ref oa, 15f, 15f, -1f, ref op, Vector3.zero, Vector3.zero, rot))
-                                if (!PawnExtensions.Ani(ref t, 30, ref oa, 15f, 0f, -1f, ref op, Vector3.zero, Vector3.zero, rot)) ;
+                        if (!PawnExtensions.Ani(ref tick, 30, ref angle, 0f, 15f, -1f, ref pos, Vector3.zero, Vector3.zero, rot))
+                            if (!PawnExtensions.Ani(ref tick, 300, ref angle, 15f, 15f, -1f, ref pos, Vector3.zero, Vector3.zero, rot))
+                                if (!PawnExtensions.Ani(ref tick, 30, ref angle, 15f, 0f, -1f, ref pos, Vector3.zero, Vector3.zero, rot)) ;
 
                     }
                     break;
@@ -891,34 +877,34 @@ namespace FacialStuff
                 case aniType.crowd:
                     total = 143;
                     t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
-                    t = t2 % total;
+                    tick = t2 % total;
                     r = PawnExtensions.Rot90(rot);
                     tr = rot;
-                    if (!PawnExtensions.Ani(ref t, 20))
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 20))
                     {
-                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
-                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
-                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
-                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 10f, -1f, ref pos, r))
+                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 10f, 10f, -1f, ref pos, r))
+                                if (!PawnExtensions.Ani(ref tick, 5, ref angle, 10f, -10f, -1f, ref pos, r))
+                                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, -10f, -10f, -1f, ref pos, r))
                                     {
-                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, -10f, 0f, -1f, ref pos, r))
                                         {
                                             tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
-                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            if (!PawnExtensions.Ani(ref tick, 15, ref angle, 0f, 0f, -1f, ref pos, rot)) // 85
                                             {
                                                 tr = rot;
-                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
+                                                if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, rot)) // 105
 
 
                                                     if (t2 >= total)
                                                     {
-                                                        if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
-                                                            if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line)) ;
+                                                        if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                                            if (!PawnExtensions.Ani(ref tick, 13, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line)) ;
 
                                                     }
                                                     else
                                                     {
-                                                        if (!PawnExtensions.Ani(ref t, 33)) ;
+                                                        if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 33)) ;
 
                                                     }
 
@@ -938,28 +924,28 @@ namespace FacialStuff
                     r = PawnExtensions.Rot90(rot);
                     tr = rot;
 
-                    if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
                     {
-                        if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                        if (!PawnExtensions.Ani(ref tick, 13, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
 
-                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
-                                if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                if (!PawnExtensions.Ani(ref tick, 13, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
                                 {
                                     rot = PawnExtensions.Rot90b(rot);
-                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                    if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                                     {
                                         rot = PawnExtensions.Rot90b(rot);
-                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                        if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
 
-                                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
-                                                if (!PawnExtensions.Ani(ref t, 13, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
-                                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
+                                                if (!PawnExtensions.Ani(ref tick, 13, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                                                    if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                                                     {
                                                         rot = PawnExtensions.Rot90b(rot);
-                                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                                        if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                                                         {
                                                             rot = PawnExtensions.Rot90b(rot);
-                                                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                                                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
                                                         }
                                                     }
                                     }
@@ -972,27 +958,27 @@ namespace FacialStuff
                     break;
 
                 case aniType.idle:
-                    t = (Find.TickManager.TicksGame + IdTick * 13) % 800;
+                    tick = (Find.TickManager.TicksGame + IdTick * 13) % 800;
                     f = 4.5f;
                     r = PawnExtensions.Rot90(rot);
-                    if (!PawnExtensions.Ani(ref t, 500, ref oa, 0f, 0f, -1f, ref op, r))
-                        if (!PawnExtensions.Ani(ref t, 25, ref oa, 0f, f, -1f, ref op, r))
-                            if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
-                                if (!PawnExtensions.Ani(ref t, 50, ref oa, -f, f, -1f, ref op, r))
-                                    if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
-                                        if (!PawnExtensions.Ani(ref t, 50, ref oa, -f, f, -1f, ref op, r))
-                                            if (!PawnExtensions.Ani(ref t, 50, ref oa, f, -f, -1f, ref op, r))
-                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, -f, 0f, -1f, ref op, r)) ;
+                    if (!PawnExtensions.Ani(ref tick, 500, ref angle, 0f, 0f, -1f, ref pos, r))
+                        if (!PawnExtensions.Ani(ref tick, 25, ref angle, 0f, f, -1f, ref pos, r))
+                            if (!PawnExtensions.Ani(ref tick, 50, ref angle, f, -f, -1f, ref pos, r))
+                                if (!PawnExtensions.Ani(ref tick, 50, ref angle, -f, f, -1f, ref pos, r))
+                                    if (!PawnExtensions.Ani(ref tick, 50, ref angle, f, -f, -1f, ref pos, r))
+                                        if (!PawnExtensions.Ani(ref tick, 50, ref angle, -f, f, -1f, ref pos, r))
+                                            if (!PawnExtensions.Ani(ref tick, 50, ref angle, f, -f, -1f, ref pos, r))
+                                                if (!PawnExtensions.Ani(ref tick, 25, ref angle, -f, 0f, -1f, ref pos, r)) ;
                     break;
 
                 case aniType.smash:
-                    t = (Find.TickManager.TicksGame + IdTick) % 133;
+                    tick = (Find.TickManager.TicksGame + IdTick) % 133;
 
-                    if (!PawnExtensions.Ani(ref t, 70, ref oa, 0f, -20f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                    if (!PawnExtensions.Ani(ref tick, 70, ref angle, 0f, -20f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                     {
-                        if (!PawnExtensions.Ani(ref t, 3, ref oa, -20f, 10f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
-                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
-                                if (!PawnExtensions.Ani(ref t, 40, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
+                        if (!PawnExtensions.Ani(ref tick, 3, ref angle, -20f, 10f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
+                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 10f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
+                                if (!PawnExtensions.Ani(ref tick, 40, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
 
                     }
                     break;
@@ -1000,24 +986,24 @@ namespace FacialStuff
                 case aniType.doSomeThing:
                     total = 121;
                     t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
-                    t = t2 % total;
+                    tick = t2 % total;
                     r = PawnExtensions.Rot90(rot);
                     tr = rot;
-                    if (!PawnExtensions.Ani(ref t, 20))
-                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
-                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
-                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
-                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 20))
+                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 10f, -1f, ref pos, r))
+                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 10f, 10f, -1f, ref pos, r))
+                                if (!PawnExtensions.Ani(ref tick, 5, ref angle, 10f, -10f, -1f, ref pos, r))
+                                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, -10f, -10f, -1f, ref pos, r))
                                     {
-                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, -10f, 0f, -1f, ref pos, r))
                                         {
                                             //tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
-                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            if (!PawnExtensions.Ani(ref tick, 15, ref angle, 0f, 0f, -1f, ref pos, rot)) // 85
                                             {
                                                 //tr = rot;
-                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
-                                                    if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
-                                                        if (!PawnExtensions.Ani(ref t, 6, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot)) ;
+                                                if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, rot)) // 105
+                                                    if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
+                                                        if (!PawnExtensions.Ani(ref tick, 6, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot)) ;
 
                                             }
                                         }
@@ -1031,31 +1017,31 @@ namespace FacialStuff
                 case aniType.social:
                     total = 221;
                     t2 = (Find.TickManager.TicksGame + IdTick) % (total * 2);
-                    t = t2 % total;
+                    tick = t2 % total;
                     r = PawnExtensions.Rot90(rot);
                     tr = rot;
-                    if (!PawnExtensions.Ani(ref t, 20))
-                        if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 10f, -1f, ref op, r))
-                            if (!PawnExtensions.Ani(ref t, 20, ref oa, 10f, 10f, -1f, ref op, r))
-                                if (!PawnExtensions.Ani(ref t, 5, ref oa, 10f, -10f, -1f, ref op, r))
-                                    if (!PawnExtensions.Ani(ref t, 20, ref oa, -10f, -10f, -1f, ref op, r))
+                    if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 20))
+                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 10f, -1f, ref pos, r))
+                            if (!PawnExtensions.Ani(ref tick, 20, ref angle, 10f, 10f, -1f, ref pos, r))
+                                if (!PawnExtensions.Ani(ref tick, 5, ref angle, 10f, -10f, -1f, ref pos, r))
+                                    if (!PawnExtensions.Ani(ref tick, 20, ref angle, -10f, -10f, -1f, ref pos, r))
                                     {
-                                        if (!PawnExtensions.Ani(ref t, 5, ref oa, -10f, 0f, -1f, ref op, r))
+                                        if (!PawnExtensions.Ani(ref tick, 5, ref angle, -10f, 0f, -1f, ref pos, r))
                                         {
                                             tr = t2 >= total ? PawnExtensions.Rot90(rot) : PawnExtensions.Rot90b(rot);
-                                            if (!PawnExtensions.Ani(ref t, 15, ref oa, 0f, 0f, -1f, ref op, rot)) // 85
+                                            if (!PawnExtensions.Ani(ref tick, 15, ref angle, 0f, 0f, -1f, ref pos, rot)) // 85
                                             {
                                                 tr = rot;
-                                                if (!PawnExtensions.Ani(ref t, 20, ref oa, 0f, 0f, -1f, ref op, rot)) // 105
-                                                    if (!PawnExtensions.Ani(ref t, 5, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
-                                                        if (!PawnExtensions.Ani(ref t, 6, ref oa, 0f, 0f, -1f, ref op, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot))
+                                                if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, rot)) // 105
+                                                    if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
+                                                        if (!PawnExtensions.Ani(ref tick, 6, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot))
 
-                                                            if (!PawnExtensions.Ani(ref t, 35, ref oa, 0f, 0f, -1f, ref op, rot))
-                                                                if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 10f, -1f, ref op, rot))
-                                                                    if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot))
-                                                                        if (!PawnExtensions.Ani(ref t, 10, ref oa, 0f, 10f, -1f, ref op, rot))
-                                                                            if (!PawnExtensions.Ani(ref t, 10, ref oa, 10f, 0f, -1f, ref op, rot))
-                                                                                if (!PawnExtensions.Ani(ref t, 25, ref oa, 0f, 0f, -1f, ref op, rot)) ;
+                                                            if (!PawnExtensions.Ani(ref tick, 35, ref angle, 0f, 0f, -1f, ref pos, rot))
+                                                                if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 10f, -1f, ref pos, rot))
+                                                                    if (!PawnExtensions.Ani(ref tick, 10, ref angle, 10f, 0f, -1f, ref pos, rot))
+                                                                        if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 10f, -1f, ref pos, rot))
+                                                                            if (!PawnExtensions.Ani(ref tick, 10, ref angle, 10f, 0f, -1f, ref pos, rot))
+                                                                                if (!PawnExtensions.Ani(ref tick, 25, ref angle, 0f, 0f, -1f, ref pos, rot)) ;
 
                                             }
                                         }
@@ -1065,10 +1051,14 @@ namespace FacialStuff
                     rot = tr;
                     break;
             }
+            pos = new Vector3(pos.x, 0f, pos.z);
+
+            animationAngle += angle;
+            posOffset += pos;
 
             // New hand n feet animation
             /*
-            pdd.offset_angle = oa;
+            pdd.offset_angle = angle;
             pdd.fixed_rot = rot;
             op = new Vector3(op.x, 0f, op.z);
             pdd.offset_pos = op;

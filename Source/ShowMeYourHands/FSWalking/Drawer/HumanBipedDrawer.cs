@@ -1,6 +1,5 @@
 ﻿using FacialStuff.Tweener;
 using RimWorld;
-using ShowMeYourHands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,7 +101,6 @@ namespace FacialStuff
             return base.CarryStuff();
         }
 
-
         private Material OverrideMaterialIfNeeded(Material original, Pawn pawn, bool portrait = false)
         {
             Material baseMat = ((!portrait && pawn.IsInvisible()) ? InvisibilityMatPool.GetInvisibleMat(original) : original);
@@ -184,7 +182,6 @@ namespace FacialStuff
             // pawn jumping too high,move the feet
             if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
             {
-
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
@@ -348,7 +345,6 @@ namespace FacialStuff
 
             float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
-
             if (!this.compAnimator.Props.bipedWithHands)
             {
                 return;
@@ -371,13 +367,12 @@ namespace FacialStuff
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
 
-
             Rot4 rot = this.compAnimator.CurrentRotation;
             bool isFacingNorth = rot == Rot4.North;
 
             float animationAngle = 0f;
             Vector3 animationPosOffset = Vector3.zero;
-            if (true)
+            if (!carrying)
             {
                 DoAnimationHands(ref animationPosOffset, ref animationAngle);
             }
@@ -387,10 +382,11 @@ namespace FacialStuff
                 animationAngle *= 4;
                 bodyQuat *= Quaternion.AngleAxis(animationAngle, Vector3.up);
             }
+
             if (animationPosOffset != Vector3.zero)
             {
                 drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.3f * bodysizeScaling;
-                
+
                 //this.compAnimator.FirstHandPosition += animationPosOffset.RotatedBy(animationAngle);
                 //this.compAnimator.SecondHandPosition += animationPosOffset.RotatedBy(-animationAngle);
                 poschanged = true;
@@ -415,15 +411,10 @@ namespace FacialStuff
                 handVector.y = drawPos.y;
                 if (isFacingNorth) // put the hands behind the pawn
                 {
-                     handVector.y -= Offsets.YOffset_Behind;
+                    handVector.y -= Offsets.YOffset_Behind;
                 }
                 drawPos = handVector;
             }
-
-
-
-
-
 
             JointLister shoulperPos = this.GetJointPositions(JointType.Shoulder,
                                                              body.shoulderOffsets[rot.AsInt],
@@ -490,8 +481,6 @@ namespace FacialStuff
             bool drawRight = matRight != null && this.compAnimator.BodyStat.HandRight != PartStatus.Missing;
 
             //float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f;
-
-
 
             if (drawLeft)
             {
@@ -607,7 +596,7 @@ namespace FacialStuff
                 return;
             }
             int tick = 0;
-                float f;
+            float f;
             int t2;
             Rot4 r;
             int IdTick = pawn.thingIDNumber * 20;
@@ -763,6 +752,7 @@ namespace FacialStuff
                         if (!PawnExtensions.Ani(ref tick, 30, ref angle, -20f, 10f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
                     }
                     break;
+
                 case "Play_Horseshoes":
                     tick = (Find.TickManager.TicksGame + IdTick) % 60;
                     if (!PawnExtensions.Ani(ref tick, 30, ref angle, 10f, -20f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
@@ -870,7 +860,6 @@ namespace FacialStuff
                         if (!PawnExtensions.Ani(ref tick, 30, ref angle, 0f, 15f, -1f, ref pos, Vector3.zero, Vector3.zero, rot))
                             if (!PawnExtensions.Ani(ref tick, 300, ref angle, 15f, 15f, -1f, ref pos, Vector3.zero, Vector3.zero, rot))
                                 if (!PawnExtensions.Ani(ref tick, 30, ref angle, 15f, 0f, -1f, ref pos, Vector3.zero, Vector3.zero, rot)) ;
-
                     }
                     break;
 
@@ -895,22 +884,17 @@ namespace FacialStuff
                                                 tr = rot;
                                                 if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, rot)) // 105
 
-
                                                     if (t2 >= total)
                                                     {
                                                         if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.60f), rot))
                                                             if (!PawnExtensions.Ani(ref tick, 13, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.60f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line)) ;
-
                                                     }
                                                     else
                                                     {
                                                         if (!PawnExtensions.AnimationHasTicksLeft(ref tick, 33)) ;
-
                                                     }
-
                                             }
                                         }
-
                                     }
                     }
 
@@ -949,11 +933,8 @@ namespace FacialStuff
                                                         }
                                                     }
                                     }
-
                                 }
-
                     }
-
 
                     break;
 
@@ -979,7 +960,6 @@ namespace FacialStuff
                         if (!PawnExtensions.Ani(ref tick, 3, ref angle, -20f, 10f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot, PawnExtensions.tweenType.line))
                             if (!PawnExtensions.Ani(ref tick, 20, ref angle, 10f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot))
                                 if (!PawnExtensions.Ani(ref tick, 40, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0f), rot)) ;
-
                     }
                     break;
 
@@ -1004,15 +984,12 @@ namespace FacialStuff
                                                 if (!PawnExtensions.Ani(ref tick, 20, ref angle, 0f, 0f, -1f, ref pos, rot)) // 105
                                                     if (!PawnExtensions.Ani(ref tick, 5, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 0.05f), rot))
                                                         if (!PawnExtensions.Ani(ref tick, 6, ref angle, 0f, 0f, -1f, ref pos, new Vector3(0f, 0f, 0.05f), new Vector3(0f, 0f, 0f), rot)) ;
-
                                             }
                                         }
-
                                     }
 
                     rot = tr;
                     break;
-
 
                 case aniType.social:
                     total = 221;
@@ -1042,10 +1019,8 @@ namespace FacialStuff
                                                                         if (!PawnExtensions.Ani(ref tick, 10, ref angle, 0f, 10f, -1f, ref pos, rot))
                                                                             if (!PawnExtensions.Ani(ref tick, 10, ref angle, 10f, 0f, -1f, ref pos, rot))
                                                                                 if (!PawnExtensions.Ani(ref tick, 25, ref angle, 0f, 0f, -1f, ref pos, rot)) ;
-
                                             }
                                         }
-
                                     }
 
                     rot = tr;
@@ -1171,7 +1146,6 @@ namespace FacialStuff
 
             // todo removed the tweener for now, will be used with hand animations
 
-            
             if (this.ShouldBeIgnored())
             {
                 return;
@@ -1195,7 +1169,7 @@ namespace FacialStuff
                 Vector3 start = this.compAnimator.LastPosition[(int)tweenThing];
                 start.y = position.y;
                 float distance = Vector3.Distance(start, position);
-                
+
                 switch (tween.State)
                 {
                     case TweenState.Running:
@@ -1213,13 +1187,12 @@ namespace FacialStuff
                         break;
 
                     case TweenState.Stopped:
-                        if (noTween  || this.compAnimator.IsMoving)
+                        if (noTween || this.compAnimator.IsMoving)
                         {
                             break;
                         }
-                        
-                        ScaleFunc scaleFunc = ScaleFuncs.SineEaseOut;
 
+                        ScaleFunc scaleFunc = ScaleFuncs.SineEaseOut;
 
                         float duration = Mathf.Abs(distance * 50f);
                         if (start != Vector3.zero && duration > 12f)
@@ -1234,7 +1207,6 @@ namespace FacialStuff
                 this.compAnimator.LastPosition[(int)tweenThing] = position;
             }
 
-            
             //  tweener.PreThingPosCalculation(tweenThing, noTween);
 
             Graphics.DrawMesh(handsMesh, position, quat, material, 0);

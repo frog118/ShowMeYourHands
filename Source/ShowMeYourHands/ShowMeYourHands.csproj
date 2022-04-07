@@ -21,6 +21,7 @@
     <Compile Remove="FSWalking\HairCut\ResolveApparelGraphics_Postfix.cs" />
     <Compile Remove="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <Compile Remove="FSWalking\SimpleCurve_Extension.cs" />
+    <Compile Remove="FSWalking\SkinColors\PawnSkinColors_FS.cs" />
     <Compile Remove="HandDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +37,7 @@
     <None Include="FSWalking\HairCut\ResolveApparelGraphics_Postfix.cs" />
     <None Include="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <None Include="FSWalking\SimpleCurve_Extension.cs" />
+    <None Include="FSWalking\SkinColors\PawnSkinColors_FS.cs" />
     <None Include="HandDrawer.cs" />
   </ItemGroup>
   <ItemGroup>

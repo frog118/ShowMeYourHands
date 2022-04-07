@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FacialStuff.Genetics;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
@@ -181,7 +180,8 @@ public static class ShowMeYourHandsMain
                          null);
         */
         // FS Hands on Weapons
-        // more skin colors
+        // more skin colors -- obsolete, new mod adds 20+
+        /*
         harmony.Patch(
                          AccessTools.Method(typeof(PawnSkinColors), "GetSkinDataIndexOfMelanin"),
                          new HarmonyMethod(
@@ -207,7 +207,7 @@ public static class ShowMeYourHandsMain
                                            nameof(PawnSkinColors_FS.GetMelaninCommonalityFactor_Prefix)),
                          null);
         
-
+        */
     }
 
     public static void LogMessage(string message, bool forced = false, bool warning = false)

@@ -179,7 +179,15 @@ namespace FacialStuff
             }
             return true;
         }
+/*
+        public static float cellCostMin = 999999f;
+        public static float cellCostMax = 0f;
+        public static float costToPayMin = 99999f;
+        public static float costToPayMax = 0f;
 
+        public static float TicksPerMoveCardinalMin = 9999999999f;
+        public static float TicksPerMoveCardinalMax = 0f;
+        */
         static List<LordJob_Ritual> ar_lordJob_ritual = new List<LordJob_Ritual>();
         static public LordJob_Ritual GetPawnRitual(this Pawn p)
         {

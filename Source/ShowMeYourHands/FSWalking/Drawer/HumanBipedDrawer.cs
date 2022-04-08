@@ -372,7 +372,7 @@ namespace FacialStuff
 
             float animationAngle = 0f;
             Vector3 animationPosOffset = Vector3.zero;
-            if (!carrying)
+            if (!carrying && !compAnimator.IsMoving)
             {
                 DoAnimationHands(ref animationPosOffset, ref animationAngle);
             }
@@ -1049,7 +1049,7 @@ namespace FacialStuff
             base.Initialize();
         }
 
-        public Job lastJob;
+        public float lastCellCost = 0;
 
         public virtual void SelectWalkcycle(bool pawnInEditor)
         {
@@ -1061,29 +1061,52 @@ namespace FacialStuff
             }
             */
 
-            if (this.pawn.CurJob != null && this.pawn.CurJob != this.lastJob)
+            // Define the walkcycle by the actual move speed of the pawn instead of the urgency. 
+            // Faster pawns use faster cycles, this avoids slow.mo pawns.
+            if (pawn.pather == null || Math.Abs(pawn.pather.nextCellCostTotal - this.lastCellCost) < 0f) return;
+
+            BodyAnimDef animDef = this.compAnimator.BodyAnim;
+
+            LocomotionUrgency locomotionUrgency = LocomotionUrgency.Walk;
+            Job curJob = this.pawn.CurJob;
+            if (curJob != null) locomotionUrgency = curJob.locomotionUrgency;
+
+            float numbie = pawn.TicksPerMoveCardinal / pawn.pather.nextCellCostTotal;
+            // the measuered values were always > 0.2 and <=1
+            switch (numbie)
             {
-                BodyAnimDef animDef = this.compAnimator.BodyAnim;
+                case > 0.7f:
+                    locomotionUrgency = LocomotionUrgency.Sprint;
+                    break;
+                case > 0.5f:
+                    locomotionUrgency = LocomotionUrgency.Jog;
+                    break;
+                case > 0.3f:
+                    locomotionUrgency = LocomotionUrgency.Walk;
+                    break;
+                default: 
+                    locomotionUrgency = LocomotionUrgency.Amble;
+                    break;
 
-                Dictionary<LocomotionUrgency, WalkCycleDef> cycles = animDef?.walkCycles;
+            }
 
-                if (cycles != null && cycles.Count > 0)
+            Dictionary<LocomotionUrgency, WalkCycleDef> cycles = animDef?.walkCycles;
+            if (cycles != null && cycles.Count > 0)
+            {
+
+                if (cycles.TryGetValue(locomotionUrgency, out WalkCycleDef cycle))
                 {
-                    if (cycles.TryGetValue(this.pawn.CurJob.locomotionUrgency, out WalkCycleDef cycle))
+                    if (cycle != null)
                     {
-                        if (cycle != null)
-                        {
-                            this.compAnimator.SetWalkCycle(cycle);
-                        }
-                    }
-                    else
-                    {
-                        this.compAnimator.SetWalkCycle(animDef.walkCycles.FirstOrDefault().Value);
+                        this.compAnimator.SetWalkCycle(cycle);
                     }
                 }
-
-                this.lastJob = this.pawn.CurJob;
+                else
+                {
+                    this.compAnimator.SetWalkCycle(animDef.walkCycles.FirstOrDefault().Value);
+                }
             }
+            this.lastCellCost = pawn.pather.nextCellCostTotal;
         }
 
         public override void Tick()

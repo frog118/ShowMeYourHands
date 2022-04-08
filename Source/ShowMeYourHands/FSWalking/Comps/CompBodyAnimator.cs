@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FacialStuff.DefOfs;
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -1079,6 +1080,7 @@ namespace FacialStuff
 
         }
 
+
         private float PawnMovedPercent(Pawn pawn)
         {
             this.IsMoving = false;
@@ -1109,7 +1111,47 @@ namespace FacialStuff
             {
                 return 0f;
             }
+            /*
+            PawnExtensions.cellCostMin = Mathf.Min(pather.nextCellCostTotal, PawnExtensions.cellCostMin);
+            PawnExtensions.cellCostMax = Mathf.Max(pather.nextCellCostTotal, PawnExtensions.cellCostMax);
 
+            float costToPayThisTick = CostToPayThisTick(pather.nextCellCostTotal);
+            PawnExtensions.costToPayMin = Mathf.Min(costToPayThisTick, PawnExtensions.costToPayMin);
+            PawnExtensions.costToPayMax = Mathf.Max(costToPayThisTick, PawnExtensions.costToPayMax);
+
+            Log.ErrorOnce(pawn.LabelCap + " - " + pawn.CurJob.locomotionUrgency + " - " + numbie.ToString("N2"), Mathf.FloorToInt(
+                numbie * 100));
+            */
+            /*
+            PawnExtensions.TicksPerMoveCardinalMin = Mathf.Min(perMoveCardinal, PawnExtensions.TicksPerMoveCardinalMin);
+            PawnExtensions.TicksPerMoveCardinalMax = Mathf.Max(perMoveCardinal, PawnExtensions.TicksPerMoveCardinalMax);
+            var message = "Costs:\ncellCostMin: " + PawnExtensions.cellCostMin +
+                          "\ncellCostMax: " + PawnExtensions.cellCostMax +
+                          "\ncostToPayMin: " + PawnExtensions.costToPayMin +
+                          "\ncostToPayMax: " + PawnExtensions.costToPayMax +
+                          "\nTicksPerMoveCardinalMin: " + PawnExtensions.TicksPerMoveCardinalMin +
+                          "\nTicksPerMoveCardinalMax: " + PawnExtensions.TicksPerMoveCardinalMax;
+
+            Log.ErrorOnce(message, 1000 + Mathf.FloorToInt(PawnExtensions.cellCostMin));
+            Log.ErrorOnce(message, 2000 + Mathf.FloorToInt(PawnExtensions.cellCostMax));
+            Log.ErrorOnce(message, 3000 + Mathf.FloorToInt(PawnExtensions.costToPayMin));
+            Log.ErrorOnce(message, 4000 + Mathf.FloorToInt(PawnExtensions.costToPayMax));
+            Log.ErrorOnce(message, 5000 + Mathf.FloorToInt(PawnExtensions.TicksPerMoveCardinalMin));
+            Log.ErrorOnce(message, 6000 + Mathf.FloorToInt(PawnExtensions.TicksPerMoveCardinalMax));
+            */
+            /*
+            int y = (int)AccessTools.Method(typeof(Pawn_PathFollower), "CostToMoveIntoCell", new[] { typeof(IntVec3) })
+                .Invoke(pawn.pather, new object[] { pawn.pather.nextCell });
+            */
+
+            /*
+            Log.Message("Pawn is movinng;" + pawn.LabelCap + 
+                        " total: " + pather.nextCellCostTotal + 
+                        " left: " + pather.nextCellCostLeft +
+                        " float: " + costToPayThisTick +
+                        " urgency: " + pawn.CurJob.locomotionUrgency +
+                        " cell cost: " + perMoveCardinal);
+            */
             this.IsMoving = true;
             // revert the walkcycle for drafted shooters
             if (CurrentRotation.IsHorizontal && CurrentRotation.FacingCell != pather.nextCell)
@@ -1133,12 +1175,28 @@ namespace FacialStuff
                     invert = CurrentRotation != Rot4.South;
                 }
                 if (invert)
-                return pather.nextCellCostLeft / pather.nextCellCostTotal;
-            }
+                {
+                    return pather.nextCellCostLeft / pather.nextCellCostTotal;
+                }            }
+
             return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
 
         }
 
+
+        private float CostToPayThisTick(float nextCellCostTotal)
+        {
+            float num = 1f;
+            if (pawn.stances.Staggered)
+            {
+                num *= 0.17f;
+            }
+            if (num < nextCellCostTotal / 450f)
+            {
+                num = nextCellCostTotal / 450f;
+            }
+            return num;
+        }
         public bool IsRider = false;
 
         public void SetWalkCycle(WalkCycleDef walkCycleDef)

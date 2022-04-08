@@ -23,7 +23,7 @@ namespace RimWorld
         #region Public Fields
         public string thingTarget = null;
 
-        public List<PawnBodyDrawer> bodyDrawers;
+        public List<PawnBodyDrawer> bodyDrawers = new();
         public string handType;
         public bool quadruped;
         public bool bipedWithHands;

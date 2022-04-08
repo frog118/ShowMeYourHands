@@ -65,11 +65,11 @@ class DrawAt_Patch
         Quaternion handQuat = Quaternion.AngleAxis(handAngle, Vector3.up);
 
         // do the tweening now
-        if (compAnim.Props.bipedWithHands)
+        /*if (compAnim.BodyAnim.bipedWithHands)
         {
             BodyAnimator.AnimatorTick();
         }
-
+        */
         // Tweener
        // Vector3Tween eqTween = compAnim.Vector3Tweens[(int)TweenThing.Equipment];
 

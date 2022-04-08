@@ -21,7 +21,6 @@ namespace ShowMeYourHands.FSWalking
                 () =>
                 {
                     pawn.GetCompAnim()?.ClearCache();
-                    pawn.GetCompAnim()?.pawnBodyGraphic?.CheckForAddedOrMissingPartsAndSetColors();
                     pawn.GetCompAnim()?.pawnBodyGraphic?.Initialize();
                 });
 

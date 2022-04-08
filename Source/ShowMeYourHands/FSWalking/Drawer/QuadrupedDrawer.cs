@@ -48,13 +48,13 @@ namespace FacialStuff
 
         protected virtual void DrawFrontPaws(Quaternion drawQuat, Vector3 rootLoc)
         {
-            if (!this.compAnimator.Props.quadruped)
+            if (!this.compAnimator.BodyAnim.quadruped)
             {
                 return;
             }
 
             // Basic values
-            BodyAnimDef body = this.compAnimator.BodyAnim;
+            var body = this.compAnimator.BodyAnim;
 
             Rot4 rot = this.compAnimator.CurrentRotation;
             if (body == null)
@@ -114,30 +114,29 @@ namespace FacialStuff
             }
             else
             */
+
+            switch (rot.AsInt)
             {
-                switch (rot.AsInt)
-                {
-                    default:
-                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
-                            ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
-                            ?.MatAt(rot));
-                        break;
+                default:
+                    matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
+                        ?.MatAt(rot));
+                    matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
+                        ?.MatAt(rot));
+                    break;
 
-                    case 1:
-                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
-                            ?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
-                            ?.FrontPawGraphicLeftShadow?.MatAt(rot));
-                        break;
+                case 1:
+                    matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicRight
+                        ?.MatAt(rot));
+                    matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
+                        ?.FrontPawGraphicLeftShadow?.MatAt(rot));
+                    break;
 
-                    case 3:
-                        matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
-                            ?.FrontPawGraphicRightShadow?.MatAt(rot));
-                        matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
-                            ?.MatAt(rot));
-                        break;
-                }
+                case 3:
+                    matRight = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic
+                        ?.FrontPawGraphicRightShadow?.MatAt(rot));
+                    matLeft = this.Flasher.GetDamagedMat(this.compAnimator.pawnBodyGraphic?.FrontPawGraphicLeft
+                        ?.MatAt(rot));
+                    break;
             }
 
             Vector3 ground = rootLoc + (drawQuat * new Vector3(0, 0, OffsetGroundZ)) * bodysizeScaling;

@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
 using System.Collections.Generic;
+using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace FacialStuff
 {
@@ -25,11 +27,19 @@ namespace FacialStuff
         [NotNull] public List<PawnBodyDrawer> bodyDrawers = new();
 
         public string handType = "Human";
-        public Vector3 hipOffset;
-        public Vector3 shoulderOffset;
+        public List<Vector3> hipOffsets = new();
+        public List<Vector3> shoulderOffsets = new();
 
         public bool bipedWithHands;
         public bool quadruped;
+        public float extremitySize = 1f;
+        public float armLength = 0f;
+        public float extraLegLength = 0f;
+        public float offCenterX = 0f;
+
+        public Dictionary<LocomotionUrgency, WalkCycleDef> walkCycles = new();
+
+        public string WalkCycleType = "Undefined";
 
         #endregion Public Fields
     }

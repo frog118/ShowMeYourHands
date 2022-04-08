@@ -29,8 +29,8 @@ namespace FacialStuff
 
 
             // todo: use BodyDef instead, target for kickstarting?
-            this.AnimalPawnCompsBodyDefImport();
-            this.AnimalPawnCompsImportFromAnimationTargetDefs();
+            //this.AnimalPawnCompsBodyDefImport();
+             this.AnimalPawnCompsImportFromAnimationTargetDefs();
             SetMainButtons();
             // BuildWalkCycles();
 
@@ -60,7 +60,9 @@ namespace FacialStuff
             if (button != null)
             {
                 button.buttonVisible = Prefs.DevMode;
-            }        }
+            }
+
+        }
 
 
         public static void BuildWalkCycles([CanBeNull] WalkCycleDef defToRebuild = null)
@@ -293,17 +295,22 @@ namespace FacialStuff
                             compClass = typeof(CompBodyAnimator),
                             bodyDrawers = pawnSets.bodyDrawers,
                             handType = pawnSets.handType,
+                            hipOffsets = pawnSets.hipOffsets,
+                            shoulderOffsets = pawnSets.shoulderOffsets,
+                            armLength = pawnSets.armLength,
+                            extraLegLength= pawnSets.extraLegLength,
                             // footType = pawnSets.footType,
                             // pawType = pawnSets.pawType,
                             quadruped = pawnSets.quadruped,
                             bipedWithHands = pawnSets.bipedWithHands
                         };
                         thingDef.comps?.Add(bodyAnimator);
+
                     }
                 }
             }
         }
-
+        
         private void AnimalPawnCompsBodyDefImport()
         {
             // ReSharper disable once PossibleNullReferenceException
@@ -332,16 +339,21 @@ namespace FacialStuff
                     compClass = typeof(CompBodyAnimator),
                     bodyDrawers = def.bodyDrawers,
                     handType = def.handType,
+                    extremitySize = def.extremitySize,
                     // footType = def.footType,
                     // pawType = def.pawType,
                     quadruped = def.quadruped,
-                    bipedWithHands = def.bipedWithHands
+                    bipedWithHands = def.bipedWithHands,
+                    shoulderOffsets = def.shoulderOffsets,
+                    hipOffsets = def.hipOffsets,
+                    armLength = def.armLength,
+                    extraLegLength = def.extraLegLength
                 };
 
                 thingDef.comps?.Add(bodyAnimator);
             }
         }
-
+        
         #endregion Private Methods
     }
 }

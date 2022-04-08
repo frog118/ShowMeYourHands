@@ -32,6 +32,8 @@ public static class ShowMeYourHandsMain
     public static readonly Harmony harmony;
 
     public static readonly bool BabysAndChildrenLoaded;
+    public static readonly bool BabysAndChildrenLoaded2;
+    public static readonly bool BabysAndChildrenLoaded3;
 
     public static readonly MethodInfo GetBodySizeScaling;
 
@@ -103,7 +105,9 @@ public static class ShowMeYourHandsMain
         DualWieldLoaded = ModLister.GetActiveModWithIdentifier("Roolo.DualWield") != null;
         YayoAdoptedLoaded = ModLister.GetActiveModWithIdentifier("com.yayo.combat3") != null;
         BabysAndChildrenLoaded = ModLister.GetActiveModWithIdentifier("babies.and.children.continued") != null;
-        if (BabysAndChildrenLoaded)
+        BabysAndChildrenLoaded2 = ModLister.GetActiveModWithIdentifier("Babies_and_Children") != null;
+        BabysAndChildrenLoaded3 = ModLister.GetActiveModWithIdentifier("babies.and.children.continued.13") != null;
+        if (BabysAndChildrenLoaded || BabysAndChildrenLoaded2 || BabysAndChildrenLoaded3)
         {
             Type type = AccessTools.TypeByName("BabiesAndChildren.GraphicTools");
             if (type != null)

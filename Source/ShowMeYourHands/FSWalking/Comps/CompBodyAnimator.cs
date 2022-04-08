@@ -1,7 +1,4 @@
-﻿using ColorMine.ColorSpaces;
-using ColorMine.ColorSpaces.Comparisons;
-using FacialStuff.Animator;
-using FacialStuff.GraphicsFS;
+﻿using FacialStuff.GraphicsFS;
 using FacialStuff.Tweener;
 using JetBrains.Annotations;
 using RimWorld;
@@ -10,41 +7,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FacialStuff.DefOfs;
-using HarmonyLib;
 using UnityEngine;
 using Verse;
 using Verse.AI;
-using static System.Byte;
 
 namespace FacialStuff
 {
+    public static class HarmonyPatchesFS
+    {
+        // public static bool AnimatorIsOpen()
+        // { return Find.WindowStack.IsOpen(typeof(MainTabWindow_WalkAnimator));// MainTabWindow_WalkAnimator.IsOpen;// || MainTabWindow_PoseAnimator.IsOpen;}
+    }
+
     [StaticConstructorOnStartup]
     public class CompBodyAnimator : ThingComp
     {
         #region Public Fields
 
-        public bool Deactivated;
-        public bool IgnoreRenderer;
-
-        [CanBeNull] public BodyAnimDef BodyAnim;
-
-        public BodyPartStats BodyStat;
-
-        public float JitterMax = 0.35f;
         public readonly Vector3Tween[] Vector3Tweens = new Vector3Tween[(int)TweenThing.Max];
-
+        [CanBeNull] public BodyAnimDef BodyAnim;
+        public BodyPartStats BodyStat;
+        public bool Deactivated;
+        public Vector3 FirstHandPosition;
+        public bool IgnoreRenderer;
+        public float JitterMax = 0.35f;
         //   [CanBeNull] public PawnPartsTweener PartTweener;
 
+        public Vector3 lastMainHandPosition;
         [CanBeNull] public PawnBodyGraphic pawnBodyGraphic;
 
         //[CanBeNull] public PoseCycleDef PoseCycle;
-
-        public Vector3 FirstHandPosition;
         public Vector3 SecondHandPosition;
 
+        public WalkCycleDef WalkCycle { get; private set; }
+
         public void DoWalkCycleOffsets(ref Vector3 rightFoot,
-            ref Vector3 leftFoot,
+                    ref Vector3 leftFoot,
             ref float footAngleRight,
             ref float footAngleLeft,
             ref float offsetJoint,
@@ -60,7 +58,7 @@ namespace FacialStuff
             {
                 return;
             }
-            float bodysizeScaling = GetBodysizeScaling() ;
+            float bodysizeScaling = GetBodysizeScaling();
             float percent = this.MovedPercent;
 
             float flot = percent;
@@ -114,9 +112,6 @@ namespace FacialStuff
                 leftFoot.z *= mod;
             }
         }
-
-        public Vector3 lastMainHandPosition;
-
         public void DoWalkCycleOffsets(
         float armLength,
         ref Vector3 rightHand,
@@ -208,38 +203,31 @@ namespace FacialStuff
 
             lastMainHandPosition = rightHand;
         }
-
-        public WalkCycleDef WalkCycle { get; private set; }
-
-
         #endregion Public Fields
 
         #region Private Fields
-        private Rot4? _currentRotationOverride = null;
 
         private static readonly FieldInfo _infoJitterer;
-
         [NotNull] private readonly List<Material> _cachedNakedMatsBodyBase = new();
-
         private readonly List<Material> _cachedSkinMatsBodyBase = new();
-
         private int _cachedNakedMatsBodyBaseHash = -1;
         private int _cachedSkinMatsBodyBaseHash = -1;
-        private int _lastRoomCheck;
-
+        private Rot4? _currentRotationOverride = null;
         private bool _initialized;
-
+        private int _lastRoomCheck;
         [CanBeNull] private Room _theRoom;
 
         #endregion Private Fields
 
         #region Public Properties
 
+        /*
         public BodyAnimator BodyAnimator
         {
             get => _bodyAnimator;
             private set => _bodyAnimator = value;
         }
+        */
 
         public JitterHandler Jitterer
             => GetHiddenValue(typeof(Pawn_DrawTracker), this.pawn.Drawer, "jitterer", _infoJitterer) as
@@ -319,25 +307,82 @@ namespace FacialStuff
             this._cachedNakedMatsBodyBaseHash = -1;
         }
 
-        public void SetBodyAngle()
+        public override string CompInspectStringExtra()
         {
-            WalkCycleDef walkCycle = this.WalkCycle;
-            float movedPercent = this.MovedPercent;
+            // var tween = Vector3Tweens[(int)TweenThing.Equipment];
+            // var log = tween.State + " =>"+  tween.StartValue + " - " + tween.EndValue + " / " + tween.CurrentTime + " / " + tween.CurrentValue;
+            // return log;
+            //  return MoveState.ToString() + " - " + MovedPercent;
 
-            Rot4 currentRotation = this.CurrentRotation;
-            if (currentRotation.IsHorizontal)
+            //  return  lastAimAngle.ToString() ;
+
+            return base.CompInspectStringExtra();
+        }
+
+        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc)
+        {
+            if (!this.pawnBodyDrawers.NullOrEmpty())
             {
-                this.BodyAngle = (currentRotation == Rot4.West ? -1 : 1)
-                                 * walkCycle.BodyAngle.Evaluate(movedPercent);
+                int i = 0;
+                int count = this.pawnBodyDrawers.Count;
+                while (i < count)
+                {
+                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc);
+                    i++;
+                }
+            }
+        }
+
+        // off for now
+        public void DrawHands(Quaternion bodyQuat, Vector3 rootLoc, [CanBeNull] Thing carriedThing = null,
+            bool flip = false)
+        {
+            if (this.pawnBodyDrawers.NullOrEmpty())
+            {
+                return;
+            }
+
+            int i = 0;
+            int count = this.pawnBodyDrawers.Count;
+            while (i < count)
+            {
+                this.pawnBodyDrawers[i].DrawHands(bodyQuat, rootLoc, carriedThing, flip);
+                i++;
+            }
+        }
+
+        // public override string CompInspectStringExtra()
+        // {
+        //     string extra = this.Pawn.DrawPos.ToString();
+        //     return extra;
+        // }
+        public void InitializePawnDrawer()
+        {
+            if (this.BodyAnim.bodyDrawers.Any())
+            {
+                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
+                for (int i = 0; i < this.BodyAnim.bodyDrawers.Count; i++)
+                {
+                    PawnBodyDrawer bodyDrawer =
+                    (PawnBodyDrawer)Activator.CreateInstance(this.BodyAnim.bodyDrawers[i].GetType());
+                    bodyDrawer.compAnimator = this;
+                    bodyDrawer.pawn = this.pawn;
+                    this.pawnBodyDrawers.Add(bodyDrawer);
+                    bodyDrawer.Initialize();
+                }
             }
             else
             {
-                this.BodyAngle = (currentRotation == Rot4.South ? -1 : 1)
-                                 * walkCycle.BodyAngleVertical.Evaluate(movedPercent);
+                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
+                PawnBodyDrawer bodyDrawer = this.BodyAnim.quadruped
+                    ? (PawnBodyDrawer)Activator.CreateInstance(typeof(QuadrupedDrawer))
+                    : (PawnBodyDrawer)Activator.CreateInstance(typeof(HumanBipedDrawer));
+                bodyDrawer.compAnimator = this;
+                bodyDrawer.pawn = this.pawn;
+                this.pawnBodyDrawers.Add(bodyDrawer);
+                bodyDrawer.Initialize();
             }
-
         }
-
 
         public void ModifyBodyAndFootPos(ref Vector3 rootLoc, ref Vector3 footPos)
         {
@@ -363,90 +408,10 @@ namespace FacialStuff
             footPos += vector4;
         }
 
-        // public override string CompInspectStringExtra()
-        // {
-        //     string extra = this.Pawn.DrawPos.ToString();
-        //     return extra;
-        // }
-
-        // off for now
-
-        public void DrawFeet(Quaternion bodyQuat, Vector3 rootLoc, Vector3 bodyLoc)
-        {
-            if (!this.pawnBodyDrawers.NullOrEmpty())
-            {
-                int i = 0;
-                int count = this.pawnBodyDrawers.Count;
-                while (i < count)
-                {
-                    this.pawnBodyDrawers[i].DrawFeet(bodyQuat, rootLoc, bodyLoc);
-                    i++;
-                }
-            }
-        }
-
-        public void DrawHands(Quaternion bodyQuat, Vector3 rootLoc, [CanBeNull] Thing carriedThing = null,
-            bool flip = false)
-        {
-            if (this.pawnBodyDrawers.NullOrEmpty())
-            {
-                return;
-            }
-
-            int i = 0;
-            int count = this.pawnBodyDrawers.Count;
-            while (i < count)
-            {
-                this.pawnBodyDrawers[i].DrawHands(bodyQuat, rootLoc, carriedThing, flip);
-                i++;
-            }
-        }
-
-        public void InitializePawnDrawer()
-        {
-            if (this.Props.bodyDrawers.Any())
-            {
-                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
-                for (int i = 0; i < this.Props.bodyDrawers.Count; i++)
-                {
-                    PawnBodyDrawer thingComp =
-                    (PawnBodyDrawer)Activator.CreateInstance(this.Props.bodyDrawers[i].GetType());
-                    thingComp.compAnimator = this;
-                    thingComp.pawn = this.pawn;
-                    this.pawnBodyDrawers.Add(thingComp);
-                    thingComp.Initialize();
-                }
-            }
-            else
-            {
-                this.pawnBodyDrawers = new List<PawnBodyDrawer>();
-                bool isQuaduped = this.pawn.GetCompAnim().BodyAnim.quadruped;
-                PawnBodyDrawer thingComp = isQuaduped
-                    ? (PawnBodyDrawer)Activator.CreateInstance(typeof(QuadrupedDrawer))
-                    : (PawnBodyDrawer)Activator.CreateInstance(typeof(HumanBipedDrawer));
-                thingComp.compAnimator = this;
-                thingComp.pawn = this.pawn;
-                this.pawnBodyDrawers.Add(thingComp);
-                thingComp.Initialize();
-            }
-        }
-
-        public override string CompInspectStringExtra()
-        {
-            // var tween = Vector3Tweens[(int)TweenThing.Equipment];
-            // var log = tween.State + " =>"+  tween.StartValue + " - " + tween.EndValue + " / " + tween.CurrentTime + " / " + tween.CurrentValue;
-            // return log;
-            //  return MoveState.ToString() + " - " + MovedPercent;
-
-            //  return  lastAimAngle.ToString() ;
-
-            return base.CompInspectStringExtra();
-        }
-
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Values.Look(ref this._lastRoomCheck, "lastRoomCheck");
+            //   Scribe_Values.Look(ref this._lastRoomCheck, "lastRoomCheck");
             // Scribe_Values.Look(ref this.PawnBodyGraphic, "PawnBodyGraphic");
         }
 
@@ -457,9 +422,6 @@ namespace FacialStuff
             {
                 this.Vector3Tweens[i] = new Vector3Tween();
             }
-            this.BodyAnimator = new BodyAnimator(this.pawn, this);
-            this.pawnBodyGraphic = new PawnBodyGraphic(this);
-
             string bodyType = "Undefined";
 
             if (this.pawn.story?.bodyType != null)
@@ -493,8 +455,28 @@ namespace FacialStuff
                 this.BodyAnim = new BodyAnimDef { defName = defaultName, label = defaultName };
                 DefDatabase<BodyAnimDef>.Add(this.BodyAnim);
             }
+
+            //this.BodyAnimator = new BodyAnimator(this.pawn, this);
+            this.pawnBodyGraphic = new PawnBodyGraphic(this);
         }
 
+        public void SetBodyAngle()
+        {
+            WalkCycleDef walkCycle = this.WalkCycle;
+            float movedPercent = this.MovedPercent;
+
+            Rot4 currentRotation = this.CurrentRotation;
+            if (currentRotation.IsHorizontal)
+            {
+                this.BodyAngle = (currentRotation == Rot4.West ? -1 : 1)
+                                 * walkCycle.BodyAngle.Evaluate(movedPercent);
+            }
+            else
+            {
+                this.BodyAngle = (currentRotation == Rot4.South ? -1 : 1)
+                                 * walkCycle.BodyAngleVertical.Evaluate(movedPercent);
+            }
+        }
         public void TickDrawers()
         {
             if (!this._initialized)
@@ -515,152 +497,142 @@ namespace FacialStuff
                 this.pawnBodyDrawers[i].Tick();
                 i++;
             }
-
         }
 
-        public List<Material> UnderwearMatsBodyBaseAt(Rot4 facing, RotDrawMode bodyCondition = RotDrawMode.Fresh)
+
+        #endregion Public Methods
+
+        //  public float lastWeaponAngle = 53f;
+        public readonly Vector3[] LastPosition = new Vector3[(int)TweenThing.Max];
+
+        public float BodyAngle = 0f;
+
+        public float DrawOffsetY;
+
+        public Quaternion FirstHandQuat;
+
+        public Color FootColorLeft;
+
+        public Color FootColorRight;
+
+        public Color HandColorLeft;
+
+        public Color HandColorRight;
+
+        public bool IsMoving;
+
+        public bool IsRider = false;
+
+        public float LastAimAngle = 143f;
+
+        public Vector3 LastEqPos = Vector3.zero;
+
+        public float Offset_Angle = 0f;
+
+        public Vector3 Offset_Pos = Vector3.zero;
+
+        public Mesh pawnBodyMesh;
+
+        public Mesh pawnBodyMeshFlipped;
+
+        public Quaternion SecondHandQuat;
+
+        internal readonly int[] LastPosUpdate = new int[(int)TweenThing.Max];
+
+        internal int LastAngleTick;
+
+        internal float LastWeaponAngle;
+
+        internal bool MeshFlipped;
+
+        private static int LastDrawn;
+
+        private static Vector3 MainHand;
+
+        private static Vector3 OffHand;
+
+        private float _movedPercent;
+
+        //private BodyAnimator _bodyAnimator;
+        private List<PawnBodyDrawer> _pawnBodyDrawers;
+
+
+        public float BodyOffsetZ
         {
-            int num = facing.AsInt + 1000 * (int)bodyCondition;
-            if (num != this._cachedSkinMatsBodyBaseHash)
+            get
             {
-                this._cachedSkinMatsBodyBase.Clear();
-                this._cachedSkinMatsBodyBaseHash = num;
-                PawnGraphicSet graphics = this.pawn.Drawer.renderer.graphics;
-                if (bodyCondition == RotDrawMode.Fresh)
+                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
                 {
-                    this._cachedSkinMatsBodyBase.Add(graphics.nakedGraphic.MatAt(facing));
-                }
-                else if (bodyCondition == RotDrawMode.Rotting || graphics.dessicatedGraphic == null)
-                {
-                    this._cachedSkinMatsBodyBase.Add(graphics.rottingGraphic.MatAt(facing));
-                }
-                else if (bodyCondition == RotDrawMode.Dessicated)
-                {
-                    this._cachedSkinMatsBodyBase.Add(graphics.dessicatedGraphic.MatAt(facing));
-                }
+                    WalkCycleDef walkCycle = this.WalkCycle;
 
-                for (int i = 0; i < graphics.apparelGraphics.Count; i++)
-                {
-                    ApparelLayerDef lastLayer = graphics.apparelGraphics[i].sourceApparel.def.apparel.LastLayer;
-
-                    // if (lastLayer != ApparelLayerDefOf.Shell && lastLayer != ApparelLayerDefOf.Overhead)
-                    if (lastLayer == ApparelLayerDefOf.OnSkin)
+                    SimpleCurve curve = walkCycle.BodyOffsetZ;
+                    if (curve.PointsCount > 0)
                     {
-                        this._cachedSkinMatsBodyBase.Add(graphics.apparelGraphics[i].graphic.MatAt(facing));
+                        return curve.Evaluate(this.MovedPercent);
                     }
                 }
-                // One more time to get at least one pieces of cloth
-                if (this._cachedSkinMatsBodyBase.Count < 1)
-                {
-                    for (int i = 0; i < graphics.apparelGraphics.Count; i++)
-                    {
-                        ApparelLayerDef lastLayer = graphics.apparelGraphics[i].sourceApparel.def.apparel.LastLayer;
 
-                        // if (lastLayer != ApparelLayerDefOf.Shell && lastLayer != ApparelLayerDefOf.Overhead)
-                        if (lastLayer == ApparelLayerDefOf.Middle)
+                return 0f;
+            }
+        }
+
+        public Rot4 CurrentRotation
+        {
+            get => _currentRotationOverride ?? pawn.Rotation;
+            set => _currentRotationOverride = value;
+        }
+
+        // public readonly FloatTween AimAngleTween = new();
+        public bool HasLeftHandPosition => this.SecondHandPosition != Vector3.zero;
+
+        // unused since 1.3
+        public float HeadAngleX
+        {
+            get
+            {
+                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
+                {
+                    WalkCycleDef walkCycle = this.WalkCycle;
+                    if (walkCycle != null)
+                    {
+                        SimpleCurve curve = walkCycle.HeadAngleX;
+                        if (curve.PointsCount > 0)
                         {
-                            this._cachedSkinMatsBodyBase.Add(graphics.apparelGraphics[i].graphic.MatAt(facing));
+                            return curve.Evaluate(this.MovedPercent);
                         }
                     }
                 }
-            }
 
-            return this._cachedSkinMatsBodyBase;
+                return 0f;
+            }
         }
 
-        #endregion Public Methods
+        public float HeadffsetZ
+        {
+            get
+            {
+                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
+                {
+                    WalkCycleDef walkCycle = this.WalkCycle;
+                    if (walkCycle != null)
+                    {
+                        SimpleCurve curve = walkCycle.HeadOffsetZ;
+                        if (curve.PointsCount > 0)
+                        {
+                            return curve.Evaluate(this.MovedPercent);
+                        }
+                    }
+                }
+
+                return 0f;
+            }
+        }
 
         public float MovedPercent
         {
             get => _movedPercent;
             private set => _movedPercent = value;
         }
-
-        public float BodyAngle = 0f;
-
-        public float LastAimAngle = 143f;
-
-        //  public float lastWeaponAngle = 53f;
-        public readonly Vector3[] LastPosition = new Vector3[(int)TweenThing.Max];
-
-        // public readonly FloatTween AimAngleTween = new();
-        public bool HasLeftHandPosition => this.SecondHandPosition != Vector3.zero;
-
-        public Vector3 LastEqPos = Vector3.zero;
-        public float DrawOffsetY;
-
-        public Mesh pawnBodyMesh;
-        public Mesh pawnBodyMeshFlipped;
-
-        public void CheckMovement()
-        {
-            /*
-            if (HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn)
-            {
-                this.IsMoving = true;
-                this.MovedPercent = MainTabWindow_BaseAnimator.AnimationPercent;
-                return;
-            }
-            */
-            if (this.IsRider)
-            {
-                this.IsMoving = false;
-                return;
-            }
-            // pawn started pathing
-
-            this.MovedPercent = PawnMovedPercent(pawn);
-        }
-        private static float CalcShortestRot(float from, float to)
-        {
-            // If from or to is a negative, we have to recalculate them.
-            // For an example, if from = -45 then from(-45) + 360 = 315.
-            if (@from < 0)
-            {
-                @from += 360;
-            }
-
-            if (to < 0)
-            {
-                to += 360;
-            }
-
-            // Do not rotate if from == to.
-            if (@from == to ||
-                @from == 0 && to == 360 ||
-                @from == 360 && to == 0)
-            {
-                return 0;
-            }
-
-            // Pre-calculate left and right.
-            float left = (360 - @from) + to;
-            float right = @from - to;
-
-            // If from < to, re-calculate left and right.
-            if (@from < to)
-            {
-                if (to > 0)
-                {
-                    left = to - @from;
-                    right = (360 - to) + @from;
-                }
-                else
-                {
-                    left = (360 - to) + @from;
-                    right = to - @from;
-                }
-            }
-
-            // Determine the shortest direction.
-            return ((left <= right) ? left : (right * -1));
-        }
-
-
-        private static int LastDrawn;
-        private static Vector3 MainHand;
-        private static Vector3 OffHand;
-
         public void CalculatePositionsWeapon(ref float weaponAngle, WhandCompProps extensions,
                                              out Vector3 weaponPosOffset, bool flipped)
         {
@@ -720,41 +692,27 @@ namespace FacialStuff
             }
         }
 
-        private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
+        public void CheckMovement()
         {
-            if (!ShowMeYourHandsMain.OversizedWeaponLoaded && !ShowMeYourHandsMain.EnableOversizedLoaded)
+            /*
+            if (HarmonyPatchesFS.AnimatorIsOpen() && MainTabWindow_BaseAnimator.pawn == this.pawn)
             {
-                return Vector3.zero;
+                this.IsMoving = true;
+                this.MovedPercent = MainTabWindow_BaseAnimator.AnimationPercent;
+                return;
             }
-
-            switch (pawn.Rotation.AsInt)
+            */
+            if (this.IsRider)
             {
-                case 0:
-                    return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out Vector3 northValue)
-                        ? northValue
-                        : Vector3.zero;
-
-                case 1:
-                    return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out Vector3 eastValue)
-                        ? eastValue
-                        : Vector3.zero;
-
-                case 2:
-                    return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out Vector3 southValue)
-                        ? southValue
-                        : Vector3.zero;
-
-                case 3:
-                    return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out Vector3 westValue)
-                        ? westValue
-                        : Vector3.zero;
-
-                default:
-                    return Vector3.zero;
+                this.IsMoving = false;
+                return;
             }
+            // pawn started pathing
+
+            this.MovedPercent = PawnMovedPercent(pawn);
         }
 
-        public  void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle, out bool hasSecondWeapon)
+        public void DoHandOffsetsOnWeapon(ThingWithComps eq, float aimAngle, out bool hasSecondWeapon)
         {
             hasSecondWeapon = false;
             WhandCompProps extensions = eq?.def?.GetCompProperties<WhandCompProps>();
@@ -828,7 +786,6 @@ namespace FacialStuff
 
                 aiming = true;
             }
-
 
             if (!ShowMeYourHandsMain.weaponLocations.ContainsKey(mainHandWeapon))
             {
@@ -959,8 +916,6 @@ namespace FacialStuff
                 drawSize = mainHandWeapon.def.graphicData.drawSize.x;
             }
 
-
-
             // ToDo Integrate: y >= 0 ? matSingle : offSingle
 
             // Only put the second hand on when aiming or not moving => free left hand for running
@@ -991,13 +946,11 @@ namespace FacialStuff
                 this.FirstHandPosition = Vector3.zero;
             }
 
-
             if (OffHand != Vector3.zero)
             {
                 float x2 = OffHand.x * drawSize;
                 float z2 = OffHand.z * drawSize;
                 float y2 = OffHand.y < 0 ? -0.0001f : 0.001f;
-
 
                 if (offHandWeapon != null)
                 {
@@ -1029,13 +982,11 @@ namespace FacialStuff
                         }
                     }
 
-
                     this.SecondHandPosition = offhandWeaponLocation + AdjustRenderOffsetFromDir(___pawn, offHandWeapon as ThingWithComps);
                     this.SecondHandPosition += new Vector3(x2, y2 + offMeleeExtra, z2).RotatedBy(offHandAngle);
 
                     this.SecondHandQuat = Quaternion.AngleAxis(offHandAngle, Vector3.up);
                 }
-
             }
             else
             {
@@ -1064,7 +1015,7 @@ namespace FacialStuff
                         bodySize = pawn.RaceProps.baseBodySize;
                     }
 
-                    if (ShowMeYourHandsMain.BabysAndChildrenLoaded && ShowMeYourHandsMain.GetBodySizeScaling != null)
+                    if ((ShowMeYourHandsMain.BabysAndChildrenLoaded || ShowMeYourHandsMain.BabysAndChildrenLoaded2 || ShowMeYourHandsMain.BabysAndChildrenLoaded3) && ShowMeYourHandsMain.GetBodySizeScaling != null)
                     {
                         bodySize = (float)ShowMeYourHandsMain.GetBodySizeScaling.Invoke(null, new object[] { pawn });
                     }
@@ -1077,9 +1028,158 @@ namespace FacialStuff
             }
 
             return PawnExtensions.pawnBodySizes[pawn];
-
         }
 
+        public void SetWalkCycle(WalkCycleDef walkCycleDef)
+        {
+            this.WalkCycle = walkCycleDef;
+        }
+
+        public string TexNameFoot()
+        {
+            string texNameFoot;
+            if (pawn.RaceProps.Humanlike)
+            {
+                texNameFoot = PawnExtensions.PathHumanlike + "Feet/" + this.BodyAnim.handType + PawnExtensions.STR_Foot;
+            }
+            else
+            {
+                texNameFoot = PawnExtensions.PathAnimals + "Paws/" + this.BodyAnim.handType + PawnExtensions.STR_Foot;
+            }
+
+            return texNameFoot;
+        }
+
+        public string TexNameFrontPaws()
+        {
+            string texNameHand;
+            // Mechanoid
+            string handType = this.BodyAnim.handType;
+            if (this.pawn.RaceProps.Animal)
+            {
+                //skinColor = this._pawn.story.SkinColor;
+                texNameHand = PawnExtensions.PathAnimals + "Paws/" + handType + PawnExtensions.STR_Foot;
+            }
+            else
+            {
+                //skinColor = curKindLifeStage.bodyGraphicData.color;
+                texNameHand = PawnExtensions.PathAnimals + "Paws/" + handType + PawnExtensions.STR_Hand;
+            }
+
+            return texNameHand;
+        }
+
+        public string TexNameHand()
+        {
+            string texNameHand;
+            // Mechanoid
+            if (this.pawn.RaceProps.Humanlike)
+            {
+                //skinColor = this._pawn.story.SkinColor;
+                texNameHand = PawnExtensions.PathHumanlike + "Hands/" + this.BodyAnim.handType + PawnExtensions.STR_Hand;
+            }
+            else
+            {
+                PawnKindLifeStage curKindLifeStage = this.pawn.ageTracker.CurKindLifeStage;
+
+                //skinColor = curKindLifeStage.bodyGraphicData.color;
+                texNameHand = PawnExtensions.PathAnimals + "Paws/" + this.BodyAnim.handType + PawnExtensions.STR_Hand;
+            }
+
+            return texNameHand;
+        }
+
+        private static Vector3 AdjustRenderOffsetFromDir(Pawn pawn, ThingWithComps weapon)
+        {
+            if (!ShowMeYourHandsMain.OversizedWeaponLoaded && !ShowMeYourHandsMain.EnableOversizedLoaded)
+            {
+                return Vector3.zero;
+            }
+
+            switch (pawn.Rotation.AsInt)
+            {
+                case 0:
+                    return ShowMeYourHandsMain.northOffsets.TryGetValue(weapon.def, out Vector3 northValue)
+                        ? northValue
+                        : Vector3.zero;
+
+                case 1:
+                    return ShowMeYourHandsMain.eastOffsets.TryGetValue(weapon.def, out Vector3 eastValue)
+                        ? eastValue
+                        : Vector3.zero;
+
+                case 2:
+                    return ShowMeYourHandsMain.southOffsets.TryGetValue(weapon.def, out Vector3 southValue)
+                        ? southValue
+                        : Vector3.zero;
+
+                case 3:
+                    return ShowMeYourHandsMain.westOffsets.TryGetValue(weapon.def, out Vector3 westValue)
+                        ? westValue
+                        : Vector3.zero;
+
+                default:
+                    return Vector3.zero;
+            }
+        }
+
+        private static float CalcShortestRot(float from, float to)
+        {
+            // If from or to is a negative, we have to recalculate them.
+            // For an example, if from = -45 then from(-45) + 360 = 315.
+            if (@from < 0)
+            {
+                @from += 360;
+            }
+
+            if (to < 0)
+            {
+                to += 360;
+            }
+
+            // Do not rotate if from == to.
+            if (@from == to ||
+                @from == 0 && to == 360 ||
+                @from == 360 && to == 0)
+            {
+                return 0;
+            }
+
+            // Pre-calculate left and right.
+            float left = (360 - @from) + to;
+            float right = @from - to;
+
+            // If from < to, re-calculate left and right.
+            if (@from < to)
+            {
+                if (to > 0)
+                {
+                    left = to - @from;
+                    right = (360 - to) + @from;
+                }
+                else
+                {
+                    left = (360 - to) + @from;
+                    right = to - @from;
+                }
+            }
+
+            // Determine the shortest direction.
+            return ((left <= right) ? left : (right * -1));
+        }
+        private float CostToPayThisTick(float nextCellCostTotal)
+        {
+            float num = 1f;
+            if (pawn.stances.Staggered)
+            {
+                num *= 0.17f;
+            }
+            if (num < nextCellCostTotal / 450f)
+            {
+                num = nextCellCostTotal / 450f;
+            }
+            return num;
+        }
 
         private float PawnMovedPercent(Pawn pawn)
         {
@@ -1145,8 +1245,8 @@ namespace FacialStuff
             */
 
             /*
-            Log.Message("Pawn is movinng;" + pawn.LabelCap + 
-                        " total: " + pather.nextCellCostTotal + 
+            Log.Message("Pawn is movinng;" + pawn.LabelCap +
+                        " total: " + pather.nextCellCostTotal +
                         " left: " + pather.nextCellCostLeft +
                         " float: " + costToPayThisTick +
                         " urgency: " + pawn.CurJob.locomotionUrgency +
@@ -1177,169 +1277,10 @@ namespace FacialStuff
                 if (invert)
                 {
                     return pather.nextCellCostLeft / pather.nextCellCostTotal;
-                }            }
+                }
+            }
 
             return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
-
         }
-
-
-        private float CostToPayThisTick(float nextCellCostTotal)
-        {
-            float num = 1f;
-            if (pawn.stances.Staggered)
-            {
-                num *= 0.17f;
-            }
-            if (num < nextCellCostTotal / 450f)
-            {
-                num = nextCellCostTotal / 450f;
-            }
-            return num;
-        }
-        public bool IsRider = false;
-
-        public void SetWalkCycle(WalkCycleDef walkCycleDef)
-        {
-            this.WalkCycle = walkCycleDef;
-        }
-
-        public float HeadffsetZ
-        {
-            get
-            {
-                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
-                {
-                    WalkCycleDef walkCycle = this.WalkCycle;
-                    if (walkCycle != null)
-                    {
-                        SimpleCurve curve = walkCycle.HeadOffsetZ;
-                        if (curve.PointsCount > 0)
-                        {
-                            return curve.Evaluate(this.MovedPercent);
-                        }
-                    }
-                }
-
-                return 0f;
-            }
-        }
-
-        // unused since 1.3
-        public float HeadAngleX
-        {
-            get
-            {
-                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
-                {
-                    WalkCycleDef walkCycle = this.WalkCycle;
-                    if (walkCycle != null)
-                    {
-                        SimpleCurve curve = walkCycle.HeadAngleX;
-                        if (curve.PointsCount > 0)
-                        {
-                            return curve.Evaluate(this.MovedPercent);
-                        }
-                    }
-                }
-
-                return 0f;
-            }
-        }
-
-        public float BodyOffsetZ
-        {
-            get
-            {
-                if (ShowMeYourHandsMod.instance.Settings.UseFeet)
-                {
-                    WalkCycleDef walkCycle = this.WalkCycle;
-
-                    SimpleCurve curve = walkCycle.BodyOffsetZ;
-                    if (curve.PointsCount > 0)
-                    {
-                        return curve.Evaluate(this.MovedPercent);
-                    }
-                }
-
-                return 0f;
-            }
-        }
-
-        public bool IsMoving;
-
-
-
-        public Quaternion SecondHandQuat;
-        public Quaternion FirstHandQuat;
-
-        internal bool MeshFlipped;
-        internal float LastWeaponAngle;
-        internal readonly int[] LastPosUpdate = new int[(int)TweenThing.Max];
-        internal int LastAngleTick;
-
-        public Color HandColorLeft;
-        public Color HandColorRight;
-        public Color FootColorLeft;
-        public Color FootColorRight;
-
-
-
-        public float Offset_Angle = 0f;
-
-        public Vector3 Offset_Pos = Vector3.zero;
-        [CanBeNull] private WalkCycleDef _walkCycle;
-        private BodyAnimator _bodyAnimator;
-        private List<PawnBodyDrawer> _pawnBodyDrawers;
-        private float _movedPercent;
-
-        public Rot4 CurrentRotation
-        {
-            get => _currentRotationOverride ?? pawn.Rotation;
-            set => _currentRotationOverride = value;
-        }
-
-
-
-        public string TexNameHand()
-        {
-            string texNameHand;
-            // Mechanoid
-            if (this.pawn.story == null)
-            {
-                PawnKindLifeStage curKindLifeStage = this.pawn.ageTracker.CurKindLifeStage;
-
-                //skinColor = curKindLifeStage.bodyGraphicData.color;
-                texNameHand = PawnExtensions.PathAnimals + "Paws/" + this.Props.handType + PawnExtensions.STR_Hand;
-            }
-            else
-            {
-                //skinColor = this._pawn.story.SkinColor;
-                texNameHand = PawnExtensions.PathHumanlike + "Hands/" + this.Props.handType + PawnExtensions.STR_Hand;
-            }
-
-            return texNameHand;
-        }
-
-        public string TexNameFoot()
-        {
-            string texNameFoot;
-            if (pawn.RaceProps.Humanlike)
-            {
-                texNameFoot = PawnExtensions.PathHumanlike + "Feet/" + this.Props.handType + PawnExtensions.STR_Foot;
-            }
-            else
-            {
-                texNameFoot = PawnExtensions.PathAnimals + "Paws/" + this.Props.handType + PawnExtensions.STR_Foot;
-            }
-
-            return texNameFoot;
-        }
-    }
-
-    public static class HarmonyPatchesFS
-    {
-        // public static bool AnimatorIsOpen()
-        // { return Find.WindowStack.IsOpen(typeof(MainTabWindow_WalkAnimator));// MainTabWindow_WalkAnimator.IsOpen;// || MainTabWindow_PoseAnimator.IsOpen;}
     }
 }

@@ -158,6 +158,10 @@ namespace FacialStuff.AnimatorWindows
                     //this.CompAnim.BodyAnim.pawType = this.CompAnim.Props.pawType;
                     this.CompAnim.BodyAnim.quadruped = this.CompAnim.Props.quadruped;
                     this.CompAnim.BodyAnim.bipedWithHands = this.CompAnim.Props.bipedWithHands;
+                    this.CompAnim.BodyAnim.shoulderOffsets = this.CompAnim.Props.shoulderOffsets;
+                    this.CompAnim.BodyAnim.hipOffsets = this.CompAnim.Props.hipOffsets;
+                    this.CompAnim.BodyAnim.armLength = this.CompAnim.Props.armLength;
+                    this.CompAnim.BodyAnim.extraLegLength= this.CompAnim.Props.extraLegLength;
                 }
                 return this.CompAnim.BodyAnim;
             }

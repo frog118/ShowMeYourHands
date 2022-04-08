@@ -47,10 +47,11 @@ namespace FacialStuff
 
         public override void ApplyBodyWobble(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            if (this.compAnimator.BodyAnim != null)
+            if (this.compAnimator.BodyAnim == null)
             {
-                this.compAnimator.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
+                return;
             }
+            this.compAnimator.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
             if (this.compAnimator.IsMoving)
             {
                 WalkCycleDef walkCycle = this.compAnimator.WalkCycle;
@@ -148,7 +149,7 @@ namespace FacialStuff
             Rot4 rot = this.compAnimator.CurrentRotation;
 
             // Basic values
-            BodyAnimDef body = this.compAnimator.BodyAnim;
+            var body = this.compAnimator.BodyAnim;
             if (body == null)
             {
                 return;
@@ -278,11 +279,11 @@ namespace FacialStuff
                 // tweener.PartPositions[(int)rightFoot] = position;
                 //     tweener.PreThingPosCalculation(rightFoot, spring: SpringTightness.Stff);
                 Graphics.DrawMesh(
-                                           footMeshRight,
-                                           position, // tweener.TweenedPartsPos[(int)rightFoot],
-                                           drawQuat * Quaternion.AngleAxis(footAngleRight, Vector3.up),
-                                           matRight,
-                                           0);
+                    footMeshRight,
+                    position, // tweener.TweenedPartsPos[(int)rightFoot],
+                    drawQuat * Quaternion.AngleAxis(footAngleRight, Vector3.up),
+                    matRight,
+                    0);
 
                 // }
             }
@@ -337,18 +338,17 @@ namespace FacialStuff
             {
                 return;
             }
-            BodyAnimDef body = this.compAnimator.BodyAnim;
+
+            var body = this.compAnimator.BodyAnim;
             if (body == null)
             {
                 return;
             }
-
-            float bodysizeScaling = compAnimator.GetBodysizeScaling();
-
-            if (!this.compAnimator.Props.bipedWithHands)
+            if (!this.compAnimator.BodyAnim.bipedWithHands)
             {
                 return;
             }
+            float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
             this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
             bool hasSecondWeapon = false;
@@ -1065,7 +1065,7 @@ namespace FacialStuff
             // Faster pawns use faster cycles, this avoids slow.mo pawns.
             if (pawn.pather == null || Math.Abs(pawn.pather.nextCellCostTotal - this.lastCellCost) < 0f) return;
 
-            BodyAnimDef animDef = this.compAnimator.BodyAnim;
+            // BodyAnimDef animDef = this.compAnimator.BodyAnim;
 
             LocomotionUrgency locomotionUrgency = LocomotionUrgency.Walk;
             Job curJob = this.pawn.CurJob;
@@ -1075,13 +1075,13 @@ namespace FacialStuff
             // the measuered values were always > 0.2 and <=1
             switch (numbie)
             {
-                case > 0.7f:
+                case > 0.85f:
                     locomotionUrgency = LocomotionUrgency.Sprint;
                     break;
-                case > 0.5f:
+                case > 0.65f:
                     locomotionUrgency = LocomotionUrgency.Jog;
                     break;
-                case > 0.3f:
+                case > 0.45f:
                     locomotionUrgency = LocomotionUrgency.Walk;
                     break;
                 default: 
@@ -1090,7 +1090,7 @@ namespace FacialStuff
 
             }
 
-            Dictionary<LocomotionUrgency, WalkCycleDef> cycles = animDef?.walkCycles;
+            Dictionary<LocomotionUrgency, WalkCycleDef> cycles = compAnimator.BodyAnim?.walkCycles;
             if (cycles != null && cycles.Count > 0)
             {
 
@@ -1103,7 +1103,7 @@ namespace FacialStuff
                 }
                 else
                 {
-                    this.compAnimator.SetWalkCycle(animDef.walkCycles.FirstOrDefault().Value);
+                    this.compAnimator.SetWalkCycle(compAnimator.BodyAnim.walkCycles.FirstOrDefault().Value);
                 }
             }
             this.lastCellCost = pawn.pather.nextCellCostTotal;

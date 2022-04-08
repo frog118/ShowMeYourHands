@@ -9,7 +9,11 @@
     <FileVersion>1.3.4</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="FSWalking\Animation\BodyAnimator.cs" />
+    <Compile Remove="FSWalking\Animation\BodyAnimDef_Export.cs" />
     <Compile Remove="FSWalking\Animation\PoseCycleDef.cs" />
+    <Compile Remove="FSWalking\Animator\MainTabWindow_BaseAnimator.cs" />
+    <Compile Remove="FSWalking\Animator\MainTabWindow_WalkAnimator.cs" />
     <Compile Remove="FSWalking\BodyProps.cs" />
     <Compile Remove="FSWalking\Class1.cs" />
     <Compile Remove="FSWalking\Class18.cs" />
@@ -25,7 +29,11 @@
     <Compile Remove="HandDrawer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FSWalking\Animation\BodyAnimator.cs" />
+    <None Include="FSWalking\Animation\BodyAnimDef_Export.cs" />
     <None Include="FSWalking\Animation\PoseCycleDef.cs" />
+    <None Include="FSWalking\Animator\MainTabWindow_BaseAnimator.cs" />
+    <None Include="FSWalking\Animator\MainTabWindow_WalkAnimator.cs" />
     <None Include="FSWalking\BodyProps.cs" />
     <None Include="FSWalking\Class1.cs" />
     <None Include="FSWalking\Class18.cs" />

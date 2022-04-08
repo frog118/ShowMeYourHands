@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <BodyAnimDef>
+    <thingTarget>Human</thingTarget>
     <armLength>0.35</armLength>
     <extremitySize>1.08</extremitySize>
     <walkCycles>

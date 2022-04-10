@@ -26,7 +26,7 @@ public class PawnRenderer_DrawEquipmentAiming
     {
         //ShowMeYourHandsMain.LogMessage($"Saving from vanilla {eq.def.defName}, {drawLoc}, {aimAngle}");
         ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
-        return;
+
         Pawn pawn = __instance.graphics.pawn;
 
         //ShowMeYourHandsMain.LogMessage($"Saving from vanilla {eq.def.defName}, {drawLoc}, {aimAngle}");
@@ -34,6 +34,12 @@ public class PawnRenderer_DrawEquipmentAiming
         {
             return;
         };
+
+        if (compAnim.CurrentRotation == Rot4.North && aimAngle == 143f)
+        {
+            aimAngle = 217f;
+        }
+        
         WhandCompProps extensions = eq.def.GetCompProperties<WhandCompProps>();
         if (extensions == null)
         {

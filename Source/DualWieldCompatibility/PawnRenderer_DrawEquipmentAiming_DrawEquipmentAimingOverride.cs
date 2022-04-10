@@ -15,5 +15,6 @@ public static class PawnRenderer_DrawEquipmentAiming_DrawEquipmentAimingOverride
     {
         //ShowMeYourHandsMain.LogMessage($"Saving from dual wield {eq.def.defName}, {drawLoc}, {aimAngle}");
         ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
+
     }
 }

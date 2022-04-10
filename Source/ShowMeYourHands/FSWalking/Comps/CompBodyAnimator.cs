@@ -302,6 +302,15 @@ namespace FacialStuff
 
         public override string CompInspectStringExtra()
         {
+            if (!ShowMeYourHandsMod.instance.Settings.VerboseLogging || this.WalkCycle == null || pawn.pather == null)
+            {
+                return base.CompInspectStringExtra();
+            }
+            float numbie = pawn.TicksPerMoveCardinal / pawn.pather.nextCellCostTotal;
+
+            var text = "Walkcycle: " + this.WalkCycle.defName + ", MoveSpeed: " + numbie.ToString("N2") + "\nTicksPerMoveCardinal: " +
+                       pawn.TicksPerMoveCardinal + " nextCellCostTotal: " + pawn.pather.nextCellCostTotal;
+            return text;
             // var tween = Vector3Tweens[(int)TweenThing.Equipment];
             // var log = tween.State + " =>"+  tween.StartValue + " - " + tween.EndValue + " / " + tween.CurrentTime + " / " + tween.CurrentValue;
             // return log;
@@ -379,7 +388,8 @@ namespace FacialStuff
 
         public void ModifyBodyAndFootPos(ref Vector3 rootLoc, ref Vector3 footPos)
         {
-            float bodysizeScaling = Mathf.Max(GetBodysizeScaling(), 0.5f);
+            float bodysizeScaling = GetBodysizeScaling();
+            //float bodysizeScaling = Mathf.Max(GetBodysizeScaling(), 0.5f);
             float legModifier = this.BodyAnim.extraLegLength * bodysizeScaling;
             float posModB = legModifier * 0.75f;
             float posModF = -legModifier * 0.25f;
@@ -867,7 +877,7 @@ namespace FacialStuff
             {
                 offMelee = true;
                 offMeleeExtra = 0.0001f;
-                /*
+                
 
                 if (idle && offHandWeapon != null) //Dual wield idle vertical
                 {
@@ -892,9 +902,10 @@ namespace FacialStuff
                         offHandAngle += offHandWeapon.def.equippedAngleOffset;
                     }
                 }
-                */
-
                 
+
+                // bug not working as intended, flips the hand on dual weild second hand
+                /*
                 if (idle && ___pawn.Rotation == Rot4.North) //Dual wield north
                 {
                     offHandAngle -= offHandWeapon.def.equippedAngleOffset;
@@ -911,6 +922,7 @@ namespace FacialStuff
                         offHandAngle += offHandWeapon.def.equippedAngleOffset;
                     }
                 }
+                */
                 
             }
             else

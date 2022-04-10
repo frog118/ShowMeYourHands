@@ -1,7 +1,9 @@
-﻿using FacialStuff;
+﻿using System.Collections.Generic;
+using FacialStuff;
 using FacialStuff.Animator;
 using FacialStuff.Tweener;
 using HarmonyLib;
+using JetBrains.Annotations;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,20 +13,40 @@ namespace ShowMeYourHands.FSWalking;
 [HarmonyPatch(typeof(Pawn_DrawTracker), "DrawAt")]
 class DrawAt_Patch
 {
-    static void Prefix(Pawn_DrawTracker __instance, ref Vector3 loc, out Vector3 __state)
+
+    [NotNull] public static Dictionary<Pawn,CompBodyAnimator> animatorDict = new ();
+
+    static void Prefix(Pawn_DrawTracker __instance, ref Vector3 loc, Pawn ___pawn, out Vector3 __state)
     {
-        Pawn pawn = __instance.renderer.graphics.pawn;
-        //CompFace compFace = pawn.GetCompFace();
-        if (!pawn.GetCompAnim(out CompBodyAnimator compAnim) || pawn.GetPosture() != PawnPosture.Standing)
+        __state = Vector3.zero;
+        if (___pawn == null)
         {
-            __state = Vector3.zero;
+            return;
+        }
+        if (___pawn.Dead) return;
+
+        if (!animatorDict.ContainsKey(___pawn))
+        {
+            animatorDict[___pawn] = ___pawn.GetCompAnim();
+        }
+
+        CompBodyAnimator animator = animatorDict[___pawn];
+
+
+        if (animator == null)
+        {
+            return;
+        }
+        //CompFace compFace = pawn.GetCompFace();
+        if (___pawn.GetPosture() != PawnPosture.Standing)
+        {
             return;
         };
 
-        loc.x += compAnim?.BodyAnim?.offCenterX ?? 0f;
+        loc.x += animator?.BodyAnim?.offCenterX ?? 0f;
         __state = loc;
-        compAnim?.ApplyBodyWobble(ref loc, ref __state);
-        compAnim?.TickDrawers();
+        animator?.ApplyBodyWobble(ref loc, ref __state);
+        animator?.TickDrawers();
 
     }
 
@@ -37,38 +59,51 @@ class DrawAt_Patch
             return;
         }
 
-        if (pawn.Dead) return;
-
-        //CompFace compFace = pawn.GetCompFace();
-        if (!pawn.GetCompAnim(out CompBodyAnimator compAnim))
+        if (___pawn == null)
         {
             return;
-        };
+        }
+        if (pawn.Dead) return;
+
+        if (!animatorDict.ContainsKey(___pawn))
+        {
+            animatorDict[___pawn] = ___pawn.GetCompAnim();
+        }
+
+        CompBodyAnimator animator = animatorDict[___pawn];
+
+
+        if (animator == null)
+        {
+            return;
+
+        }
+
         Vector3 pos = __state;
         Vector3 bodyLoc = loc;
 
         float bodyAngle = __instance.renderer.BodyAngle();
         // adding the pdd angle offset. could be a bug, but looks ok
-        float handAngle = bodyAngle - compAnim.Offset_Angle;
+        float handAngle = bodyAngle - animator.Offset_Angle;
 
         bool isStanding = pawn.GetPosture() == PawnPosture.Standing;
 
-        float bodysizeScaling = compAnim.GetBodysizeScaling();
+        float bodysizeScaling = animator.GetBodysizeScaling();
         
         if (bodysizeScaling < 1f)
         {
-            var diffi = Mathf.Abs(1f - bodysizeScaling) / 5;
+            var diffi = Mathf.Abs(1f - bodysizeScaling) / 3;
             pos.z -= diffi;
-            bodyLoc.z -= diffi * 1.5f;
+            bodyLoc.z -= diffi * 1.6f;
         }
         
         // add the offset to the hand as its tied to the body
-        bodyLoc += compAnim.Offset_Pos;
+        bodyLoc += animator.Offset_Pos;
 
         //keep the feet on the ground and steady. rotation and pos offset only in bed
         if (!isStanding)
         {
-            pos += compAnim.Offset_Pos;
+            pos += animator.Offset_Pos;
         }
 
         // Log.ErrorOnce("Scaled size: " + pawn + " - " + bodysizeScaling + " - " + loc + " - " + pos, Mathf.FloorToInt(bodysizeScaling * 100));
@@ -88,8 +123,8 @@ class DrawAt_Patch
        // Vector3Tween eqTween = compAnim.Vector3Tweens[(int)TweenThing.Equipment];
 
         // FloatTween angleTween = compAnim.AimAngleTween;
-        Vector3Tween leftHand = compAnim.Vector3Tweens[(int)TweenThing.HandLeft];
-        Vector3Tween rightHand = compAnim.Vector3Tweens[(int)TweenThing.HandRight];
+        Vector3Tween leftHand = animator.Vector3Tweens[(int)TweenThing.HandLeft];
+        Vector3Tween rightHand = animator.Vector3Tweens[(int)TweenThing.HandRight];
 
        // if (!Find.TickManager.Paused)
         {
@@ -121,16 +156,16 @@ class DrawAt_Patch
 
 
 
-        compAnim.CheckMovement();
+        animator.CheckMovement();
 
         // feet shouldn't rotate while standing. 
         if (ShowMeYourHandsMod.instance.Settings.UseFeet)
         {
-            compAnim?.DrawFeet(footQuat, pos, bodyLoc);
+            animator?.DrawFeet(footQuat, pos, bodyLoc);
         }
         if (ShowMeYourHandsMod.instance.Settings.UseHands && pawn.carryTracker?.CarriedThing == null)
         {
-            compAnim?.DrawHands(handQuat, bodyLoc);
+            animator?.DrawHands(handQuat, bodyLoc);
         }
 #pragma warning restore CS0162
     }

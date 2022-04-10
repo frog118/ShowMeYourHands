@@ -392,7 +392,7 @@ namespace FacialStuff
             bool poschanged = false;
             if (animationAngle != 0f)
             {
-                animationAngle *= 4.5f;
+                animationAngle *= 3.8f;
                 bodyQuat *= Quaternion.AngleAxis(animationAngle, Vector3.up);
             }
 

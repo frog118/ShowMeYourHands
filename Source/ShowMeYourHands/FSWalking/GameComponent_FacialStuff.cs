@@ -26,7 +26,10 @@ namespace FacialStuff
         public GameComponent_FacialStuff(Game game)
         {
 
-
+            if (!RimWorld_MainMenuDrawer_MainMenuOnGUI.alreadyRun)
+            {
+                RimWorld_MainMenuDrawer_MainMenuOnGUI.MainMenuOnGUI();
+            }
 
             // todo: use BodyDef instead, target for kickstarting?
             //this.AnimalPawnCompsBodyDefImport();
@@ -294,7 +297,8 @@ namespace FacialStuff
                         {
                             compClass = typeof(CompBodyAnimator),
                             bodyDrawers = pawnSets.bodyDrawers,
-                            handType = pawnSets.handType,
+                            handTexPath = pawnSets.handTexPath,
+                            footTexPath = pawnSets.footTexPath,
                             hipOffsets = pawnSets.hipOffsets,
                             shoulderOffsets = pawnSets.shoulderOffsets,
                             armLength = pawnSets.armLength,
@@ -338,7 +342,8 @@ namespace FacialStuff
                 {
                     compClass = typeof(CompBodyAnimator),
                     bodyDrawers = def.bodyDrawers,
-                    handType = def.handType,
+                    handTexPath = def.handTexPath,
+                    footTexPath = def.footTexPath,
                     extremitySize = def.extremitySize,
                     // footType = def.footType,
                     // pawType = def.pawType,

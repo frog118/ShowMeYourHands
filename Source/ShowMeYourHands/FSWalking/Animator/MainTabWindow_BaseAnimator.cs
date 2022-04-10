@@ -153,7 +153,8 @@ namespace FacialStuff.AnimatorWindows
                     // ReSharper disable once PossibleNullReferenceException
                     this.CompAnim.BodyAnim.thingTarget = pawn.def.ToString();
                     this.CompAnim.BodyAnim.bodyDrawers = this.CompAnim.Props.bodyDrawers;
-                    this.CompAnim.BodyAnim.handType = this.CompAnim.Props.handType;
+                    this.CompAnim.BodyAnim.handTexPath = this.CompAnim.Props.handTexPath;
+                    this.CompAnim.BodyAnim.footTexPath = this.CompAnim.Props.footTexPath;
                     //this.CompAnim.BodyAnim.footType = this.CompAnim.Props.footType;
                     //this.CompAnim.BodyAnim.pawType = this.CompAnim.Props.pawType;
                     this.CompAnim.BodyAnim.quadruped = this.CompAnim.Props.quadruped;
@@ -464,7 +465,7 @@ namespace FacialStuff.AnimatorWindows
         protected void SetAngle(
         ref float? angle,
         ref Rect editorRect,
-        SimpleCurve thisFrame,
+        SimpleCurve curveCurrentFrame,
         string label,
         List<int> framesAt)
         {
@@ -496,11 +497,11 @@ namespace FacialStuff.AnimatorWindows
 
                 GUI.color = Color.white;
             }
-            else
+            else if (curveCurrentFrame.Points.Count > 0)
             {
                 Widgets.HorizontalSlider(
                                          sliderRect,
-                                         thisFrame.Evaluate(AnimationPercent),
+                                         curveCurrentFrame.Evaluate(AnimationPercent),
                                          -180f,
                                          180f,
                                          false,
@@ -510,7 +511,7 @@ namespace FacialStuff.AnimatorWindows
                 GUI.color = AddColor;
                 if (Widgets.ButtonText(buttonRect, "+ " + this._frameLabel))
                 {
-                    angle = thisFrame.Evaluate(AnimationPercent);
+                    angle = curveCurrentFrame.Evaluate(AnimationPercent);
                 }
 
                 GUI.color = Color.white;

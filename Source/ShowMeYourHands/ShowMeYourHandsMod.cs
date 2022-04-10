@@ -40,6 +40,10 @@ internal class ShowMeYourHandsMod : Mod
 
     private static Vector3 currentOffHand;
 
+    public static float currentMainHandAngle;
+
+    public static float currentOffHandAngle;
+
     private static bool currentHasOffHand;
 
     private static bool currentMainBehind;
@@ -281,7 +285,7 @@ internal class ShowMeYourHandsMod : Mod
         }
     }
 
-    private bool DrawIcon(ThingDef thing, Rect rect, Vector3 mainHandPosition, Vector3 offHandPosition)
+    private bool DrawIcon(ThingDef thing, Rect rect, Vector3 mainHandPosition, Vector3 offHandPosition, float mainHandAngle, float offHandAngle)
     {
         if (thing == null)
         {
@@ -328,12 +332,12 @@ internal class ShowMeYourHandsMod : Mod
 
         if (currentMainBehind)
         {
-            GUI.DrawTexture(mainHandRect, HandTex.MatEast.mainTexture);
+            DrawTextureRotatedLocal(mainHandRect, HandTex.MatEast.mainTexture, mainHandAngle);
         }
 
         if (currentHasOffHand && currentOffBehind)
         {
-            GUI.DrawTexture(offHandRect, HandTex.MatEast.mainTexture);
+            DrawTextureRotatedLocal(offHandRect, HandTex.MatEast.mainTexture, offHandAngle);
         }
 
         if (thing.IsRangedWeapon)
@@ -348,18 +352,18 @@ internal class ShowMeYourHandsMod : Mod
 
         if (!currentMainBehind)
         {
-            GUI.DrawTexture(mainHandRect, HandTex.MatSouth.mainTexture);
+            DrawTextureRotatedLocal(mainHandRect, HandTex.MatSouth.mainTexture, mainHandAngle);
         }
 
         if (currentHasOffHand && !currentOffBehind)
         {
-            GUI.DrawTexture(offHandRect, HandTex.MatSouth.mainTexture);
+            DrawTextureRotatedLocal(offHandRect, HandTex.MatSouth.mainTexture, offHandAngle);
         }
 
         return true;
     }
 
-    private void DrawTextureRotatedLocal(Rect rect, Texture texture, float angle)
+    public void DrawTextureRotatedLocal(Rect rect, Texture texture, float angle)
     {
         if (angle == 0f)
         {
@@ -652,9 +656,11 @@ internal class ShowMeYourHandsMod : Mod
                     currentHasOffHand = currentOffHand != Vector3.zero;
                     currentMainBehind = compProperties.MainHand.y < 0;
                     currentOffBehind = compProperties.SecHand.y < 0 || currentOffHand == Vector3.zero;
+                    currentMainHandAngle = compProperties.MainHandAngle;
+                    currentOffHandAngle = compProperties.SecHandAngle;
                 }
 
-                if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand))
+                if (!DrawIcon(currentDef, weaponRect, currentMainHand, currentOffHand, currentMainHandAngle, currentOffHandAngle))
                 {
                     listing_Standard.Label("SMYH.error.texture".Translate(SelectedDef));
                     listing_Standard.End();
@@ -674,6 +680,12 @@ internal class ShowMeYourHandsMod : Mod
                 currentMainHand.z = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                     currentMainHand.z, -0.5f, 0.5f, false,
                     currentMainHand.z.ToString(), null, null, 0.001f);
+
+                listing_Standard.Label("SMYH.mainhandAngle.label".Translate());
+                currentMainHandAngle = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
+                    currentMainHandAngle, -180f, 180f, false,
+                    currentMainHandAngle.ToString(), null, null, 0.001f);
+
                 listing_Standard.Gap();
                 listing_Standard.CheckboxLabeled("SMYH.renderbehind.label".Translate(), ref currentMainBehind);
 
@@ -689,6 +701,12 @@ internal class ShowMeYourHandsMod : Mod
                     currentOffHand.z = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
                         currentOffHand.z, -0.5f, 0.5f, false,
                         currentOffHand.z.ToString(), null, null, 0.001f);
+
+                    listing_Standard.Label("SMYH.offhandAngle.label".Translate());
+                    currentOffHandAngle = Widgets.HorizontalSlider(listing_Standard.GetRect(20),
+                        currentOffHandAngle, -180f, 180f, false,
+                        currentOffHandAngle.ToString(), null, null, 0.001f);
+                    
                     listing_Standard.Gap();
                     listing_Standard.CheckboxLabeled("SMYH.renderbehind.label".Translate(), ref currentOffBehind);
                 }
@@ -706,6 +724,9 @@ internal class ShowMeYourHandsMod : Mod
                                 currentHasOffHand = currentOffHand != Vector3.zero;
                                 currentMainBehind = compProperties.MainHand.y < 0;
                                 currentOffBehind = compProperties.SecHand.y < 0;
+                                currentMainHandAngle = compProperties.MainHandAngle;
+                                currentOffHandAngle = compProperties.SecHandAngle;
+
                             }));
                     }, "SMYH.reset.button".Translate(), lastMainLabel.position + new Vector2(350, 170));
                 }
@@ -714,7 +735,9 @@ internal class ShowMeYourHandsMod : Mod
                     currentOffHand != compProperties.SecHand ||
                     currentHasOffHand != (currentOffHand != Vector3.zero) ||
                     currentMainBehind != compProperties.MainHand.y < 0 ||
-                    currentOffBehind != compProperties.SecHand.y < 0)
+                    currentOffBehind != compProperties.SecHand.y < 0 ||
+                    currentMainHandAngle != compProperties.MainHandAngle ||
+                    currentOffHandAngle != compProperties.SecHandAngle)
                 {
                     DrawButton(() =>
                     {
@@ -723,6 +746,9 @@ internal class ShowMeYourHandsMod : Mod
                         currentHasOffHand = currentOffHand != Vector3.zero;
                         currentMainBehind = compProperties.MainHand.y < 0;
                         currentOffBehind = compProperties.SecHand.y < 0;
+
+                        currentMainHandAngle = compProperties.MainHandAngle;
+                        currentOffHandAngle = compProperties.SecHandAngle;
                     }, "SMYH.undo.button".Translate(), lastMainLabel.position + new Vector2(190, 170));
                     DrawButton(() =>
                     {
@@ -736,9 +762,12 @@ internal class ShowMeYourHandsMod : Mod
                         compProperties.MainHand = currentMainHand;
                         compProperties.SecHand = currentOffHand;
                         instance.Settings.ManualMainHandPositions[currentDef.defName] =
-                            new SaveableVector3(compProperties.MainHand);
+                            new SaveableVector3(compProperties.MainHand, compProperties.MainHandAngle);
                         instance.Settings.ManualOffHandPositions[currentDef.defName] =
-                            new SaveableVector3(compProperties.SecHand);
+                            new SaveableVector3(compProperties.SecHand, compProperties.SecHandAngle);
+
+                        compProperties.MainHandAngle = currentMainHandAngle;
+                        compProperties.SecHandAngle = currentOffHandAngle;
                     }, "SMYH.save.button".Translate(), lastMainLabel.position + new Vector2(25, 170));
                 }
 
@@ -788,15 +817,14 @@ internal class ShowMeYourHandsMod : Mod
             if (instance.Settings.ManualOffHandPositions.ContainsKey(settingsManualMainHandPosition.Key))
             {
                 SaveableVector3 secHand = instance.Settings.ManualOffHandPositions[settingsManualMainHandPosition.Key];
-                if (secHand.ToVector3() != Vector3.zero)
+                if (secHand.ToVector3() != Vector3.zero || secHand.ToAngleFloat() != 0f)
                 {
                     stringBuilder.AppendLine($"              <SecHand>{secHand}</SecHand>");
                 }
             }
 
             stringBuilder.AppendLine("              <ThingTargets>");
-            stringBuilder.AppendLine(
-                $"                 <li>{settingsManualMainHandPosition.Key}</li> <!-- {ThingDef.Named(settingsManualMainHandPosition.Key).label} -->");
+            stringBuilder.AppendLine($"                 <li>{settingsManualMainHandPosition.Key}</li> <!-- {ThingDef.Named(settingsManualMainHandPosition.Key).label} -->");
             stringBuilder.AppendLine("              </ThingTargets>");
             stringBuilder.AppendLine("          </li>");
         }
@@ -877,6 +905,8 @@ internal class ShowMeYourHandsMod : Mod
                 SelectedDef = SelectedDef == thingDef.defName ? null : thingDef.defName;
                 currentMainHand = Vector3.zero;
                 currentOffHand = Vector3.zero;
+                currentMainHandAngle = 0f;
+                currentOffHandAngle = 0f;
             }
 
             GUI.color = Color.white;
@@ -911,9 +941,10 @@ internal class ShowMeYourHandsMod : Mod
 
         compProperties.MainHand = Vector3.zero;
         compProperties.SecHand = Vector3.zero;
-        compProperties.AttackAngleOffset = 0f;
         compProperties.WeaponPositionOffset = Vector3.zero;
         compProperties.AimedWeaponPositionOffset = Vector3.zero;
+        compProperties.MainHandAngle = 0f;
+        compProperties.SecHandAngle = 0f;
 
         RimWorld_MainMenuDrawer_MainMenuOnGUI.LoadFromDefs(currentDef);
         if (compProperties.MainHand == Vector3.zero)

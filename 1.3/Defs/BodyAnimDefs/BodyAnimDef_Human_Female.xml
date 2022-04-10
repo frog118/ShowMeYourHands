@@ -2,7 +2,8 @@
 <Defs>
   <BodyAnimDef>
     <thingTarget>Human</thingTarget>
-    <handType>Human</handType>
+    <handTexPath>Things/Pawn/Humanlike/Hands/Human_Hand</handTexPath>
+    <footTexPath>Things/Pawn/Humanlike/Feet/Human_Foot</footTexPath>
     <quadruped>False</quadruped>
     <bipedWithHands>True</bipedWithHands>
     <armLength>0.375</armLength>

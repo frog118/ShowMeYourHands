@@ -7,7 +7,7 @@ using UnityEngine;
 using Verse;
 
 namespace ShowMeYourHands.FSWalking;
-
+[HarmonyPriority(0)]
 [HarmonyPatch(typeof(Pawn_DrawTracker), "DrawAt")]
 class DrawAt_Patch
 {
@@ -36,6 +36,7 @@ class DrawAt_Patch
         {
             return;
         }
+
         if (pawn.Dead) return;
 
         //CompFace compFace = pawn.GetCompFace();
@@ -43,6 +44,8 @@ class DrawAt_Patch
         {
             return;
         };
+        Vector3 pos = __state;
+        Vector3 bodyLoc = loc;
 
         float bodyAngle = __instance.renderer.BodyAngle();
         // adding the pdd angle offset. could be a bug, but looks ok
@@ -50,16 +53,27 @@ class DrawAt_Patch
 
         bool isStanding = pawn.GetPosture() == PawnPosture.Standing;
 
-
-
+        float bodysizeScaling = compAnim.GetBodysizeScaling();
+        
+        if (bodysizeScaling < 1f)
+        {
+            var diffi = Mathf.Abs(1f - bodysizeScaling) / 5;
+            pos.z -= diffi;
+            bodyLoc.z -= diffi * 1.5f;
+        }
+        
         // add the offset to the hand as its tied to the body
-        loc += compAnim.Offset_Pos;
+        bodyLoc += compAnim.Offset_Pos;
 
         //keep the feet on the ground and steady. rotation and pos offset only in bed
         if (!isStanding)
         {
-            __state += compAnim.Offset_Pos;
+            pos += compAnim.Offset_Pos;
         }
+
+        // Log.ErrorOnce("Scaled size: " + pawn + " - " + bodysizeScaling + " - " + loc + " - " + pos, Mathf.FloorToInt(bodysizeScaling * 100));
+
+
         Quaternion footQuat = Quaternion.AngleAxis(isStanding ? 0f : handAngle, Vector3.up);
 
         Quaternion handQuat = Quaternion.AngleAxis(handAngle, Vector3.up);
@@ -104,16 +118,19 @@ class DrawAt_Patch
             */
 
         }
+
+
+
         compAnim.CheckMovement();
 
         // feet shouldn't rotate while standing. 
         if (ShowMeYourHandsMod.instance.Settings.UseFeet)
         {
-            compAnim?.DrawFeet(footQuat, __state, loc);
+            compAnim?.DrawFeet(footQuat, pos, bodyLoc);
         }
         if (ShowMeYourHandsMod.instance.Settings.UseHands && pawn.carryTracker?.CarriedThing == null)
         {
-            compAnim?.DrawHands(handQuat, loc);
+            compAnim?.DrawHands(handQuat, bodyLoc);
         }
 #pragma warning restore CS0162
     }

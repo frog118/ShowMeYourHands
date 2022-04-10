@@ -97,7 +97,7 @@ namespace FacialStuff
                     ref offsetJoint,
                     cycle.FrontPawPositionX,
                     cycle.FrontPawPositionZ,
-                    cycle.FrontPawAngle);
+                    cycle.FrontPawAngle, compAnimator.MovedPercent, compAnimator.CurrentRotation);
             }
             float bodysizeScaling = compAnimator.GetBodysizeScaling();
 

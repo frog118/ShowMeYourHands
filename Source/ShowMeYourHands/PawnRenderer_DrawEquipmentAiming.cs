@@ -26,8 +26,7 @@ public class PawnRenderer_DrawEquipmentAiming
     {
         //ShowMeYourHandsMain.LogMessage($"Saving from vanilla {eq.def.defName}, {drawLoc}, {aimAngle}");
         ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
-
-
+        return;
         Pawn pawn = __instance.graphics.pawn;
 
         //ShowMeYourHandsMain.LogMessage($"Saving from vanilla {eq.def.defName}, {drawLoc}, {aimAngle}");
@@ -51,7 +50,7 @@ public class PawnRenderer_DrawEquipmentAiming
         drawLoc += weaponOffset * size;
         ShowMeYourHandsMain.LogMessage($"New angle and position {eq.def.defName}, {drawLoc}, {aimAngle}");
 
-        // ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
+        ShowMeYourHandsMain.weaponLocations[eq] = new Tuple<Vector3, float>(drawLoc, aimAngle);
 
     }
 

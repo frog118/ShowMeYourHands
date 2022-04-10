@@ -28,7 +28,10 @@ namespace FacialStuff
         public Vector3 aimedWeaponPositionOffset;
         */
         // Animals
-        public string handType;
+
+
+        public string handTexPath = "Things/Pawn/Humanlike/Hands/Human_Hand";
+        public string footTexPath = "Things/Pawn/Humanlike/Feet/Human_Foot";
 
         public bool quadruped;
         public bool bipedWithHands;

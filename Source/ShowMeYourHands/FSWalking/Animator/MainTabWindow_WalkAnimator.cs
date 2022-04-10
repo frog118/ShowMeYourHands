@@ -266,14 +266,14 @@ namespace FacialStuff.AnimatorWindows
                 size.y);
 
             Rect bodyRect = new (position);
-            Rect leftFootRect = new(position);
+            Rect leftFootRect = new(position.x + position.width/2, position.y + position.height/2, position.width/2, position.width/2);
 
             Vector3 rootLoc = Vector3.zero;
             Vector3 footPos = Vector3.zero;
 
             this.CompAnim.ModifyBodyAndFootPos(ref rootLoc, ref footPos);
-            AddVec3ToRect(bodyRect, rootLoc);
-            AddVec3ToRect(leftFootRect, footPos);
+            AddVec3ToRect(ref bodyRect, rootLoc);
+            AddVec3ToRect(ref leftFootRect, footPos);
 
             List<PawnBodyDrawer> bodyDrawers = this.CompAnim.BodyAnim.bodyDrawers;
 
@@ -287,13 +287,13 @@ namespace FacialStuff.AnimatorWindows
                 {
                     this.CompAnim.DoWalkCycleOffsets(ref rightFootVector, ref leftFootVector, ref footAngleRight,
                         ref footAngleLeft, ref offsetJoint, EditorWalkcycle.FootPositionX,
-                        EditorWalkcycle.FootPositionZ, EditorWalkcycle.BodyAngle);
+                        EditorWalkcycle.FootPositionZ, EditorWalkcycle.FootAngle, AnimationPercent, BodyRot);
                 }
 
             Rect rightFootRect = new(leftFootRect);
 
-            AddVec3ToRect(leftFootRect, leftFootVector);
-            AddVec3ToRect(rightFootRect, leftFootVector);
+            AddVec3ToRect(ref leftFootRect, leftFootVector);
+            AddVec3ToRect(ref rightFootRect, leftFootVector);
 
 
             PawnGraphicSet graphics = pawn.Drawer.renderer.graphics;
@@ -302,20 +302,20 @@ namespace FacialStuff.AnimatorWindows
             {
                 bodyRect.y += EditorWalkcycle.BodyOffsetZ.Evaluate(AnimationPercent);
             }
+
+            Matrix4x4 matrix = GUI.matrix;
+
             if (EditorWalkcycle.BodyAngle.PointsCount > 0)
             {
-                GUIUtility.RotateAroundPivot(EditorWalkcycle.BodyAngle.Evaluate(AnimationPercent), position.center);
-            }            
-
-
+                GUIUtility.RotateAroundPivot(EditorWalkcycle.BodyAngle.Evaluate(AnimationPercent), bodyRect.center);
+            }
             List<Material> list = graphics.MatsBodyBaseAt(BodyRot);
             foreach (Material mat in list)
             {
                 GUI.DrawTexture(bodyRect, mat.mainTexture);
             }
 
-            GUI.matrix = Matrix4x4.identity;
-
+            GUI.matrix = matrix;
 
             // Draw Feet
             Material rightFootMat = this.CompAnim.pawnBodyGraphic?.FootGraphicRight?.MatAt(BodyRot);
@@ -323,8 +323,17 @@ namespace FacialStuff.AnimatorWindows
             Material leftShadowMat = this.CompAnim.pawnBodyGraphic?.FootGraphicLeftShadow?.MatAt(BodyRot);
             Material rightShadowMat = this.CompAnim.pawnBodyGraphic?.FootGraphicRightShadow?.MatAt(BodyRot);
 
-            GUI.DrawTexture(leftFootRect, leftFootMat.mainTexture);
-            GUI.DrawTexture(rightFootRect, rightFootMat.mainTexture);
+            if (EditorWalkcycle.FootAngle.PointsCount > 0)
+            {
+                 GUIUtility.RotateAroundPivot(footAngleLeft, leftFootRect.center);
+                 GUI.DrawTexture(leftFootRect, leftFootMat.mainTexture);
+                 GUI.matrix = matrix;
+                 GUIUtility.RotateAroundPivot(footAngleRight, leftFootRect.center);
+                 GUI.DrawTexture(rightFootRect, rightFootMat.mainTexture);
+                 GUI.matrix = matrix;
+            }
+
+
 
 
             //GUI.DrawTexture(position, PortraitsCache.Get(pawn, size, BodyRot, new Vector3(0f, 0f, 0.1f), this.Zoom));
@@ -333,7 +342,7 @@ namespace FacialStuff.AnimatorWindows
             // Widgets.DrawBox(rect);
         }
 
-         private static void AddVec3ToRect(Rect rect, Vector3 vec3)
+         private static void AddVec3ToRect(ref Rect rect, Vector3 vec3)
          {
              rect.x += vec3.x;
              rect.y += vec3.z;

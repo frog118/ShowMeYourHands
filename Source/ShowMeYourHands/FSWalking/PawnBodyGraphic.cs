@@ -84,10 +84,10 @@ namespace FacialStuff.GraphicsFS
 
         private void InitializeGraphicsFeet()
         {
-            string texNameFoot = CompAni.TexNameFoot();
-            if (CompAni.BodyAnim != null)
+            if (CompAni?.BodyAnim != null)
             {
-                string texNameArtificial = PawnExtensions.PathHumanlike + "Feet/" + CompAni.BodyAnim.handType + "_PegLeg";
+                string texNameFoot = CompAni.BodyAnim.footTexPath;
+                string texNameArtificial = PawnExtensions.PathHumanlike + "Feet/Human_PegLeg";
 
                 // no story, either animal or not humanoid biped
 
@@ -165,13 +165,13 @@ namespace FacialStuff.GraphicsFS
                 return;
 
             }
-            if (this.CompAni.BodyAnim.handType.NullOrEmpty())
+            if (this.CompAni.BodyAnim.handTexPath.NullOrEmpty())
             {
                 return;
 
             }
 
-            string texNameFoot = this.CompAni.TexNameFrontPaws();
+            string texNameFoot = this.CompAni.BodyAnim.handTexPath;
 
             Color skinColor;
             if (this._pawn.story != null)
@@ -261,12 +261,12 @@ namespace FacialStuff.GraphicsFS
                 return;
             }
 
-            if (this.CompAni.BodyAnim.handType.NullOrEmpty())
+            if (this.CompAni.BodyAnim.handTexPath.NullOrEmpty())
             {
                 return;
 
             }
-            string texNameHand = this.CompAni.TexNameHand();
+            string texNameHand = this.CompAni.BodyAnim.handTexPath;
 
             Color rightColorHand = Color.cyan;
             Color leftColorHand = Color.magenta;

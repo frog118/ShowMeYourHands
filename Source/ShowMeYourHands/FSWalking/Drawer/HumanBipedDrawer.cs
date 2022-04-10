@@ -149,7 +149,7 @@ namespace FacialStuff
             Rot4 rot = this.compAnimator.CurrentRotation;
 
             // Basic values
-            var body = this.compAnimator.BodyAnim;
+            BodyAnimDef body = this.compAnimator.BodyAnim;
             if (body == null)
             {
                 return;
@@ -176,9 +176,10 @@ namespace FacialStuff
                                         ref offsetJoint,
                                         cycle.FootPositionX,
                                         cycle.FootPositionZ,
-                                        cycle.FootAngle);
+                                        cycle.FootAngle, compAnimator.MovedPercent, compAnimator.CurrentRotation);
             }
             float bodysizeScaling = compAnimator.GetBodysizeScaling();
+
 
             // pawn jumping too high,move the feet
             if (!compAnimator.IsMoving && pawn.GetPosture() == PawnPosture.Standing)
@@ -186,7 +187,7 @@ namespace FacialStuff
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
-                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 2f)
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 3f)
                 {
                     float step = 0.025f;
                     footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
@@ -247,6 +248,7 @@ namespace FacialStuff
             groundPos.RightJoint = drawQuat * groundPos.RightJoint;
             leftFootCycle = drawQuat * leftFootCycle;
             rightFootCycle = drawQuat * rightFootCycle;
+
             Vector3 ground = rootLoc + drawQuat * new Vector3(0, 0, OffsetGroundZ) * bodysizeScaling;
 
             if (drawLeft)
@@ -260,11 +262,11 @@ namespace FacialStuff
                     // tweener.PreThingPosCalculation(leftFoot, spring: SpringTightness.Stff);
 
                     Graphics.DrawMesh(
-                                               footMeshLeft,
-                                               position, // tweener.TweenedPartsPos[(int)leftFoot],
-                                               drawQuat * Quaternion.AngleAxis(footAngleLeft, Vector3.up),
-                                               matLeft,
-                                               0);
+                        footMeshLeft,
+                        position, // tweener.TweenedPartsPos[(int)leftFoot],
+                        drawQuat * Quaternion.AngleAxis(footAngleLeft, Vector3.up),
+                        matLeft,
+                        0);
                 }
             }
 
@@ -350,9 +352,13 @@ namespace FacialStuff
             }
             float bodysizeScaling = compAnimator.GetBodysizeScaling();
 
+
             this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
             bool hasSecondWeapon = false;
             ThingWithComps eq = pawn?.equipment?.Primary;
+            bool leftBehind = false;
+            bool rightBehind = false;
+
             if (eq != null && pawn?.CurJob?.def != null && !pawn.CurJob.def.neverShowWeapon)
             {
                 Type baseType = pawn.Drawer.renderer.GetType();
@@ -360,10 +366,17 @@ namespace FacialStuff
                 object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
-                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f, out hasSecondWeapon);
+                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f, out hasSecondWeapon, out leftBehind, out rightBehind);
                 }
             }
-
+            /*
+            if (carriedThing != null)
+            {
+                this.compAnimator.DoHandOffsetsOnWeapon(carriedThing,
+                    this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f, out _, out _,
+                    out _);
+            }
+            */
             // return if hands already drawn on carrything
             bool carrying = this.CarryStuff();
 
@@ -379,13 +392,13 @@ namespace FacialStuff
             bool poschanged = false;
             if (animationAngle != 0f)
             {
-                animationAngle *= 4;
+                animationAngle *= 4.5f;
                 bodyQuat *= Quaternion.AngleAxis(animationAngle, Vector3.up);
             }
 
             if (animationPosOffset != Vector3.zero)
             {
-                drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.3f * bodysizeScaling;
+                drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.35f * bodysizeScaling;
 
                 //this.compAnimator.FirstHandPosition += animationPosOffset.RotatedBy(animationAngle);
                 //this.compAnimator.SecondHandPosition += animationPosOffset.RotatedBy(-animationAngle);
@@ -432,7 +445,6 @@ namespace FacialStuff
             {
                 float offsetJoint = walkCycle.ShoulderOffsetHorizontalX.Evaluate(this.compAnimator.MovedPercent);
 
-                // Children's arms are way too long
                 this.compAnimator.DoWalkCycleOffsets(
                                         body.armLength,
                                         ref rightHandVector,
@@ -487,11 +499,20 @@ namespace FacialStuff
                 Quaternion quat;
                 Vector3 position;
                 bool noTween = false;
-                if (hasSecondWeapon ||
-                    (!this.compAnimator.IsMoving && this.compAnimator.SecondHandPosition != Vector3.zero))
+                if (hasSecondWeapon || 
+                    this.compAnimator.SecondHandPosition != Vector3.zero && pawn.stances.curStance is Stance_Busy stance_Busy && !stance_Busy.neverAimWeapon && stance_Busy.focusTarg.IsValid)
                 {
                     position = this.compAnimator.SecondHandPosition;
                     quat = this.compAnimator.SecondHandQuat * Quaternion.AngleAxis(90f, Vector3.up);
+                    if (compAnimator.CurrentRotation == Rot4.East) // put the second hand behind while turning right
+                    {
+                        quat *= Quaternion.AngleAxis(180f, Vector3.up);
+                    }
+
+                    if (leftBehind)
+                    {
+                        matLeft = this.LeftHandShadowMat;
+                    }
                     noTween = true;
                 }
                 else
@@ -528,6 +549,15 @@ namespace FacialStuff
                 {
                     quat = this.compAnimator.FirstHandQuat * Quaternion.AngleAxis(-90f, Vector3.up);
                     position = this.compAnimator.FirstHandPosition;
+                    if (compAnimator.CurrentRotation == Rot4.West) // put the second hand behind while turning right
+                    {
+                        quat *= Quaternion.AngleAxis(180f, Vector3.up);
+                    }
+                    if (rightBehind)
+                    {
+                        matRight = this.RightHandShadowMat;
+                    }
+
                     noTween = true;
                 }
                 else

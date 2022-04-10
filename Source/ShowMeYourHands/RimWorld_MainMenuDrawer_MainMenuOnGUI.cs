@@ -13,7 +13,7 @@ namespace ShowMeYourHands;
 [HarmonyPatch(typeof(MainMenuDrawer), "MainMenuOnGUI")]
 public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
 {
-    private static bool alreadyRun;
+    public static bool alreadyRun;
 
     private static List<ThingDef> doneWeapons = new();
 
@@ -34,7 +34,8 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
         MethodInfo prefix = typeof(PawnRenderer_DrawEquipmentAiming).GetMethod("SaveWeaponLocation");
         if (patches is null)
         {
-            ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.High));
+            ShowMeYourHandsMain.LogMessage("There seem to be no patches for DrawEquipmentAiming");
+                ShowMeYourHandsMain.harmony.Patch(original, new HarmonyMethod(prefix, Priority.High));
             return;
         }
 
@@ -242,7 +243,15 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                             .ContainsKey(keyValuePair.Key) == true
                             ? ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key]
                                 .ToVector3()
-                            : Vector3.zero
+                            : Vector3.zero,
+                    MainHandAngle = keyValuePair.Value.ToAngleFloat(),
+                    SecHandAngle =
+                        ShowMeYourHandsMod.instance?.Settings?.ManualOffHandPositions
+                            .ContainsKey(keyValuePair.Key) == true
+                            ? ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key]
+                                .ToAngleFloat()
+                            : 0f,
+
                 };
                 weapon.comps.Add(compProps);
             }
@@ -309,10 +318,12 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                             MainHand = weaponSets.MainHand,
                             SecHand = weaponSets.SecHand,
 
-                            AttackAngleOffset = weaponSets.AttackAngleOffset,
                             WeaponPositionOffset = weaponSets.WeaponPositionOffset,
-                            AimedWeaponPositionOffset = weaponSets.AimedWeaponPositionOffset
-                        };
+                            AimedWeaponPositionOffset = weaponSets.AimedWeaponPositionOffset,
+                            MainHandAngle = weaponSets.MainHandAngle,
+                            SecHandAngle = weaponSets.SecHandAngle
+
+                    };
                         weapon.comps.Add(compProps);
                     }
                     else
@@ -320,9 +331,11 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
                         compProps.MainHand = weaponSets.MainHand;
                         compProps.SecHand = weaponSets.SecHand;
                         
-                        compProps.AttackAngleOffset = weaponSets.AttackAngleOffset;
                         compProps.WeaponPositionOffset = weaponSets.WeaponPositionOffset;
                         compProps.AimedWeaponPositionOffset = weaponSets.AimedWeaponPositionOffset;
+
+                        compProps.MainHandAngle = weaponSets.MainHandAngle;
+                        compProps.SecHandAngle = weaponSets.SecHandAngle;
 
                     }
 

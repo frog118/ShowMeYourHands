@@ -6,18 +6,34 @@ namespace ShowMeYourHands;
 
 internal class SaveableVector3
 {
+    private SaveableVector3(float x, float y, float z, float angle)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.angle = angle;
+    }
     private SaveableVector3(float x, float y, float z)
     {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.angle = angle;
     }
 
+    public SaveableVector3(Vector3 vector3, float number)
+    {
+        x = vector3.x;
+        y = vector3.y;
+        z = vector3.z;
+        angle = number;
+    }
     public SaveableVector3(Vector3 vector3)
     {
         x = vector3.x;
         y = vector3.y;
         z = vector3.z;
+        angle = 0f;
     }
 
     private float x { get; }
@@ -25,14 +41,16 @@ internal class SaveableVector3
     private float y { get; }
 
     private float z { get; }
+    private float angle { get; }
 
     public override string ToString()
     {
-        return string.Format("({0:F3}, {1:F3}, {2:F3})", new object[]
+        return string.Format("({0:F3}, {1:F3}, {2:F3}, {3:F3})", new object[]
         {
             x,
             y,
-            z
+            z,
+            angle
         });
     }
 
@@ -45,11 +63,23 @@ internal class SaveableVector3
         float x = Convert.ToSingle(array[0], invariantCulture);
         float y = Convert.ToSingle(array[1], invariantCulture);
         float z = Convert.ToSingle(array[2], invariantCulture);
-        return new SaveableVector3(x, y, z);
+        if (array.Length > 3)
+        {
+            float angle = Convert.ToSingle(array[3], invariantCulture);
+            return new SaveableVector3(x, y, z, angle);
+        }
+        else
+        {
+            return new SaveableVector3(x, y, z);
+        }
     }
 
     public Vector3 ToVector3()
     {
         return new Vector3(x, y, z);
+    }    
+    public float ToAngleFloat()
+    {
+        return angle;
     }
 }

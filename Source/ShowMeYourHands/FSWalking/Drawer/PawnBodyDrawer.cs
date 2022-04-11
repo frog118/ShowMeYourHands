@@ -35,9 +35,7 @@ namespace FacialStuff
         public virtual void ApplyBodyWobble(ref Vector3 rootLoc, ref Vector3 footPos)
         {
         }
-        public virtual void DrawApparel(Quaternion quat, Vector3 vector, bool renderBody, PawnRenderFlags flags)
-        {
-        }
+
         public virtual List<Material> BodyBaseAt(
             PawnGraphicSet graphics,
             Rot4 bodyFacing,
@@ -52,19 +50,19 @@ namespace FacialStuff
             return false;
         }
 
-        public virtual void DrawPawnBody(Vector3 rootLoc, float angle, Rot4 facing, RotDrawMode bodyDrawType, PawnRenderFlags flags, out Mesh bodyMesh)
-        {
-            bodyMesh = null;
-        }
-
-        public virtual void DrawEquipment(Vector3 rootLoc, bool portrait)
-        {
-        }
         public virtual void DrawAlienBodyAddons(PawnRenderFlags flags, Vector3 rootLoc, Quaternion quat, bool renderBody,
             Rot4 rotation, bool invisible)
         {
             // Just for the Aliens
         }
+
+        public virtual void DrawApparel(Quaternion quat, Vector3 vector, bool renderBody, PawnRenderFlags flags)
+        {
+        }
+        public virtual void DrawEquipment(Vector3 rootLoc, bool portrait)
+        {
+        }
+
         public virtual void DrawFeet(Quaternion drawQuat, Vector3 rootLoc, Vector3 bodyLoc)
         {
         }
@@ -75,6 +73,10 @@ namespace FacialStuff
 
         }
 
+        public virtual void DrawPawnBody(Vector3 rootLoc, float angle, Rot4 facing, RotDrawMode bodyDrawType, PawnRenderFlags flags, out Mesh bodyMesh)
+        {
+            bodyMesh = null;
+        }
         public virtual void Initialize()
         {
         }

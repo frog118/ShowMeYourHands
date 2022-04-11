@@ -1,14 +1,10 @@
-﻿using FacialStuff.DefOfs;
-using FacialStuff.Defs;
-using FacialStuff.GraphicsFS;
+﻿using FacialStuff.Defs;
 using JetBrains.Annotations;
 using RimWorld;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FacialStuff.Animator;
-using ShowMeYourHands.FSWalking;
 using ShowMeYourHands.FSWalking.Animator;
 using UnityEngine;
 using Verse;

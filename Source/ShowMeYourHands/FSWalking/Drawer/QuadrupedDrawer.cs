@@ -1,6 +1,4 @@
 ﻿using RimWorld;
-using System.Linq;
-using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 
@@ -54,7 +52,7 @@ namespace FacialStuff
             }
 
             // Basic values
-            var body = this.compAnimator.BodyAnim;
+            BodyAnimDef body = this.compAnimator.BodyAnim;
 
             Rot4 rot = this.compAnimator.CurrentRotation;
             if (body == null)
@@ -81,7 +79,7 @@ namespace FacialStuff
             float footAngleLeft = 0f;
             float offsetJoint = 0;
 
-            WalkCycleDef cycle = this.compAnimator.WalkCycle;
+            WalkCycleDef cycle = this.compAnimator.CurrentWalkCycle;
 
 
             if (cycle != null && compAnimator.IsMoving)

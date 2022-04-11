@@ -23,6 +23,7 @@
     <Compile Remove="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <Compile Remove="FSWalking\SimpleCurve_Extension.cs" />
     <Compile Remove="FSWalking\SkinColors\PawnSkinColors_FS.cs" />
+    <Compile Remove="FSWalking\___testClass.cs" />
     <Compile Remove="HandDrawer.cs" />
     <Compile Remove="SaveableFloat.cs" />
   </ItemGroup>
@@ -41,6 +42,7 @@
     <None Include="FSWalking\Harmony\DrawEquipmentAiming_Patch.cs" />
     <None Include="FSWalking\SimpleCurve_Extension.cs" />
     <None Include="FSWalking\SkinColors\PawnSkinColors_FS.cs" />
+    <None Include="FSWalking\___testClass.cs" />
     <None Include="HandDrawer.cs" />
     <None Include="SaveableFloat.cs" />
   </ItemGroup>

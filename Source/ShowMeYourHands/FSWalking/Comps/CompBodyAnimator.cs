@@ -17,6 +17,8 @@ namespace FacialStuff
     [StaticConstructorOnStartup]
     public class CompBodyAnimator : ThingComp
     {
+        private const float animationFactorForSmoothing = 0.5f;
+
         #region Public Fields
 
         public readonly Vector3Tween[] Vector3Tweens = new Vector3Tween[(int)TweenThing.Max];
@@ -34,7 +36,7 @@ namespace FacialStuff
         //[CanBeNull] public PoseCycleDef PoseCycle;
         public Vector3 SecondHandPosition;
 
-        public WalkCycleDef WalkCycle { get; private set; }
+        public WalkCycleDef CurrentWalkCycle { get; private set; }
 
         public void DoWalkCycleOffsets(ref Vector3 rightFoot,
                     ref Vector3 leftFoot,
@@ -45,8 +47,6 @@ namespace FacialStuff
             SimpleCurve offsetZ,
             SimpleCurve angle, float percent, Rot4 rot)
         {
-            rightFoot = Vector3.zero;
-            leftFoot = Vector3.zero;
             footAngleRight = 0;
             footAngleLeft = 0;
             if (!this.IsMoving)
@@ -64,6 +64,60 @@ namespace FacialStuff
             {
                 flot -= 0.5f;
             }
+
+            WalkCycleDef currentCycle = this.CurrentWalkCycle;
+            WalkCycleDef lastCycle = this.lastWalkCycle;
+            float lerpFactor = 1f;
+            if (currentCycle != lastCycle && lastCycle != null)
+            {
+                if (percent < animationFactorForSmoothing)
+                {
+                    lerpFactor = Mathf.InverseLerp(0f, animationFactorForSmoothing, percent);
+                }
+                else
+                {
+                    this.lastWalkCycle = currentCycle;
+                }
+            }
+
+            float footAngleRightLerp = footAngleRight;
+            float footAngleLeftLerp = footAngleLeft;
+            float offsetJointLerp = offsetJoint;
+
+            GetWalkCycleOffsetsFeet(out rightFoot, out leftFoot, ref footAngleRight, ref footAngleLeft, ref offsetJoint, offsetX, offsetZ, angle, percent, rot, flot);
+
+            if (lerpFactor < 1f)
+            {
+                GetWalkCycleOffsetsFeet(out Vector3 rightFootLerp, out Vector3 leftFootLerp, ref footAngleRightLerp,
+                    ref footAngleLeftLerp, ref offsetJointLerp, offsetX, offsetZ, angle, percent, rot, flot);
+
+                rightFoot = Vector3.Lerp(rightFootLerp, rightFoot, lerpFactor);
+                leftFoot = Vector3.Lerp(leftFootLerp, leftFoot, lerpFactor);
+                footAngleRight = Mathf.Lerp(footAngleRightLerp, footAngleRight, lerpFactor);
+                footAngleLeft = Mathf.Lerp(footAngleLeftLerp, footAngleLeft, lerpFactor);
+                offsetJoint = Mathf.Lerp(offsetJointLerp, offsetJoint, lerpFactor);
+
+
+            }
+
+            // smaller steps for smaller pawns
+            if (bodysizeScaling < 1f)
+            {
+                SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
+                float mod = curve.Evaluate(bodysizeScaling);
+                rightFoot.x *= mod;
+                rightFoot.z *= mod;
+                leftFoot.x *= mod;
+                leftFoot.z *= mod;
+            }
+        }
+
+        private static void GetWalkCycleOffsetsFeet(out Vector3 rightFoot, out Vector3 leftFoot, ref float footAngleRight,
+            ref float footAngleLeft, ref float offsetJoint, SimpleCurve offsetX, SimpleCurve offsetZ, SimpleCurve angle,
+            float percent, Rot4 rot, float flot)
+        {
+            rightFoot = Vector3.zero;
+            leftFoot = Vector3.zero;
 
             if (rot.IsHorizontal)
             {
@@ -93,18 +147,8 @@ namespace FacialStuff
                 leftFoot.z = offsetZ.Evaluate(flot);
                 offsetJoint = 0;
             }
-
-            // smaller steps for smaller pawns
-            if (bodysizeScaling < 1f)
-            {
-                SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
-                float mod = curve.Evaluate(bodysizeScaling);
-                rightFoot.x *= mod;
-                rightFoot.z *= mod;
-                leftFoot.x *= mod;
-                leftFoot.z *= mod;
-            }
         }
+
         public void DoWalkCycleOffsets(
         float armLength,
         ref Vector3 rightHand,
@@ -112,7 +156,6 @@ namespace FacialStuff
         ref float shoulderAngle,
         ref List<float> handSwingAngle,
         ref JointLister shoulderPos,
-        SimpleCurve cycleHandsSwingAngle,
         float offsetJoint)
         {
             // Has the pawn something in his hands?
@@ -154,28 +197,38 @@ namespace FacialStuff
             // Swing the hands, try complete the cycle
             if (this.IsMoving)
             {
-                WalkCycleDef walkCycle = this.WalkCycle;
+                WalkCycleDef currentCycle = this.CurrentWalkCycle;
+                WalkCycleDef lastCycle = this.lastWalkCycle;
                 float percent = this.MovedPercent;
-                if (rot.IsHorizontal)
+                float lerpFactor = 1f;
+                if (currentCycle != lastCycle && lastCycle != null)
                 {
-                    float lookie = rot == Rot4.West ? -1f : 1f;
-                    float f = lookie * offsetJoint;
-
-                    shoulderAngle = lookie * walkCycle?.shoulderAngle ?? 0f;
-
-                    shoulderPos.RightJoint.x += f;
-                    shoulderPos.LeftJoint.x += f;
-
-                    handSwingAngle[0] = handSwingAngle[1] =
-                                        (rot == Rot4.West ? -1 : 1) * cycleHandsSwingAngle.Evaluate(percent);
+                    if (percent < animationFactorForSmoothing)
+                    {
+                        lerpFactor = Mathf.InverseLerp(0f, animationFactorForSmoothing, percent);
+                    }
+                    else
+                    {
+                        this.lastWalkCycle = currentCycle;
+                    }
                 }
-                else
-                {
-                    z += cycleHandsSwingAngle.Evaluate(percent) / 500;
-                    z2 -= cycleHandsSwingAngle.Evaluate(percent) / 500;
 
-                    z += walkCycle?.shoulderAngle / 800 ?? 0f;
-                    z2 += walkCycle?.shoulderAngle / 800 ?? 0f;
+                JointLister lerpShoulderPos = shoulderPos;
+                float lerpZ = z;
+                float lerpZ2 = z2;
+
+                GetWalkCycleOffsetsHands(handSwingAngle, offsetJoint, rot, currentCycle, percent, out shoulderAngle, ref shoulderPos, ref z, ref z2);
+
+                if (lerpFactor < 1f)
+                {
+                    GetWalkCycleOffsetsHands(handSwingAngle, offsetJoint, rot, lastCycle, percent, out float lerpShoulderAngle, ref lerpShoulderPos, ref lerpZ, ref lerpZ2);
+
+                    shoulderAngle = Mathf.Lerp(lerpShoulderAngle, shoulderAngle, lerpFactor);
+                    shoulderPos.LeftJoint = Vector3.Lerp(lerpShoulderPos.LeftJoint, shoulderPos.LeftJoint, lerpFactor);
+                    shoulderPos.RightJoint = Vector3.Lerp(lerpShoulderPos.RightJoint, shoulderPos.RightJoint, lerpFactor);
+                    z = Mathf.Lerp(lerpZ, z, lerpFactor);
+                    z2 = Mathf.Lerp(lerpZ2, z2, lerpFactor);
+
                 }
             }
 
@@ -196,6 +249,35 @@ namespace FacialStuff
 
             lastMainHandPosition = rightHand;
         }
+
+        private static void GetWalkCycleOffsetsHands(List<float> handSwingAngle, float offsetJoint,
+            Rot4 rot, WalkCycleDef currentCycle, float percent, out float shoulderAngle, ref JointLister shoulderPos,
+            ref float z, ref float z2)
+        {
+            if (rot.IsHorizontal)
+            {
+                float lookie = rot == Rot4.West ? -1f : 1f;
+                float f = lookie * offsetJoint;
+
+                shoulderAngle = lookie * currentCycle?.shoulderAngle ?? 0f;
+
+                shoulderPos.RightJoint.x += f;
+                shoulderPos.LeftJoint.x += f;
+
+                handSwingAngle[0] = handSwingAngle[1] =
+                    (rot == Rot4.West ? -1 : 1) * currentCycle.HandsSwingAngle.Evaluate(percent);
+            }
+            else
+            {
+                shoulderAngle = 0f;
+                z += currentCycle.HandsSwingAngle.Evaluate(percent) / 500;
+                z2 -= currentCycle.HandsSwingAngle.Evaluate(percent) / 500;
+
+                z += currentCycle?.shoulderAngle / 800 ?? 0f;
+                z2 += currentCycle?.shoulderAngle / 800 ?? 0f;
+            }
+        }
+
         #endregion Public Fields
 
         #region Private Fields
@@ -302,14 +384,14 @@ namespace FacialStuff
 
         public override string CompInspectStringExtra()
         {
-            if (!ShowMeYourHandsMod.instance.Settings.VerboseLogging || this.WalkCycle == null || pawn.pather == null)
+            if (!ShowMeYourHandsMod.instance.Settings.VerboseLogging || this.CurrentWalkCycle == null || pawn.pather == null)
             {
                 return base.CompInspectStringExtra();
             }
             float numbie = pawn.TicksPerMoveCardinal / pawn.pather.nextCellCostTotal;
 
-            var text = "Walkcycle: " + this.WalkCycle.defName + ", MoveSpeed: " + numbie.ToString("N2") + "\nTicksPerMoveCardinal: " +
-                       pawn.TicksPerMoveCardinal + " nextCellCostTotal: " + pawn.pather.nextCellCostTotal;
+            string text = "Walkcycle: " + this.CurrentWalkCycle.defName + ", MoveSpeed: " + numbie.ToString("N2") + "\nTicksPerMoveCardinal: " +
+                          pawn.TicksPerMoveCardinal + " nextCellCostTotal: " + pawn.pather.nextCellCostTotal;
             return text;
             // var tween = Vector3Tweens[(int)TweenThing.Equipment];
             // var log = tween.State + " =>"+  tween.StartValue + " - " + tween.EndValue + " / " + tween.CurrentTime + " / " + tween.CurrentValue;
@@ -465,7 +547,7 @@ namespace FacialStuff
 
         public void SetBodyAngle()
         {
-            WalkCycleDef walkCycle = this.WalkCycle;
+            WalkCycleDef walkCycle = this.CurrentWalkCycle;
             if (walkCycle == null) return;
 
             float movedPercent = this.MovedPercent;
@@ -572,7 +654,7 @@ namespace FacialStuff
             {
                 if (ShowMeYourHandsMod.instance.Settings.UseFeet)
                 {
-                    WalkCycleDef walkCycle = this.WalkCycle;
+                    WalkCycleDef walkCycle = this.CurrentWalkCycle;
 
                     SimpleCurve curve = walkCycle.BodyOffsetZ;
                     if (curve.PointsCount > 0)
@@ -601,7 +683,7 @@ namespace FacialStuff
             {
                 if (ShowMeYourHandsMod.instance.Settings.UseFeet)
                 {
-                    WalkCycleDef walkCycle = this.WalkCycle;
+                    WalkCycleDef walkCycle = this.CurrentWalkCycle;
                     if (walkCycle != null)
                     {
                         SimpleCurve curve = walkCycle.HeadAngleX;
@@ -622,7 +704,7 @@ namespace FacialStuff
             {
                 if (ShowMeYourHandsMod.instance.Settings.UseFeet)
                 {
-                    WalkCycleDef walkCycle = this.WalkCycle;
+                    WalkCycleDef walkCycle = this.CurrentWalkCycle;
                     if (walkCycle != null)
                     {
                         SimpleCurve curve = walkCycle.HeadOffsetZ;
@@ -1074,9 +1156,12 @@ namespace FacialStuff
             return PawnExtensions.pawnBodySizes[pawn];
         }
 
-        public void SetWalkCycle(WalkCycleDef walkCycleDef)
+        private WalkCycleDef lastWalkCycle;
+
+        public void SetWalkCycle(WalkCycleDef newWalkCycleDef)
         {
-            this.WalkCycle = walkCycleDef;
+            this.lastWalkCycle = this.CurrentWalkCycle;
+            this.CurrentWalkCycle = newWalkCycleDef;
         }
 
 
@@ -1172,7 +1257,7 @@ namespace FacialStuff
             }
             return num;
         }
-
+        private static bool doSmoothWalk = false;
         private float PawnMovedPercent(Pawn pawn)
         {
             this.IsMoving = false;
@@ -1246,10 +1331,11 @@ namespace FacialStuff
             */
             this.IsMoving = true;
             // revert the walkcycle for drafted shooters
+            float cellCostFactor = pather.nextCellCostLeft / pather.nextCellCostTotal;
+            bool invert = false;
             if (CurrentRotation.IsHorizontal && CurrentRotation.FacingCell != pather.nextCell)
             {
                 IntVec3 intVec = pather.nextCell - pawn.Position;
-                bool invert = false;
                 if (intVec.x > 0)
                 {
                     invert = CurrentRotation != Rot4.East;
@@ -1266,13 +1352,40 @@ namespace FacialStuff
                 {
                     invert = CurrentRotation != Rot4.South;
                 }
-                if (invert)
-                {
-                    return pather.nextCellCostLeft / pather.nextCellCostTotal;
-                }
             }
 
-            return 1f - pather.nextCellCostLeft / pather.nextCellCostTotal;
+            if (!pather.MovedRecently(60)) // pawn starts walking
+            {
+                doSmoothWalk = true;
+            }
+            else if (pather.Destination.Cell == pather.nextCell && cellCostFactor > 0.5f) // slow down when reaching target
+            {
+                cellCostFactor = EasingFunction.EaseOutCubic(0.5f, 1f, Mathf.Lerp(0.5f, 1f, cellCostFactor));
+            }
+
+
+
+            if (doSmoothWalk)
+            {
+                if (pather.curPath?.LastNode == pather.nextCell)
+                {
+                    cellCostFactor = EasingFunction.EaseOutCubic(0f, 1f, Mathf.Lerp(0f, 1f, cellCostFactor));
+                }
+                else if (cellCostFactor < 0.5f)
+                {
+                    cellCostFactor = EasingFunction.EaseOutCubic(0f, 0.5f, Mathf.Lerp(0, 0.5f, cellCostFactor));
+                }
+            }
+            else
+            {
+                doSmoothWalk = false;
+            }
+            
+            if (!invert)
+            {
+                cellCostFactor = 1f - cellCostFactor;
+            }
+            return cellCostFactor;
         }
     }
 }

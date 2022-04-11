@@ -1,11 +1,9 @@
 ﻿// ReSharper disable StyleCop.SA1401
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ColorMine.ColorSpaces;
 using ColorMine.ColorSpaces.Comparisons;
-using JetBrains.Annotations;
 using RimWorld;
 using ShowMeYourHands;
 using UnityEngine;
@@ -113,7 +111,7 @@ namespace FacialStuff.GraphicsFS
 
 
                 Vector2 drawSize = new(1f,1f);
-                var stats = this.CompAni.BodyStat;
+                BodyPartStats stats = this.CompAni.BodyStat;
                 this.FootGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                     CompAni.BodyStat.FootRight == PartStatus.Artificial ? texNameArtificial : texNameFoot,
                     GetShader(stats.FootRight),
@@ -277,13 +275,13 @@ namespace FacialStuff.GraphicsFS
 
             Color metal = new(0.51f, 0.61f, 0.66f);
 
-            var leftHandColor = this.CompAni.HandColorLeft;
-            var rightHandColor = this.CompAni.HandColorRight;
+            Color leftHandColor = this.CompAni.HandColorLeft;
+            Color rightHandColor = this.CompAni.HandColorRight;
 
             Color leftHandColorShadow = leftHandColor * this._shadowColor;
             Color rightHandColorShadow = rightHandColor * this._shadowColor;
 
-            var stats = this.CompAni.BodyStat;
+            BodyPartStats stats = this.CompAni.BodyStat;
             Vector2 drawSize = new(1f, 1f);
             this.HandGraphicRight = GraphicDatabase.Get<Graphic_Multi>(
                 texNameHand,

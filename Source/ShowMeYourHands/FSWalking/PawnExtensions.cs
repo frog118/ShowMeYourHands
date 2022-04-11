@@ -1,14 +1,10 @@
-﻿using ColorMine.ColorSpaces;
-using ColorMine.ColorSpaces.Comparisons;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using RimWorld;
-using ShowMeYourHands;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
 using Verse.AI;
-using static System.Byte;
 
 namespace FacialStuff
 {

@@ -5,13 +5,11 @@ using System.Reflection;
 using HarmonyLib;
 using JetBrains.Annotations;
 using RimWorld;
-using ShowMeYourHands.FSWalking;
 using UnityEngine;
 using Verse;
 
 namespace ShowMeYourHands;
 
-[StaticConstructorOnStartup]
 public static class ShowMeYourHandsMain
 {
     public static readonly Dictionary<Thing, Tuple<Vector3, float>> weaponLocations = new();

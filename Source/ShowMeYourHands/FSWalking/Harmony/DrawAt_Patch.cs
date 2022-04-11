@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using FacialStuff;
-using FacialStuff.Animator;
 using FacialStuff.Tweener;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -9,6 +8,7 @@ using UnityEngine;
 using Verse;
 
 namespace ShowMeYourHands.FSWalking;
+
 [HarmonyPriority(0)]
 [HarmonyPatch(typeof(Pawn_DrawTracker), "DrawAt")]
 class DrawAt_Patch
@@ -79,9 +79,6 @@ class DrawAt_Patch
 
         }
 
-        Vector3 pos = __state;
-        Vector3 bodyLoc = loc;
-
         float bodyAngle = __instance.renderer.BodyAngle();
         // adding the pdd angle offset. could be a bug, but looks ok
         float handAngle = bodyAngle - animator.Offset_Angle;
@@ -92,18 +89,18 @@ class DrawAt_Patch
         
         if (bodysizeScaling < 1f)
         {
-            var diffi = Mathf.Abs(1f - bodysizeScaling) / 3;
-            pos.z -= diffi;
-            bodyLoc.z -= diffi * 1.6f;
+            float diffi = Mathf.Abs(1f - bodysizeScaling) / 3;
+            __state.z -= diffi;
+            loc.z -= diffi * 1.6f;
         }
         
         // add the offset to the hand as its tied to the body
-        bodyLoc += animator.Offset_Pos;
+        loc += animator.Offset_Pos;
 
         //keep the feet on the ground and steady. rotation and pos offset only in bed
         if (!isStanding)
         {
-            pos += animator.Offset_Pos;
+            __state += animator.Offset_Pos;
         }
 
         // Log.ErrorOnce("Scaled size: " + pawn + " - " + bodysizeScaling + " - " + loc + " - " + pos, Mathf.FloorToInt(bodysizeScaling * 100));
@@ -161,11 +158,11 @@ class DrawAt_Patch
         // feet shouldn't rotate while standing. 
         if (ShowMeYourHandsMod.instance.Settings.UseFeet)
         {
-            animator?.DrawFeet(footQuat, pos, bodyLoc);
+            animator?.DrawFeet(footQuat, __state, loc);
         }
         if (ShowMeYourHandsMod.instance.Settings.UseHands && pawn.carryTracker?.CarriedThing == null)
         {
-            animator?.DrawHands(handQuat, bodyLoc);
+            animator?.DrawHands(handQuat, loc);
         }
 #pragma warning restore CS0162
     }

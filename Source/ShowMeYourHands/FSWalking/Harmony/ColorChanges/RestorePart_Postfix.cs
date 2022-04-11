@@ -1,6 +1,5 @@
 ﻿using FacialStuff;
 using HarmonyLib;
-using RimWorld;
 using Verse;
 
 namespace ShowMeYourHands.FSWalking

@@ -1,43 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ColorMine.ColorSpaces;
-using ColorMine.ColorSpaces.Comparisons;
-using JetBrains.Annotations;
-using RimWorld;
-using ShowMeYourHands;
+﻿using JetBrains.Annotations;
+using System;
 using UnityEngine;
 using Verse;
-using static System.Byte;
 
 namespace FacialStuff
 {
-    public abstract class BasicDrawer
+    [AttributeUsage(AttributeTargets.All)]
+    public abstract class BasicDrawer : Attribute
     {
         #region Protected Fields
-
-
-
-
 
         [NotNull]
         public Pawn pawn;
 
-
         #endregion Protected Fields
-
-        #region Public Methods
-
-        protected virtual Mesh GetPawnMesh(bool wantsBody)
-        {
-            return MeshPool.humanlikeBodySet?.MeshAt(this.compAnimator.CurrentRotation);
-        }
-
-        #endregion Public Methods
 
         #region Protected Methods
 
+        [NotNull] public CompBodyAnimator compAnimator;
+
         protected JointLister GetJointPositions(JointType jointType, Vector3 offsets,
-                                                float jointWidth,
+                                                        float jointWidth,
                                                 bool carrying = false, bool armed = false)
         {
             Rot4 rot = this.compAnimator.CurrentRotation;
@@ -108,11 +91,6 @@ namespace FacialStuff
 
             return joints;
         }
-
-        [NotNull] public CompBodyAnimator compAnimator;
-
-
-
         #endregion Protected Methods
     }
 }

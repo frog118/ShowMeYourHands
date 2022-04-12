@@ -188,7 +188,7 @@ namespace FacialStuff
                 Vector3 footVector = rootLoc;
 
                 // Arms too far away from body
-                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.5f)
+                while (Vector3.Distance(bodyLoc, footVector) > body.extraLegLength * bodysizeScaling * 1.75f)
                 {
                     float step = 0.025f;
                     footVector = Vector3.MoveTowards(footVector, bodyLoc, step);
@@ -1111,15 +1111,15 @@ namespace FacialStuff
 
             float pawnMovesPerTick = pawn.TicksPerMoveCardinal / currentCellCostTotal;
             // the measured values were always > 0.2 and <=1
-            if (pawnMovesPerTick > 0.8f)
+            if (pawnMovesPerTick > 0.85f)
             {
                 locomotionUrgency = LocomotionUrgency.Sprint;
             }
-            else if (pawnMovesPerTick > 0.6f)
+            else if (pawnMovesPerTick > 0.65f)
             {
                 locomotionUrgency = LocomotionUrgency.Jog;
             }
-            else if (pawnMovesPerTick > 0.4f)
+            else if (pawnMovesPerTick > 0.45f)
             {
                 locomotionUrgency = LocomotionUrgency.Walk;
             }

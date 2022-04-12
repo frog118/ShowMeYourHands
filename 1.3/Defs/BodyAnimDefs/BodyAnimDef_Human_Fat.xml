@@ -4,6 +4,8 @@
     <thingTarget>Human</thingTarget>
     <handTexPath>Things/Pawn/Humanlike/Hands/Human_Hand</handTexPath>
     <footTexPath>Things/Pawn/Humanlike/Feet/Human_Foot</footTexPath>
+    <quadruped>False</quadruped>
+    <bipedWithHands>True</bipedWithHands>
     <armLength>0.35</armLength>
     <extremitySize>1.08</extremitySize>
     <walkCycles>

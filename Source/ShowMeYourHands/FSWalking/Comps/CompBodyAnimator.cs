@@ -384,7 +384,7 @@ namespace FacialStuff
 
         public override string CompInspectStringExtra()
         {
-            if (!ShowMeYourHandsMod.instance.Settings.VerboseLogging || this.CurrentWalkCycle == null || pawn.pather == null)
+            if (this.CurrentWalkCycle == null || pawn.pather == null)
             {
                 return base.CompInspectStringExtra();
             }
@@ -1353,7 +1353,8 @@ namespace FacialStuff
                     invert = CurrentRotation != Rot4.South;
                 }
             }
-
+            // not working as intended
+            /*
             if (!pather.MovedRecently(60)) // pawn starts walking
             {
                 doSmoothWalk = true;
@@ -1364,10 +1365,9 @@ namespace FacialStuff
             }
 
 
-
             if (doSmoothWalk)
             {
-                if (pather.curPath?.LastNode == pather.nextCell)
+                if (pather.Destination.Cell == pather.nextCell)
                 {
                     cellCostFactor = EasingFunction.EaseOutCubic(0f, 1f, Mathf.Lerp(0f, 1f, cellCostFactor));
                 }
@@ -1380,7 +1380,7 @@ namespace FacialStuff
             {
                 doSmoothWalk = false;
             }
-            
+            */
             if (!invert)
             {
                 cellCostFactor = 1f - cellCostFactor;

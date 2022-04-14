@@ -50,8 +50,8 @@ namespace FacialStuff
 
             if (offsetsCarrying)
             {
-                leftX = -jointWidth / 1.2f;
-                rightX = jointWidth / 1.2f;
+                leftX = jointWidth / 1.4f;
+                rightX = -jointWidth / 1.4f;
                 leftZ = -0.025f;
                 rightZ = -leftZ;
             }

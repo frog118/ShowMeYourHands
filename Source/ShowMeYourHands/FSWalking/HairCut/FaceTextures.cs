@@ -10,12 +10,16 @@ namespace FacialStuff.GraphicsFS
 
         public static readonly Texture2D MaskTexFullheadFrontBack;
         public static readonly Texture2D MaskTexFullheadFrontBack256;
+        public static readonly Texture2D MaskTexFullheadFrontBack512;
         public static readonly Texture2D MaskTexFullheadSide;
         public static readonly Texture2D MaskTexFullheadSide256;
+        public static readonly Texture2D MaskTexFullheadSide512;
         public static readonly Texture2D MaskTexUpperheadSide;
         public static readonly Texture2D MaskTexUpperheadSide256;
+        public static readonly Texture2D MaskTexUpperheadSide512;
         public static readonly Texture2D MaskTexUppherheadFrontBack;
         public static readonly Texture2D MaskTexUppherheadFrontBack256;
+        public static readonly Texture2D MaskTexUppherheadFrontBack512;
         public static readonly Texture2D RedTexture;
         public static readonly Color SkinRottingMultiplyColor = new(0.35f, 0.38f, 0.3f);
 
@@ -41,6 +45,14 @@ namespace FacialStuff.GraphicsFS
             MaskTexFullheadFrontBack256 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Fullhead_256_south"));
 
             MaskTexFullheadSide256 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Fullhead_256_east"));
+         
+            MaskTexUppherheadFrontBack512 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Upperhead_512_south"));
+
+            MaskTexUpperheadSide512 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Upperhead_512_east"));
+
+            MaskTexFullheadFrontBack512 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Fullhead_512_south"));
+
+            MaskTexFullheadSide512 = MakeReadable(ContentFinder<Texture2D>.Get("MaskTex/MaskTex_Fullhead_512_east"));
 
             BlankTexture = new Texture2D(128, 128, TextureFormat.ARGB32, false);
 

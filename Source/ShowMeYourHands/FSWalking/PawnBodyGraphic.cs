@@ -166,7 +166,6 @@ namespace FacialStuff.GraphicsFS
             if (this.CompAni.BodyAnim.handTexPath.NullOrEmpty())
             {
                 return;
-
             }
 
             string texNameFoot = this.CompAni.BodyAnim.handTexPath;
@@ -413,8 +412,8 @@ namespace FacialStuff.GraphicsFS
                 {
                     if (ShowMeYourHandsMod.instance.Settings.MatchHandAmounts)
                     {
-                        List<Hediff> hediffs = pawn?.health?.hediffSet?.hediffs?.Where(x => x.def != null && x != null && !x.def.defName.NullOrEmpty()).ToList();
-                        if (hediffs != null)
+                        List<Hediff> hediffs = pawn?.health?.hediffSet?.hediffs?.Where(x => x?.def != null && !x.def.defName.NullOrEmpty()).ToList();
+                        if (!hediffs.NullOrEmpty())
                             foreach (Hediff diff in hediffs.Where(diff => diff?.def == HediffDefOf.MissingBodyPart))
                             {
                                 // Log.Message("Checking missing part "+diff.def.defName);
@@ -436,12 +435,13 @@ namespace FacialStuff.GraphicsFS
 
                                 if (diff.def == HediffDefOf.MissingBodyPart)
                                 {
-                                    if (diff.Part.def == BodyPartDefOf.Arm || diff.Part.def == BodyPartDefOf.Hand ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Shoulder") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Clavicle") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Humerus") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Radius") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Paw"))
+                                    BodyPartDef bodyPartDef = diff?.Part?.def;
+                                    if (bodyPartDef == BodyPartDefOf.Arm || bodyPartDef == BodyPartDefOf.Hand ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Shoulder") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Clavicle") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Humerus") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Radius") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Paw"))
                                     {
                                         if (diff.Part.customLabel.Contains("front left") || diff.Part.customLabel.Contains("left"))
                                         {
@@ -454,10 +454,10 @@ namespace FacialStuff.GraphicsFS
                                         }
                                     }
 
-                                    if (diff.Part.def == BodyPartDefOf.Leg ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Femur") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Tibia") ||
-                                        diff.Part.def == DefDatabase<BodyPartDef>.GetNamedSilentFail("Foot"))
+                                    if (bodyPartDef == BodyPartDefOf.Leg ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Femur") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Tibia") ||
+                                        bodyPartDef == DefDatabase<BodyPartDef>.GetNamedSilentFail("Foot"))
                                     {
                                         if (diff.Part.customLabel.Contains("rear left") || diff.Part.customLabel.Contains("left"))
                                         {
@@ -560,7 +560,7 @@ namespace FacialStuff.GraphicsFS
 
                                     if (diff.Part.customLabel.Contains("right"))
                                     {
-                                        anim.BodyStat.FootLeft = PartStatus.Artificial;
+                                        anim.BodyStat.FootRight = PartStatus.Artificial;
                                         if (ShowMeYourHandsMain.HediffColors.ContainsKey(diff.def))
                                         {
                                             anim.FootColorRight = ShowMeYourHandsMain.HediffColors[diff.def];

@@ -41,15 +41,12 @@ public static class PawnRenderer_DrawCarriedThing
                 drawPos += new Vector3(0.18f, 0f, 0.05f);
             }
         }
-        if (behind)
-        {
-            drawPos.y -= 0.03474903f;
-        }
-        else
-        {
-            drawPos.y += 0.03474903f;
-        }
 
+
+        if (behind || ___pawn.Rotation == Rot4.North)
+        {
+            drawPos.y = ___pawn.DrawPos.y - Offsets.YOffset_CarriedThing;
+        }
 
 		anim.DrawHands(Quaternion.identity, drawPos, carriedThing, flip);
 

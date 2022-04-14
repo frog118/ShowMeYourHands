@@ -1,6 +1,5 @@
 ﻿namespace FacialStuff
 {
-
     public struct BodyPartStats
     {
         public PartStatus HandLeft;
@@ -11,6 +10,4 @@
 
         public PartStatus FootRight;
     }
-
-
 }

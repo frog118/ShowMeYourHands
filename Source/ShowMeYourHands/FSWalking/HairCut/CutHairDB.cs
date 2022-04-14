@@ -135,7 +135,12 @@ namespace FacialStuff.HairCut
 
                 if (coverage == HeadCoverage.UpperHead)
                 {
-                    if (temptexturefront.width == 256)
+                    if (temptexturefront.width == 512)
+                    {
+                        _maskTexFrontBack = FaceTextures.MaskTexUppherheadFrontBack512;
+                        _maskTexSide = FaceTextures.MaskTexUpperheadSide512;
+                    }
+                    else if (temptexturefront.width == 256)
                     {
                         _maskTexFrontBack = FaceTextures.MaskTexUppherheadFrontBack256;
                         _maskTexSide = FaceTextures.MaskTexUpperheadSide256;
@@ -148,11 +153,15 @@ namespace FacialStuff.HairCut
                 }
                 else
                 {
-                    if (temptexturefront.width == 256)
+                    if (temptexturefront.width == 512)
+                    {
+                        _maskTexFrontBack = FaceTextures.MaskTexFullheadFrontBack512;
+                        _maskTexSide = FaceTextures.MaskTexFullheadSide512;
+                    }
+                    else if (temptexturefront.width == 256)
                     {
                         _maskTexFrontBack = FaceTextures.MaskTexFullheadFrontBack256;
                         _maskTexSide = FaceTextures.MaskTexFullheadSide256;
-
                     }
                     else
                     {
@@ -231,7 +240,12 @@ namespace FacialStuff.HairCut
 
                         string upperPath = path + "_Upperhead";
 
-                        if (temptexturefront.width == 256)
+                        if (temptexturefront.width == 512)
+                        {
+                            _maskTexFrontBack = FaceTextures.MaskTexUppherheadFrontBack512;
+                            _maskTexSide = FaceTextures.MaskTexUpperheadSide512;
+                        }
+                        else if (temptexturefront.width == 256)
                         {
                             _maskTexFrontBack = FaceTextures.MaskTexUppherheadFrontBack256;
                             _maskTexSide = FaceTextures.MaskTexUpperheadSide256;

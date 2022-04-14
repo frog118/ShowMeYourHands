@@ -5,6 +5,7 @@
     <handTexPath>Things/Pawn/Animal/Paws/Animal_Foot</handTexPath>
     <footTexPath>Things/Pawn/Animal/Paws/Animal_Foot</footTexPath>
     <quadruped>true</quadruped>
+    <bipedWithHands>false</bipedWithHands>
     <armLength>0</armLength>
     <extraLegLength>0.125</extraLegLength>
     <hipOffsets>

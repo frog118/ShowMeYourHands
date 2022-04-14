@@ -351,13 +351,14 @@ namespace FacialStuff
             {
                 return;
             }
-            float bodysizeScaling = compAnimator.GetBodysizeScaling();
+
+            float bodySizeScaling = compAnimator.GetBodysizeScaling();
 
             this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
-            bool hasSecondWeapon = false;
-            ThingWithComps eq = pawn?.equipment?.Primary;
-            bool leftBehind = false;
-            bool rightBehind = false;
+            bool hasSecondWeapon                = false;
+            ThingWithComps eq                   = pawn?.equipment?.Primary;
+            bool leftBehind                     = false;
+            bool rightBehind                    = false;
 
             if (eq != null && pawn?.CurJob?.def != null && !pawn.CurJob.def.neverShowWeapon)
             {
@@ -398,14 +399,14 @@ namespace FacialStuff
 
             if (animationPosOffset != Vector3.zero)
             {
-                drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.35f * bodysizeScaling;
+                drawPos += animationPosOffset.RotatedBy(animationAngle) * 1.35f * bodySizeScaling;
 
                 //this.compAnimator.FirstHandPosition += animationPosOffset.RotatedBy(animationAngle);
                 //this.compAnimator.SecondHandPosition += animationPosOffset.RotatedBy(-animationAngle);
                 poschanged = true;
             }
 
-            if (carrying)
+            if (carrying && !compAnimator.IsMoving)
             {
                 // this.ApplyEquipmentWobble(ref drawPos);
 
@@ -414,7 +415,7 @@ namespace FacialStuff
 
                 //handVector.y += Offsets.YOffset_CarriedThing;
                 // Arms too far away from body
-                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodysizeScaling * 1.25f)
+                while (Vector3.Distance(this.pawn.DrawPos, handVector) > body.armLength * bodySizeScaling * 1.25f)
                 {
                     float step = 0.025f;
                     handVector = Vector3.MoveTowards(handVector, this.pawn.DrawPos, step);
@@ -519,7 +520,7 @@ namespace FacialStuff
                     shoulperPos.LeftJoint = bodyQuat * shoulperPos.LeftJoint;
                     leftHandVector = bodyQuat * leftHandVector.RotatedBy(-handSwingAngle[0] - shoulderAngle + animationAngle);
 
-                    position = drawPos + (shoulperPos.LeftJoint + leftHandVector) * bodysizeScaling;
+                    position = drawPos + (shoulperPos.LeftJoint + leftHandVector) * bodySizeScaling;
                     if (carrying) // grabby angle
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(-90f, Vector3.up);
@@ -564,7 +565,7 @@ namespace FacialStuff
                     shoulperPos.RightJoint = bodyQuat * shoulperPos.RightJoint;
                     rightHandVector = bodyQuat * rightHandVector.RotatedBy(handSwingAngle[1] - shoulderAngle + animationAngle);
 
-                    position = drawPos + (shoulperPos.RightJoint + rightHandVector) * bodysizeScaling;
+                    position = drawPos + (shoulperPos.RightJoint + rightHandVector) * bodySizeScaling;
                     if (carrying) // grabby angle
                     {
                         quat = bodyQuat * Quaternion.AngleAxis(90f, Vector3.up);

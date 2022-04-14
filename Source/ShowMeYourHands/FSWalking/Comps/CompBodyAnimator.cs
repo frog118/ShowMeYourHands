@@ -47,27 +47,26 @@ namespace FacialStuff
             SimpleCurve offsetZ,
             SimpleCurve angle, float percent, Rot4 rot)
         {
-            footAngleRight = 0;
-            footAngleLeft = 0;
             if (!this.IsMoving)
             {
                 return;
             }
             float bodysizeScaling = GetBodysizeScaling();
 
-            float flot = percent;
-            if (flot <= 0.5f)
+            float percentInverse = percent;
+            if (percentInverse <= 0.5f)
             {
-                flot += 0.5f;
+                percentInverse += 0.5f;
             }
             else
             {
-                flot -= 0.5f;
+                percentInverse -= 0.5f;
             }
 
             WalkCycleDef currentCycle = this.CurrentWalkCycle;
-            WalkCycleDef lastCycle = this.lastWalkCycle;
-            float lerpFactor = 1f;
+            WalkCycleDef lastCycle    = this.lastWalkCycle;
+            float lerpFactor          = 1f;
+
             if (currentCycle != lastCycle && lastCycle != null)
             {
                 if (percent < animationFactorForSmoothing)
@@ -84,18 +83,18 @@ namespace FacialStuff
             float footAngleLeftLerp = footAngleLeft;
             float offsetJointLerp = offsetJoint;
 
-            GetWalkCycleOffsetsFeet(out rightFoot, out leftFoot, ref footAngleRight, ref footAngleLeft, ref offsetJoint, offsetX, offsetZ, angle, percent, rot, flot);
+            GetWalkCycleOffsetsFeet(out rightFoot, out leftFoot, ref footAngleRight, ref footAngleLeft, ref offsetJoint, offsetX, offsetZ, angle, percent, rot, percentInverse);
 
             if (lerpFactor < 1f)
             {
                 GetWalkCycleOffsetsFeet(out Vector3 rightFootLerp, out Vector3 leftFootLerp, ref footAngleRightLerp,
-                    ref footAngleLeftLerp, ref offsetJointLerp, offsetX, offsetZ, angle, percent, rot, flot);
+                    ref footAngleLeftLerp, ref offsetJointLerp, offsetX, offsetZ, angle, percent, rot, percentInverse);
 
-                rightFoot = Vector3.Lerp(rightFootLerp, rightFoot, lerpFactor);
-                leftFoot = Vector3.Lerp(leftFootLerp, leftFoot, lerpFactor);
+                rightFoot      = Vector3.Lerp(rightFootLerp, rightFoot, lerpFactor);
+                leftFoot       = Vector3.Lerp(leftFootLerp, leftFoot, lerpFactor);
                 footAngleRight = Mathf.Lerp(footAngleRightLerp, footAngleRight, lerpFactor);
-                footAngleLeft = Mathf.Lerp(footAngleLeftLerp, footAngleLeft, lerpFactor);
-                offsetJoint = Mathf.Lerp(offsetJointLerp, offsetJoint, lerpFactor);
+                footAngleLeft  = Mathf.Lerp(footAngleLeftLerp, footAngleLeft, lerpFactor);
+                offsetJoint    = Mathf.Lerp(offsetJointLerp, offsetJoint, lerpFactor);
 
 
             }
@@ -104,17 +103,18 @@ namespace FacialStuff
             if (bodysizeScaling < 1f)
             {
                 SimpleCurve curve = new() { new CurvePoint(0f, 0.5f), new CurvePoint(1f, 1f) };
-                float mod = curve.Evaluate(bodysizeScaling);
+              
+                float mod    = curve.Evaluate(bodysizeScaling);
                 rightFoot.x *= mod;
                 rightFoot.z *= mod;
-                leftFoot.x *= mod;
-                leftFoot.z *= mod;
+                leftFoot.x  *= mod;
+                leftFoot.z  *= mod;
             }
         }
 
-        private static void GetWalkCycleOffsetsFeet(out Vector3 rightFoot, out Vector3 leftFoot, ref float footAngleRight,
+        private void GetWalkCycleOffsetsFeet(out Vector3 rightFoot, out Vector3 leftFoot, ref float footAngleRight,
             ref float footAngleLeft, ref float offsetJoint, SimpleCurve offsetX, SimpleCurve offsetZ, SimpleCurve angle,
-            float percent, Rot4 rot, float flot)
+            float percent, Rot4 rot, float percentInverse)
         {
             rightFoot = Vector3.zero;
             leftFoot = Vector3.zero;
@@ -122,29 +122,34 @@ namespace FacialStuff
             if (rot.IsHorizontal)
             {
                 rightFoot.x = offsetX.Evaluate(percent);
-                leftFoot.x = offsetX.Evaluate(flot);
-
-                footAngleRight = angle.Evaluate(percent);
-                footAngleLeft = angle.Evaluate(flot);
+                leftFoot.x = offsetX.Evaluate(percentInverse);
+                if (this.BodyStat.FootRight != PartStatus.Artificial)
+                {
+                    footAngleRight = angle.Evaluate(percent);
+                }
+                if (this.BodyStat.FootLeft != PartStatus.Artificial)
+                {
+                    footAngleLeft = angle.Evaluate(percentInverse);
+                }
                 rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
+                leftFoot.z = offsetZ.Evaluate(percentInverse);
 
                 rightFoot.x += offsetJoint;
                 leftFoot.x += offsetJoint;
 
                 if (rot == Rot4.West)
                 {
-                    rightFoot.x *= -1f;
-                    leftFoot.x *= -1f;
-                    footAngleLeft *= -1f;
+                    rightFoot.x    *= -1f;
+                    leftFoot.x     *= -1f;
+                    footAngleLeft  *= -1f;
                     footAngleRight *= -1f;
-                    offsetJoint *= -1;
+                    offsetJoint    *= -1;
                 }
             }
             else
             {
                 rightFoot.z = offsetZ.Evaluate(percent);
-                leftFoot.z = offsetZ.Evaluate(flot);
+                leftFoot.z = offsetZ.Evaluate(percentInverse);
                 offsetJoint = 0;
             }
         }
@@ -165,9 +170,9 @@ namespace FacialStuff
             Rot4 rot = this.CurrentRotation;
 
             // Basic values if pawn is carrying stuff
-            float x = 0;
+            float x  = 0;
             float x2 = -x;
-            float y = Offsets.YOffset_Behind;
+            float y  = Offsets.YOffset_Behind;
             float y2 = y;
             float z;
             float z2;
@@ -198,9 +203,10 @@ namespace FacialStuff
             if (this.IsMoving)
             {
                 WalkCycleDef currentCycle = this.CurrentWalkCycle;
-                WalkCycleDef lastCycle = this.lastWalkCycle;
-                float percent = this.MovedPercent;
-                float lerpFactor = 1f;
+                WalkCycleDef lastCycle    = this.lastWalkCycle;
+                float percent             = this.MovedPercent;
+                float lerpFactor          = 1f;
+
                 if (currentCycle != lastCycle && lastCycle != null)
                 {
                     if (percent < animationFactorForSmoothing)
@@ -223,25 +229,25 @@ namespace FacialStuff
                 {
                     GetWalkCycleOffsetsHands(handSwingAngle, offsetJoint, rot, lastCycle, percent, out float lerpShoulderAngle, ref lerpShoulderPos, ref lerpZ, ref lerpZ2);
 
-                    shoulderAngle = Mathf.Lerp(lerpShoulderAngle, shoulderAngle, lerpFactor);
-                    shoulderPos.LeftJoint = Vector3.Lerp(lerpShoulderPos.LeftJoint, shoulderPos.LeftJoint, lerpFactor);
+                    shoulderAngle          = Mathf.Lerp(lerpShoulderAngle, shoulderAngle, lerpFactor);
+                    shoulderPos.LeftJoint  = Vector3.Lerp(lerpShoulderPos.LeftJoint, shoulderPos.LeftJoint, lerpFactor);
                     shoulderPos.RightJoint = Vector3.Lerp(lerpShoulderPos.RightJoint, shoulderPos.RightJoint, lerpFactor);
-                    z = Mathf.Lerp(lerpZ, z, lerpFactor);
-                    z2 = Mathf.Lerp(lerpZ2, z2, lerpFactor);
+                    z                      = Mathf.Lerp(lerpZ, z, lerpFactor);
+                    z2                     = Mathf.Lerp(lerpZ2, z2, lerpFactor);
 
                 }
             }
 
             if (/*MainTabWindow_BaseAnimator.Panic || */ this.pawn.Fleeing() || this.pawn.IsBurning())
             {
-                float offset = 1f + armLength;
-                x *= offset;
-                z *= offset;
-                x2 *= offset;
-                z2 *= offset;
+                float offset       = 1f + armLength;
+                x                 *= offset;
+                z                 *= offset;
+                x2                *= offset;
+                z2                *= offset;
                 handSwingAngle[0] += 180f;
                 handSwingAngle[1] += 180f;
-                shoulderAngle = 0f;
+                shoulderAngle      = 0f;
             }
 
             rightHand = new Vector3(x, y, z) * bodysizeScaling;
@@ -257,7 +263,7 @@ namespace FacialStuff
             if (rot.IsHorizontal)
             {
                 float lookie = rot == Rot4.West ? -1f : 1f;
-                float f = lookie * offsetJoint;
+                float f      = lookie * offsetJoint;
 
                 shoulderAngle = lookie * currentCycle?.shoulderAngle ?? 0f;
 
@@ -507,6 +513,7 @@ namespace FacialStuff
             {
                 this.Vector3Tweens[i] = new Vector3Tween();
             }
+
             string bodyType = "Undefined";
 
             if (this.pawn.story?.bodyType != null)

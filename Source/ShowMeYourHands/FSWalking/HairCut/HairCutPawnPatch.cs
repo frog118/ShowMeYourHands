@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using ShowMeYourHands;
 using UnityEngine;
 using Verse;
 
@@ -10,9 +11,14 @@ public class HairCutPawnPatch
 {
     public static void Postfix(PawnGraphicSet __instance, Rot4 facing, bool portrait, bool cached, ref Material __result)
     {
+        if (!ShowMeYourHandsMod.instance.Settings.CutHair)
+        {
+            return;
+        }
+
         Pawn pawn = __instance.pawn;
         HairCutPawn hairPawn = CutHairDB.GetHairCache(pawn);
-        var graphic = hairPawn.HairCutGraphic;
+        Graphic graphic = hairPawn.HairCutGraphic;
 
         if (graphic == null)
         {

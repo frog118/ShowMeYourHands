@@ -6,35 +6,22 @@ namespace ShowMeYourHands;
 
 internal class SaveableVector3
 {
-    private SaveableVector3(float x, float y, float z, float angle)
+    private SaveableVector3(float x, float y, float z, float? angle)
     {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.angle = angle;
-    }
-    private SaveableVector3(float x, float y, float z)
-    {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.angle = angle;
+        this.angle = angle.HasValue ? angle.Value : 0f;
     }
 
-    public SaveableVector3(Vector3 vector3, float number)
+    public SaveableVector3(Vector3 vector3, float? number)
     {
         x = vector3.x;
         y = vector3.y;
         z = vector3.z;
-        angle = number;
+        this.angle = number.HasValue ? number.Value : 0f;
     }
-    public SaveableVector3(Vector3 vector3)
-    {
-        x = vector3.x;
-        y = vector3.y;
-        z = vector3.z;
-        angle = 0f;
-    }
+
 
     private float x { get; }
 
@@ -63,14 +50,14 @@ internal class SaveableVector3
         float x = Convert.ToSingle(array[0], invariantCulture);
         float y = Convert.ToSingle(array[1], invariantCulture);
         float z = Convert.ToSingle(array[2], invariantCulture);
-        if (array.Length > 3)
+        if (array.Length > 2)
         {
             float angle = Convert.ToSingle(array[3], invariantCulture);
             return new SaveableVector3(x, y, z, angle);
         }
         else
         {
-            return new SaveableVector3(x, y, z);
+            return new SaveableVector3(x, y, z, 0f);
         }
     }
 

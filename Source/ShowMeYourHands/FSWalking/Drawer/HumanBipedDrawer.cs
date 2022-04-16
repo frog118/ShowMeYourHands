@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ShowMeYourHands;
 using UnityEngine;
 using Verse;
 using Verse.AI;
 
 namespace FacialStuff
 {
+    [ShowMeYourHandsMod.HotSwappableAttribute]
     public class HumanBipedDrawer : PawnBodyDrawer
     {
         #region Protected Fields
@@ -354,11 +356,13 @@ namespace FacialStuff
 
             float bodySizeScaling = compAnimator.GetBodysizeScaling();
 
-            this.compAnimator.FirstHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
+            this.compAnimator.MainHandPosition = this.compAnimator.SecondHandPosition = Vector3.zero;
             bool hasSecondWeapon                = false;
             ThingWithComps eq                   = pawn?.equipment?.Primary;
             bool leftBehind                     = false;
             bool rightBehind                    = false;
+            bool leftHandFlipped                     = false;
+            bool rightHandFlipped                    = false;
 
             if (eq != null && pawn?.CurJob?.def != null && !pawn.CurJob.def.neverShowWeapon)
             {
@@ -367,7 +371,7 @@ namespace FacialStuff
                 object result = methodInfo?.Invoke(pawn.Drawer.renderer, null);
                 if (result != null && (bool)result)
                 {
-                    this.compAnimator.DoHandOffsetsOnWeapon(eq, this.compAnimator.CurrentRotation == Rot4.West ? 217f : 143f, out hasSecondWeapon, out leftBehind, out rightBehind);
+                    this.compAnimator.DoHandOffsetsOnWeapon(eq, out hasSecondWeapon, out leftBehind, out rightBehind, out rightHandFlipped, out leftHandFlipped);
                 }
             }
             /*
@@ -458,7 +462,7 @@ namespace FacialStuff
 
             // this.DoAttackAnimationHandOffsets(ref handSwingAngle, ref rightHand, false);
 
-            this.GetBipedMesh(out Mesh handMeshRight, out Mesh handMeshLeft);
+            this.GetBipedMesh(out Mesh handMeshRight, out Mesh handMeshLeft, rightHandFlipped, leftHandFlipped);
 
             Material matLeft = this.LeftHandMat;
             Material matRight = this.RightHandMat;
@@ -489,7 +493,7 @@ namespace FacialStuff
                 matRight = this.RightHandShadowMat;
             }
 
-            bool drawLeft = matLeft != null && this.compAnimator.BodyStat.HandLeft != PartStatus.Missing;
+            bool drawLeft  = matLeft != null && this.compAnimator.BodyStat.HandLeft != PartStatus.Missing;
             bool drawRight = matRight != null && this.compAnimator.BodyStat.HandRight != PartStatus.Missing;
 
             //float shouldRotate = pawn.GetPosture() == PawnPosture.Standing ? 0f : 90f;
@@ -497,16 +501,32 @@ namespace FacialStuff
             if (drawLeft)
             {
                 Quaternion quat;
-                Vector3 position;
+                Vector3 position = Vector3.zero;
                 bool noTween = false;
-                if (hasSecondWeapon ||
-                    this.compAnimator.SecondHandPosition != Vector3.zero && pawn.stances.curStance is Stance_Busy stance_Busy && !stance_Busy.neverAimWeapon && stance_Busy.focusTarg.IsValid)
+                Vector3 offHandPosition = this.compAnimator.SecondHandPosition;
+                if (this.compAnimator.BodyStat.HandRight == PartStatus.Missing &&
+                    this.compAnimator.MainHandPosition != Vector3.zero)
                 {
-                    position = this.compAnimator.SecondHandPosition;
-                    quat = this.compAnimator.SecondHandQuat * Quaternion.AngleAxis(90f, Vector3.up);
+                    quat = Quaternion.AngleAxis(this.compAnimator.MainHandAngle - 90f, Vector3.up);
+                    position = this.compAnimator.MainHandPosition;
+                    if (compAnimator.CurrentRotation == Rot4.West) // put the second hand behind while turning right
+                    {
+                      //  quat *= Quaternion.AngleAxis(180f, Vector3.up);
+                    }
+                    if (rightBehind)
+                    {
+                        matRight = this.RightHandShadowMat;
+                    }
+
+                    noTween = true;
+                }
+                else if (hasSecondWeapon || offHandPosition != Vector3.zero && pawn.stances.curStance is Stance_Busy stance_Busy && !stance_Busy.neverAimWeapon && stance_Busy.focusTarg.IsValid) // only draw he second hand on weapon while aiming
+                {
+                    position = offHandPosition;
+                    quat = Quaternion.AngleAxis(this.compAnimator.OffHandAngle - 90f, Vector3.up);
                     if (compAnimator.CurrentRotation == Rot4.East) // put the second hand behind while turning right
                     {
-                        quat *= Quaternion.AngleAxis(180f, Vector3.up);
+                       // quat *= Quaternion.AngleAxis(180f, Vector3.up);
                     }
 
                     if (leftBehind)
@@ -545,10 +565,10 @@ namespace FacialStuff
                 Quaternion quat;
                 Vector3 position;
                 bool noTween = false;
-                if (this.compAnimator.FirstHandPosition != Vector3.zero)
+                if (this.compAnimator.MainHandPosition != Vector3.zero)
                 {
-                    quat = this.compAnimator.FirstHandQuat * Quaternion.AngleAxis(-90f, Vector3.up);
-                    position = this.compAnimator.FirstHandPosition;
+                    quat = Quaternion.AngleAxis(this.compAnimator.MainHandAngle - 90f, Vector3.up);
+                    position = this.compAnimator.MainHandPosition;
                     if (compAnimator.CurrentRotation == Rot4.West) // put the second hand behind while turning right
                     {
                         quat *= Quaternion.AngleAxis(180f, Vector3.up);
@@ -1110,17 +1130,20 @@ namespace FacialStuff
 
             LocomotionUrgency locomotionUrgency = LocomotionUrgency.Walk;
 
-            float pawnMovesPerTick = pawn.TicksPerMoveCardinal / currentCellCostTotal;
-            // the measured values were always > 0.2 and <=1
-            if (pawnMovesPerTick > 0.85f)
+            int moves = pawn.pather.nextCell.z == pawn.Position.z ?  pawn.TicksPerMoveCardinal : pawn.TicksPerMoveDiagonal;
+            
+            float pawnSpeedPerTick = moves / currentCellCostTotal; // 
+            pawnSpeedPerTick *= Mathf.InverseLerp(100, -100,  currentCellCostTotal) * 2.25f;
+
+            if (pawnSpeedPerTick > 0.85f)
             {
                 locomotionUrgency = LocomotionUrgency.Sprint;
             }
-            else if (pawnMovesPerTick > 0.65f)
+            else if (pawnSpeedPerTick > 0.6f)
             {
                 locomotionUrgency = LocomotionUrgency.Jog;
             }
-            else if (pawnMovesPerTick > 0.45f)
+            else if (pawnSpeedPerTick > 0.35f)
             {
                 locomotionUrgency = LocomotionUrgency.Walk;
             }
@@ -1173,23 +1196,34 @@ namespace FacialStuff
 
         protected void GetBipedMesh(out Mesh meshRight, out Mesh meshLeft)
         {
+            GetBipedMesh(out meshRight, out meshLeft, null, null);
+        }
+        protected void GetBipedMesh(out Mesh meshRight, out Mesh meshLeft, bool? rightFlipped, bool? leftFlipped)
+        {
             Rot4 rot = this.compAnimator.CurrentRotation;
+
+            if (rightFlipped.HasValue && leftFlipped.HasValue)
+            {
+                meshRight = rightFlipped.Value ? this.compAnimator.pawnBodyMeshFlipped : this.compAnimator.pawnBodyMesh;
+                meshLeft  = leftFlipped.Value ? this.compAnimator.pawnBodyMeshFlipped : this.compAnimator.pawnBodyMesh;
+                return;
+            }
 
             switch (rot.AsInt)
             {
                 default:
                     meshRight = this.compAnimator.pawnBodyMesh;// MeshPool.plane10;
-                    meshLeft = this.compAnimator.pawnBodyMeshFlipped; // MeshPool.plane10Flip;
+                    meshLeft  = this.compAnimator.pawnBodyMeshFlipped; // MeshPool.plane10Flip;
                     break;
 
                 case 1:
                     meshRight = this.compAnimator.pawnBodyMesh;
-                    meshLeft = this.compAnimator.pawnBodyMesh;
+                    meshLeft  = this.compAnimator.pawnBodyMesh;
                     break;
 
                 case 3:
                     meshRight = compAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
-                    meshLeft = compAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
+                    meshLeft  = compAnimator.pawnBodyMeshFlipped;// MeshPool.plane10Flip;
                     break;
             }
         }

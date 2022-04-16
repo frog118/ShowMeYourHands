@@ -17,6 +17,11 @@ namespace ShowMeYourHands.FSWalking.HairCut
     {
         public static void Postfix(PawnGraphicSet __instance)
         {
+            if (!ShowMeYourHandsMod.instance.Settings.CutHair)
+            {
+                return;
+            }
+
             Pawn pawn = __instance.pawn;
 
             // Set up the hair cut graphic

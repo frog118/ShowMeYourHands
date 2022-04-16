@@ -12,6 +12,7 @@ using Verse.Sound;
 
 namespace ShowMeYourHands;
 
+[HotSwappable]
 [StaticConstructorOnStartup]
 internal class ShowMeYourHandsMod : Mod
 {
@@ -26,7 +27,7 @@ internal class ShowMeYourHandsMod : Mod
 
     private static readonly Vector2 iconSize = new(24f, 24f);
 
-    private static readonly Vector2 handSize = new(54f, 54f);
+    private static readonly Vector2 handSize = new(44f, 44f);
 
     private static readonly int buttonSpacer = 200;
 
@@ -450,6 +451,8 @@ internal class ShowMeYourHandsMod : Mod
                         "usefeet.tooltip".Translate());
                     listing_Standard.CheckboxLabeled("usepaws.label".Translate(), ref Settings.UsePaws,
                         "usepaws.tooltip".Translate());
+                    listing_Standard.CheckboxLabeled("cuthair.label".Translate(), ref Settings.CutHair,
+                        "cuthair.tooltip".Translate());
 
                     // fs end
 
@@ -761,13 +764,14 @@ internal class ShowMeYourHandsMod : Mod
 
                         compProperties.MainHand = currentMainHand;
                         compProperties.SecHand = currentOffHand;
+                        compProperties.MainHandAngle = currentMainHandAngle;
+                        compProperties.SecHandAngle = currentOffHandAngle;
+
                         instance.Settings.ManualMainHandPositions[currentDef.defName] =
                             new SaveableVector3(compProperties.MainHand, compProperties.MainHandAngle);
                         instance.Settings.ManualOffHandPositions[currentDef.defName] =
                             new SaveableVector3(compProperties.SecHand, compProperties.SecHandAngle);
 
-                        compProperties.MainHandAngle = currentMainHandAngle;
-                        compProperties.SecHandAngle = currentOffHandAngle;
                     }, "SMYH.save.button".Translate(), lastMainLabel.position + new Vector2(25, 170));
                 }
 
@@ -966,5 +970,10 @@ internal class ShowMeYourHandsMod : Mod
             case >= 75:
                 return Color.green;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class HotSwappableAttribute : Attribute
+    {
     }
 }

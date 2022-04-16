@@ -258,11 +258,20 @@ public static class RimWorld_MainMenuDrawer_MainMenuOnGUI
             else
             {
                 compProps.MainHand = keyValuePair.Value.ToVector3();
-                compProps.SecHand =
-                    ShowMeYourHandsMod.instance?.Settings?.ManualOffHandPositions.ContainsKey(keyValuePair.Key) ==
-                    true
-                        ? ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key].ToVector3()
-                        : Vector3.zero;
+                compProps.MainHandAngle = keyValuePair.Value.ToAngleFloat();
+
+                if (ShowMeYourHandsMod.instance?.Settings?.ManualOffHandPositions.ContainsKey(keyValuePair.Key) == true)
+                {
+                    compProps.SecHand = ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key]
+                        .ToVector3();
+                    compProps.SecHandAngle = ShowMeYourHandsMod.instance.Settings.ManualOffHandPositions[keyValuePair.Key]
+                        .ToAngleFloat();
+                }
+                else
+                {
+                    compProps.SecHand = Vector3.zero;
+                    compProps.SecHandAngle = 0f;
+                }
             }
 
             doneWeapons.Add(weapon);

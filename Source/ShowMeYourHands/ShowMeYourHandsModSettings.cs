@@ -32,6 +32,8 @@ internal class ShowMeYourHandsModSettings : ModSettings
     public bool UseHands = true;
     public bool UseFeet = true;
     public bool UsePaws = true;
+    public bool CutHair = true;
+
 
     public override void ExposeData()
     {
@@ -54,6 +56,7 @@ internal class ShowMeYourHandsModSettings : ModSettings
         Scribe_Values.Look(ref UseHands, "UseHands", true);
         Scribe_Values.Look(ref UseFeet, "UseFeet", true);
         Scribe_Values.Look(ref UsePaws, "UsePaws", true);
+        Scribe_Values.Look(ref CutHair, "CutHair", true);
 
 
     }

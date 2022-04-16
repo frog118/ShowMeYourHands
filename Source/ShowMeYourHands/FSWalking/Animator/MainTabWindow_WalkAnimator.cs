@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FacialStuff.Animator;
+using ShowMeYourHands;
 using ShowMeYourHands.FSWalking.Animator;
 using UnityEngine;
 using Verse;
@@ -12,6 +13,7 @@ using Verse.AI;
 
 namespace FacialStuff.AnimatorWindows
 {
+    [ShowMeYourHandsMod.HotSwappable]
     public class MainTabWindow_WalkAnimator : MainTabWindow_BaseAnimator
     {
         #region Public Fields

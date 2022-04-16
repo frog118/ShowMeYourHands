@@ -285,13 +285,13 @@ namespace FacialStuff.HairCut
         private static void SetTempTextures(Graphic graphic, out Texture2D temptexturefront, out Texture2D temptextureside, out Texture2D temptextureback, out Texture2D temptextureside2)
         {
             temptexturefront = graphic.MatSouth.mainTexture as Texture2D;
-            temptextureside = graphic.MatEast.mainTexture as Texture2D;
-            temptextureback = graphic.MatNorth.mainTexture as Texture2D;
+            temptextureside  = graphic.MatEast.mainTexture as Texture2D;
+            temptextureback  = graphic.MatNorth.mainTexture as Texture2D;
             temptextureside2 = (graphic as Graphic_Multi)?.MatWest.mainTexture as Texture2D;
 
             temptexturefront = FaceTextures.MakeReadable(temptexturefront);
-            temptextureside = FaceTextures.MakeReadable(temptextureside);
-            temptextureback = FaceTextures.MakeReadable(temptextureback);
+            temptextureside  = FaceTextures.MakeReadable(temptextureside);
+            temptextureback  = FaceTextures.MakeReadable(temptextureback);
             temptextureside2 = FaceTextures.MakeReadable(temptextureside2);
         }
 
